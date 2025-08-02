@@ -8,7 +8,11 @@
     "preview": "astro preview",
     "astro": "astro",
     "lint": "next lint --max-warnings 0",
-    "check-types": "tsc --noEmit"
+    "check-types": "tsc --noEmit",
+    "db:start": "npx supabase start",
+    "db:stop": "npx supabase stop",
+    "db:migrate": "npx supabase migration up",
+    "db:reset": "npx supabase db reset"
   },
   "dependencies": {
     "@astrojs/react": "^4.3.0",
@@ -17,5 +21,8 @@
     "astro": "^5.12.8",
     "react": "^19.1.1",
     "react-dom": "^19.1.1"
+  },
+  "devDependencies": {
+    "supabase": "^2.33.9"
   }
 }
