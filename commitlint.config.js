@@ -28,8 +28,9 @@ module.exports = {
       [
         "repo",
         "4md",
-        "docs",
+        "4focus",
         "web",
+        "docs",
         "ui",
         "eslint-config",
         "typescript-config",
