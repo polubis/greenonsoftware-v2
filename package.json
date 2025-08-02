@@ -5,7 +5,7 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "format": "prettier --write \"**/*.{ts,js,json,tsx,md,css,scss,html}\"",
     "check-types": "turbo run check-types",
     "prepare": "husky",
     "pre-commit:tasks": "npm-run-all --parallel check-types lint format"
