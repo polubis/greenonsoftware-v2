@@ -1,0 +1,8 @@
+---
+import { TasksView } from '../features/tasks/tasks.view';
+import MainLayout from '../layouts/main-layout.astro';
+---
+
+<MainLayout title="Dashboard">
+  <TasksView client:load />
+</MainLayout>
