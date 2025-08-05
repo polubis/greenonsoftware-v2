@@ -21,7 +21,7 @@ class Session {
       httpOnly: true,
       sameSite: "strict",
     });
-    cookies.set("authenticated", "true", {
+    cookies.set("session-active", "true", {
       path: "/",
       sameSite: "strict",
     });
@@ -48,7 +48,7 @@ class Session {
     cookies.delete("sb-refresh-token", {
       path: "/",
     });
-    cookies.delete("authenticated", {
+    cookies.delete("session-active", {
       path: "/",
     });
   };

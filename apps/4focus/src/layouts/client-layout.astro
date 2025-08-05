@@ -18,6 +18,11 @@ import "../styles/global.css";
 	</body>
 </html>
 
+<script>
+	import { check } from "../shared/client-auth/check";
+	document.addEventListener("astro:page-load", check);
+</script>
+
 <style>
 	html,
 	body {

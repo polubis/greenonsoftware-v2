@@ -1,8 +1,8 @@
 ---
-import MainLayout from '../layouts/main-layout.astro';
-import { RegisterView } from '../features/register/register.view';
+import ClientLayout from '../layouts/client-layout.astro';
+import { RegisterView } from '../features/register/register-view';
 ---
 
-<MainLayout title="Register">
+<ClientLayout title="Register">
   <RegisterView client:load />
-</MainLayout>
+</ClientLayout>
