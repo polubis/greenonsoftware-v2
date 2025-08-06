@@ -1,16 +1,6 @@
 ---
 import ClientLayout from '../layouts/client-layout.astro';
 import { LoginView } from '../features/login/login-view';
-import { Session } from '../server/auth/session';
-import { AppRouter } from '../shared/routing/app-router';
-
-export const prerender = false;
-
-const { cookies, redirect } = Astro;
-
-if (Session.isActive(cookies)) {
-  return redirect(AppRouter.getPath('tasks'));
-}
 ---
 
 <ClientLayout title="Sign In">

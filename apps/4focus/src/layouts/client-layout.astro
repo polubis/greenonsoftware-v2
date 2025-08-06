@@ -1,5 +1,4 @@
 ---
-import { ClientRouter } from "astro:transitions";
 import "../styles/global.css";
 ---
 
@@ -11,17 +10,11 @@ import "../styles/global.css";
 		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
 		<meta name="generator" content={Astro.generator} />
 		<title>Astro Basics</title>
-		<ClientRouter />
 	</head>
 	<body>
 		<slot />
 	</body>
 </html>
-
-<script>
-	import { check } from "../shared/client-auth/check";
-	document.addEventListener("astro:page-load", check);
-</script>
 
 <style>
 	html,

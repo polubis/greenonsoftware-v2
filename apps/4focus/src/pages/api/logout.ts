@@ -1,10 +1,13 @@
-import type { APIRoute } from "astro";
-import { Session } from "../../server/auth/session";
-import { AppRouter } from "../../shared/routing/app-router";
+import type { APIRoute } from 'astro';
+import { createSupabaseServerClient } from '../../db/supabase-server';
 
-export const prerender = false;
+export const POST: APIRoute = async (context) => {
+  const supabaseServerClient = createSupabaseServerClient(context);
+  const { error } = await supabaseServerClient.auth.signOut();
 
-export const GET: APIRoute = async ({ cookies, redirect }) => {
-  Session.delete(cookies);
-  return redirect(AppRouter.getPath("login"));
+  if (error) {
+    return new Response(error.message, { status: 500 });
+  }
+
+  return context.redirect('/', 303);
 };

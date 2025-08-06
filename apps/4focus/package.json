@@ -13,12 +13,12 @@
     "db:stop": "npx supabase stop",
     "db:migrate": "npx supabase migration up",
     "db:reset": "npx supabase db reset",
-    "db:typegen": "npx supabase gen types typescript --local > src/server/db/database.types.ts"
+    "db:typegen": "npx supabase gen types typescript --local > src/db/database.types.ts"
   },
   "dependencies": {
     "@astrojs/react": "^4.3.0",
     "@nanostores/react": "^1.0.0",
-    "@supabase/supabase-js": "^2.53.0",
+    "@supabase/ssr": "^0.6.1",
     "@types/react": "^19.1.9",
     "@types/react-dom": "^19.1.7",
     "astro": "^5.12.8",

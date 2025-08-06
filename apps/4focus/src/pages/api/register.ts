@@ -1,18 +1,18 @@
-import type { APIRoute } from "astro";
-import { supabase } from "../../server/db/client";
+import type { APIRoute } from 'astro';
+import { createSupabaseServerClient } from '../../db/supabase-server';
 
-export const prerender = false;
+export const POST: APIRoute = async (context) => {
+  const supabaseServerClient = createSupabaseServerClient(context);
 
-export const POST: APIRoute = async ({ request, redirect }) => {
-  const formData = await request.formData();
-  const email = formData.get("email")?.toString();
-  const password = formData.get("password")?.toString();
+  const formData = await context.request.formData();
+  const email = formData.get('email')?.toString();
+  const password = formData.get('password')?.toString();
 
   if (!email || !password) {
-    return new Response("Email and password are required", { status: 400 });
+    return new Response('Email and password are required', { status: 400 });
   }
 
-  const { error } = await supabase.auth.signUp({
+  const { error } = await supabaseServerClient.auth.signUp({
     email,
     password,
   });
@@ -21,5 +21,5 @@ export const POST: APIRoute = async ({ request, redirect }) => {
     return new Response(error.message, { status: 500 });
   }
 
-  return redirect("/login");
+  return context.redirect('/dashboard', 303);
 };

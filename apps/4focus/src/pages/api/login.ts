@@ -1,20 +1,17 @@
-import type { APIRoute } from "astro";
-import { supabase } from "../../server/db/client";
-import { Session } from "../../server/auth/session";
-import { AppRouter } from "../../shared/routing/app-router";
+import type { APIRoute } from 'astro';
+import { createSupabaseServerClient } from '../../db/supabase-server';
 
-export const prerender = false;
-
-export const POST: APIRoute = async ({ request, cookies, redirect }) => {
-  const formData = await request.formData();
-  const email = formData.get("email")?.toString();
-  const password = formData.get("password")?.toString();
+export const POST: APIRoute = async (context) => {
+  const supabaseServerClient = createSupabaseServerClient(context);
+  const formData = await context.request.formData();
+  const email = formData.get('email')?.toString();
+  const password = formData.get('password')?.toString();
 
   if (!email || !password) {
-    return new Response("Email and password are required", { status: 400 });
+    return new Response('Email and password are required', { status: 400 });
   }
 
-  const { data, error } = await supabase.auth.signInWithPassword({
+  const { error } = await supabaseServerClient.auth.signInWithPassword({
     email,
     password,
   });
@@ -23,12 +20,5 @@ export const POST: APIRoute = async ({ request, cookies, redirect }) => {
     return new Response(error.message, { status: 500 });
   }
 
-  const { access_token, refresh_token } = data.session;
-
-  Session.set(cookies, {
-    accessToken: access_token,
-    refreshToken: refresh_token,
-  });
-
-  return redirect(AppRouter.getPath("tasks"));
+  return context.redirect('/dashboard', 303);
 };
