@@ -41,19 +41,19 @@ const DashboardView = () => {
         </div>
         <div className="mt-8 flex justify-center space-x-4">
           <a
-            href="/"
+            href={AppRouter.getPath("home")}
             className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
           >
             Home
           </a>
           <a
-            href="/tasks"
+            href={AppRouter.getPath("tasks")}
             className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
           >
             Tasks
           </a>
           <a
-            href="/account"
+            href={AppRouter.getPath("account")}
             className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
           >
             Account

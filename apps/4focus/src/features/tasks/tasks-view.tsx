@@ -1,3 +1,5 @@
+import { AppRouter } from "../../shared/routing/app-router";
+
 const TasksView = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -10,17 +12,20 @@ const TasksView = () => {
         </div>
       </div>
       <div className="mt-8 flex justify-center space-x-4">
-        <a href="/" className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md">
+        <a
+          href={AppRouter.getPath("home")}
+          className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
+        >
           Home
         </a>
         <a
-          href="/dashboard"
+          href={AppRouter.getPath("dashboard")}
           className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
         >
           Dashboard
         </a>
         <a
-          href="/account"
+          href={AppRouter.getPath("account")}
           className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
         >
           Account

@@ -32,7 +32,7 @@ const [ClientAuthProvider, useClientAuthProvider] = context(() => {
         setState({ status: "unauthenticated" });
       }
     };
-
+    
     getUser();
 
     const {

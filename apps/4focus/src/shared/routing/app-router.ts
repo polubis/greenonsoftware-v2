@@ -9,9 +9,9 @@ const appRoutes = [
   createRoute("home", "/"),
   createRoute("login", "/login"),
   createRoute("register", "/register"),
-  createRoute("tasks", "/tasks"),
-  createRoute("account", "/account"),
-  createRoute("dashboard", "/dashboard"),
+  createRoute("tasks", "/app/tasks"),
+  createRoute("account", "/app/account"),
+  createRoute("dashboard", "/app/dashboard"),
 ] as const;
 
 type AppRoute = (typeof appRoutes)[number];

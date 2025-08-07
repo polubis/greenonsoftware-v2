@@ -1,8 +1,9 @@
 ---
-import ClientLayout from '../layouts/client-layout.astro';
+import AppLayout from '../layouts/app-layout.astro';
+import { AppRouter } from '../shared/routing/app-router';
 ---
 
-<ClientLayout>
+<AppLayout>
 	Home Page
-	<a href="/tasks">Tasks</a>
-</ClientLayout>
+	<a href={AppRouter.getPath("tasks")}>Tasks</a>
+</AppLayout>

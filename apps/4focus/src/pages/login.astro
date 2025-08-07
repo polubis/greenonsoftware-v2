@@ -1,6 +1,6 @@
 ---
-import ClientLayout from '../layouts/client-layout.astro';
 import { LoginView } from '../features/login/login-view';
+import AppLayout from '../layouts/app-layout.astro';
 import { createSupabaseServerClient } from '../shared/db/supabase-server';
 import { AppRouter } from '../shared/routing/app-router';
 
@@ -15,6 +15,6 @@ if (user) {
 }
 ---
 
-<ClientLayout title="Sign In">
+<AppLayout title="Sign In">
   <LoginView client:load />
-</ClientLayout>
+</AppLayout>

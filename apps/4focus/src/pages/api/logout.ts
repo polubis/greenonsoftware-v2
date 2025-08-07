@@ -1,5 +1,6 @@
 import type { APIRoute } from "astro";
 import { createSupabaseServerClient } from "../../shared/db/supabase-server";
+import { AppRouter } from "../../shared/routing/app-router";
 
 export const POST: APIRoute = async (context) => {
   const supabaseServerClient = createSupabaseServerClient(context);
@@ -9,5 +10,5 @@ export const POST: APIRoute = async (context) => {
     return new Response(error.message, { status: 500 });
   }
 
-  return context.redirect("/", 303);
+  return context.redirect(AppRouter.getPath("home"), 303);
 };
