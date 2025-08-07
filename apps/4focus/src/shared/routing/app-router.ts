@@ -9,6 +9,7 @@ const appRoutes = [
   createRoute("home", "/"),
   createRoute("login", "/login"),
   createRoute("register", "/register"),
+  createRoute("logout", "/logout"),
   createRoute("tasks", "/app/tasks"),
   createRoute("account", "/app/account"),
   createRoute("dashboard", "/app/dashboard"),
