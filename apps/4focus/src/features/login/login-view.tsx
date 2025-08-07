@@ -1,8 +1,8 @@
 import { NavBar } from "../../shared/components/nav-bar";
-import { useAppRedirection } from "../../shared/hooks/use-dashboard-redirection";
+import { useAppRedirectionWhenLoggedIn } from "../../shared/hooks/use-app-redirection-when-logged-in";
 
 const LoginView = ({ activePathname }: { activePathname: string }) => {
-  useAppRedirection()
+  useAppRedirectionWhenLoggedIn()
 
   return (
     <>

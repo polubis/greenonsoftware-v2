@@ -1,6 +1,9 @@
 import { NavBar } from "../../shared/components/nav-bar";
+import { useAppRedirectionWhenLoggedIn } from "../../shared/hooks/use-app-redirection-when-logged-in";
 
 const RegisterView = ({ activePathname }: { activePathname: string }) => {
+  useAppRedirectionWhenLoggedIn()
+
   return (
     <>
       <NavBar activePathname={activePathname} />

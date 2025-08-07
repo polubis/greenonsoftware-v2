@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useClientAuth } from "../client-auth/use-client-auth";
 import { AppRouter } from "../routing/app-router";
 
-const useAppRedirection = () => {
+const useAppRedirectionWhenLoggedIn = () => {
     const auth = useClientAuth();
 
     useEffect(() => {
@@ -12,4 +12,4 @@ const useAppRedirection = () => {
     }, [auth.status]);
 }
 
-export { useAppRedirection };
+export { useAppRedirectionWhenLoggedIn };
