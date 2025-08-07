@@ -1,13 +1,10 @@
 import { AppRouter } from "../../shared/routing/app-router";
-import {
-    ClientAuthProvider,
-    useClientAuthProvider,
-    type ClientProviderAuthState,
-} from "../../shared/client-auth/client-auth-provider";
 import { NavBar } from "../../shared/components/nav-bar";
+import { useClientAuth } from "../../shared/client-auth/use-client-auth";
+import type { ClientAuthState } from "../../shared/client-auth/client-auth-store";
 
 const AccountView = () => {
-    const auth = useClientAuthProvider();
+    const auth = useClientAuth();
 
     if (auth.status === "idle") {
         return (
@@ -47,16 +44,16 @@ const AccountView = () => {
     const exh: never = auth;
     throw Error(
         "Unreachable code detected at AccountView with status: " +
-        (exh as ClientProviderAuthState).status,
+        (exh as ClientAuthState).status,
     );
 };
 
 const ConnectedAccountView = ({ activePathname }: { activePathname: string }) => {
     return (
-        <ClientAuthProvider>
+        <>
             <NavBar activePathname={activePathname} />
             <AccountView />
-        </ClientAuthProvider>
+        </>
     );
 };
 
