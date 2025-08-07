@@ -8,5 +8,5 @@ const activePathname = new URL(Astro.request.url).pathname;
 ---
 
 <AppLayout title="Dashboard">
-  <DashboardView client:load activePathname={activePathname} />
+  <DashboardView client:only="react" activePathname={activePathname} />
 </AppLayout>
