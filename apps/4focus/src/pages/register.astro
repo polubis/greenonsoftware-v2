@@ -1,6 +1,6 @@
 ---
 import { RegisterView } from '../features/register/register-view';
-import AppLayout from '../layouts/app-layout.astro';
+import Layout from '../layouts/layout.astro';
 import { createSupabaseServerClient } from '../shared/db/supabase-server';
 import { AppRouter } from '../shared/routing/app-router';
 
@@ -17,6 +17,6 @@ if (user) {
 const activePathname = new URL(Astro.request.url).pathname;
 ---
 
-<AppLayout title="Register">
+<Layout title="Register">
   <RegisterView client:load activePathname={activePathname} />
-</AppLayout>
+</Layout>

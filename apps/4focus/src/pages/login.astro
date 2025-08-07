@@ -1,6 +1,6 @@
 ---
 import { LoginView } from '../features/login/login-view';
-import AppLayout from '../layouts/app-layout.astro';
+import Layout from '../layouts/layout.astro';
 import { createSupabaseServerClient } from '../shared/db/supabase-server';
 import { AppRouter } from '../shared/routing/app-router';
 
@@ -17,6 +17,6 @@ if (user) {
 const activePathname = new URL(Astro.request.url).pathname;
 ---
 
-<AppLayout title="Sign In">
+<Layout title="Sign In">
   <LoginView client:load activePathname={activePathname} />
-</AppLayout>
+</Layout>

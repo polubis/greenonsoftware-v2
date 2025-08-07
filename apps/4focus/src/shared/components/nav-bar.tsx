@@ -4,8 +4,9 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
   const isActive = (path: string) => activePathname === path;
 
   return (
-    <nav className="flex justify-center items-center p-4 bg-gray-50 border-b border-gray-200">
-      <a
+    <nav className="flex items-center p-4 bg-gray-50 border-b border-gray-200">
+      <div className="flex-1 flex justify-center">
+        <a
         href={AppRouter.getPath("home")}
         className={`mx-4 text-lg font-medium no-underline transition-colors duration-300 ${
           isActive(AppRouter.getPath("home")) ? "text-blue-600" : "text-gray-600 hover:text-gray-800"
@@ -53,6 +54,12 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
       >
         Account
       </a>
+      </div>
+      <form action="/api/logout" method="POST">
+        <button className="bg-indigo-600 text-white px-4 py-2 rounded-md">
+          Log out
+        </button>
+      </form>
     </nav>
   );
 };

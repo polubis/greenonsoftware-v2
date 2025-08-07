@@ -40,13 +40,6 @@ const AccountView = () => {
                         </pre>
                     </div>
                 </div>
-                <div className="mt-8 flex justify-center space-x-4">
-                    <form action="/api/logout" method="POST">
-                        <button className="bg-indigo-600 text-white px-4 py-2 rounded-md">
-                            Log out
-                        </button>
-                    </form>
-                </div>
             </div>
         );
     }
