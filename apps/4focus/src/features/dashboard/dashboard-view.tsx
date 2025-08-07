@@ -4,6 +4,7 @@ import {
   useClientAuthProvider,
   type ClientProviderAuthState,
 } from "../../shared/client-auth/client-auth-provider";
+import { NavBar } from "../../shared/components/nav-bar";
 
 const DashboardView = () => {
   const auth = useClientAuthProvider();
@@ -40,24 +41,6 @@ const DashboardView = () => {
           </div>
         </div>
         <div className="mt-8 flex justify-center space-x-4">
-          <a
-            href={AppRouter.getPath("home")}
-            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
-          >
-            Home
-          </a>
-          <a
-            href={AppRouter.getPath("tasks")}
-            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
-          >
-            Tasks
-          </a>
-          <a
-            href={AppRouter.getPath("account")}
-            className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
-          >
-            Account
-          </a>
           <form action="/api/logout" method="POST">
             <button className="bg-indigo-600 text-white px-4 py-2 rounded-md">
               Log out
@@ -75,9 +58,10 @@ const DashboardView = () => {
   );
 };
 
-const ConnectedDashboardView = () => {
+const ConnectedDashboardView = ({ activePathname }: { activePathname: string }) => {
   return (
     <ClientAuthProvider>
+      <NavBar activePathname={activePathname} />
       <DashboardView />
     </ClientAuthProvider>
   );

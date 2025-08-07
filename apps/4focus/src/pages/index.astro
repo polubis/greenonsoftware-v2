@@ -1,9 +1,13 @@
 ---
 import AppLayout from '../layouts/app-layout.astro';
+import { NavBar } from '../shared/components/nav-bar';
 import { AppRouter } from '../shared/routing/app-router';
+
+const activePathname = new URL(Astro.request.url).pathname;
 ---
 
 <AppLayout>
+	<NavBar client:load activePathname={activePathname} />
 	Home Page
 	<a href={AppRouter.getPath("tasks")}>Tasks</a>
 </AppLayout>

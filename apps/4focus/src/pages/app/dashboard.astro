@@ -3,8 +3,10 @@ import { DashboardView } from "../../features/dashboard/dashboard-view";
 import AppLayout from "../../layouts/app-layout.astro";
 
 export const prerender = true;
+
+const activePathname = new URL(Astro.request.url).pathname;
 ---
 
 <AppLayout title="Dashboard">
-  <DashboardView client:load />
+  <DashboardView client:load activePathname={activePathname} />
 </AppLayout>

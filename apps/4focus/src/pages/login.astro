@@ -13,8 +13,10 @@ const {
 if (user) {
   return Astro.redirect(AppRouter.getPath('dashboard'));
 }
+
+const activePathname = new URL(Astro.request.url).pathname;
 ---
 
 <AppLayout title="Sign In">
-  <LoginView client:load />
+  <LoginView client:load activePathname={activePathname} />
 </AppLayout>

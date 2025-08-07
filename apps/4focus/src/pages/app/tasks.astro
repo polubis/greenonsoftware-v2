@@ -13,8 +13,10 @@ const {
 if (!user) {
   return Astro.redirect(AppRouter.getPath('login'));
 }
+
+const activePathname = new URL(Astro.request.url).pathname;
 ---
 
 <AppLayout title="Tasks">
-  <TasksView client:load />
+  <TasksView client:load activePathname={activePathname} />
 </AppLayout>

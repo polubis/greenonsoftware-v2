@@ -13,8 +13,10 @@ const {
 if (user) {
   return Astro.redirect(AppRouter.getPath('dashboard'));
 }
+
+const activePathname = new URL(Astro.request.url).pathname;
 ---
 
 <AppLayout title="Register">
-  <RegisterView client:load />
+  <RegisterView client:load activePathname={activePathname} />
 </AppLayout>
