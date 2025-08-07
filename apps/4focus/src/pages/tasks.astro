@@ -1,8 +1,20 @@
 ---
+import { createSupabaseServerClient } from '../shared/db/supabase-server';
 import { TasksView } from '../features/tasks/tasks-view';
 import ClientLayout from '../layouts/client-layout.astro';
+import { AppRouter } from '../shared/routing/app-router';
+
+const supabase = createSupabaseServerClient({ cookies: Astro.cookies });
+
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+if (!user) {
+  return Astro.redirect(AppRouter.getPath('login'));
+}
 ---
 
-<ClientLayout title="Dashboard">
+<ClientLayout title="Tasks">
   <TasksView client:load />
 </ClientLayout>

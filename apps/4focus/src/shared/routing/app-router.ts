@@ -6,9 +6,12 @@ const createRoute = <TKey extends string, TPath extends `/${string}`>(
 };
 
 const appRoutes = [
+  createRoute("home", "/"),
   createRoute("login", "/login"),
   createRoute("register", "/register"),
   createRoute("tasks", "/tasks"),
+  createRoute("account", "/account"),
+  createRoute("dashboard", "/dashboard"),
 ] as const;
 
 type AppRoute = (typeof appRoutes)[number];

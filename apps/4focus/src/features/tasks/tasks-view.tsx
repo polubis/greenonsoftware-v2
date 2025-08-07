@@ -1,7 +1,3 @@
-// import { useUser } from "../../shared/client-auth/core";
-import { ClientAuthGuard } from "../../shared/client-auth/guards";
-import { AppRouter } from "../../shared/routing/app-router";
-
 const TasksView = () => {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
@@ -23,6 +19,12 @@ const TasksView = () => {
         >
           Dashboard
         </a>
+        <a
+          href="/account"
+          className="bg-gray-200 text-gray-800 px-4 py-2 rounded-md"
+        >
+          Account
+        </a>
         <form action="/api/logout" method="POST">
           <button className="bg-indigo-600 text-white px-4 py-2 rounded-md">
             Log out
@@ -32,28 +34,5 @@ const TasksView = () => {
     </div>
   );
 };
-
-// const ProtectedTasksView = ClientAuthGuard({
-//   Component: TasksView,
-//   Fallback: ({ status }) => {
-//     if (status === "idle") {
-//       return (
-//         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-//           <p className="text-center">Verifying session...</p>
-//         </div>
-//       );
-//     }
-
-//     if (status === "unauthenticated") {
-//       return (
-//         <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-//           <p className="text-center">
-//             Session lost <a href={AppRouter.getPath("login")}>Login</a>
-//           </p>
-//         </div>
-//       );
-//     }
-//   },
-// });
 
 export { TasksView };

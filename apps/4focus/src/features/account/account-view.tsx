@@ -70,7 +70,7 @@ const DashboardView = () => {
 
   const exh: never = auth;
   throw Error(
-    "Unreachable code detected at DashboardView with status: " +
+    "Unreachable code detected at AccountView with status: " +
       (exh as ClientProviderAuthState).status,
   );
 };
