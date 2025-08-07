@@ -23,11 +23,10 @@ const authState = atom<ClientAuthState>({
 });
 
 const initAuthState = () => {
-  console.log("initAuthState()", authState.get());
   const {
     data: { subscription },
   } = supabaseBrowserClient.auth.onAuthStateChange((event, session) => {
-    console.log("initAuthState() onAuthStateChange()", event, session);
+    
     if (session) {
       authState.set({
         status: "authenticated", user: {

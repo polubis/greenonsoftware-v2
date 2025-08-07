@@ -1,6 +1,9 @@
 import { NavBar } from "../../shared/components/nav-bar";
+import { useAppRedirection } from "../../shared/hooks/use-dashboard-redirection";
 
 const LoginView = ({ activePathname }: { activePathname: string }) => {
+  useAppRedirection()
+
   return (
     <>
       <NavBar activePathname={activePathname} />
