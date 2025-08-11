@@ -62,6 +62,11 @@ create table public.task_history (
 comment on table public.task_history is 'History of changes for the tasks table.';
 comment on column public.task_history.operation is 'I for Insert, U for Update, D for Delete.';
 
+alter table public.task_history enable row level security;
+
+create policy "Users can view their own task history." on public.task_history
+  for select using (auth.uid() = owner_id);
+
 create or replace function public.copy_to_task_history()
 returns trigger as $$
 begin
@@ -81,7 +86,7 @@ begin
   end if;
   return null;
 end;
-$$ language plpgsql set search_path = '';
+$$ language plpgsql security definer set search_path = '';
 
 create trigger tasks_history_trigger
 after insert or update or delete on public.tasks

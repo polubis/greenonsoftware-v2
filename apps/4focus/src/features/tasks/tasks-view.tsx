@@ -1,9 +1,9 @@
 import { AppRouter } from "../../shared/routing/app-router";
-import { APIRouter } from "../../shared/routing/api-router";
 import { NavBar } from "../../shared/components/nav-bar";
 import { useClientAuth } from "../../shared/client-auth/use-client-auth";
 import type { ClientAuthState } from "../../shared/client-auth/client-auth-store";
 import { useEffect, useState } from "react";
+import { APIRouter } from "../../shared/routing/api-router";
 
 const TasksView = () => {
   const auth = useClientAuth();
@@ -27,6 +27,21 @@ const TasksView = () => {
   const [saveError, setSaveError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
+  const [historyByTaskId, setHistoryByTaskId] = useState<Record<number, Array<{
+    history_id: number;
+    task_id: number;
+    operation: string;
+    changed_at: string;
+    title: string | null;
+    description: string | null;
+    priority: string | null;
+    status: string | null;
+    creation_date: string | null;
+    update_date: string | null;
+  }>>>({});
+  const [historyLoadingId, setHistoryLoadingId] = useState<number | null>(null);
+  const [historyErrorByTaskId, setHistoryErrorByTaskId] = useState<Record<number, string | null>>({});
 
   useEffect(() => {
     let mounted = true;
@@ -127,6 +142,44 @@ const TasksView = () => {
       setDeleteError((e as Error).message);
     } finally {
       setDeletingId(null);
+    }
+  };
+
+  const toggleHistory = async (taskId: number) => {
+    if (expandedTaskId === taskId) {
+      setExpandedTaskId(null);
+      return;
+    }
+    setExpandedTaskId(taskId);
+    if (!historyByTaskId[taskId]) {
+      setHistoryLoadingId(taskId);
+      setHistoryErrorByTaskId((p) => ({ ...p, [taskId]: null }));
+      try {
+        const res = await fetch(`${APIRouter.getPath("taskHistory")}?id=${taskId}`, {
+          headers: { accept: "application/json" },
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || "Failed to load history");
+        }
+        const history = (await res.json()) as Array<{
+          history_id: number;
+          task_id: number;
+          operation: string;
+          changed_at: string;
+          title: string | null;
+          description: string | null;
+          priority: string | null;
+          status: string | null;
+          creation_date: string | null;
+          update_date: string | null;
+        }>;
+        setHistoryByTaskId((prev) => ({ ...prev, [taskId]: history }));
+      } catch (e) {
+        setHistoryErrorByTaskId((p) => ({ ...p, [taskId]: (e as Error).message }));
+      } finally {
+        setHistoryLoadingId(null);
+      }
     }
   };
 
@@ -296,6 +349,42 @@ const TasksView = () => {
                               <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-800">
                                 {t.priority}
                               </span>
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  void toggleHistory(t.id);
+                                }}
+                                className="ml-2 inline-flex items-center px-2 py-1 border border-gray-300 text-gray-700 bg-white rounded hover:bg-gray-50"
+                                aria-label="Show history"
+                                title="History"
+                              >
+                                <svg
+                                  xmlns="http://www.w3.org/2000/svg"
+                                  viewBox="0 0 24 24"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  strokeWidth="1.5"
+                                  className="h-4 w-4"
+                                  aria-hidden="true"
+                                >
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 6v6l4 2"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M12 3c4.97 0 9 4.03 9 9s-4.03 9-9 9-9-4.03-9-9"
+                                  />
+                                  <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    d="M3 4v4h4"
+                                  />
+                                </svg>
+                              </button>
                             </div>
                           </div>
                           <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
@@ -316,6 +405,35 @@ const TasksView = () => {
                               {deletingId === t.id ? "Deleting..." : "Delete"}
                             </button>
                           </div>
+                          {expandedTaskId === t.id ? (
+                            <div className="mt-3 border-t pt-3">
+                              {historyLoadingId === t.id ? (
+                                <div className="text-xs text-gray-500">Loading history...</div>
+                              ) : historyErrorByTaskId[t.id] ? (
+                                <div className="text-xs text-red-600">{historyErrorByTaskId[t.id]}</div>
+                              ) : (
+                                <ol className="relative border-s border-gray-200 ms-3">
+                                  {(historyByTaskId[t.id] ?? []).map((h) => (
+                                    <li key={h.history_id} className="mb-4 ms-4">
+                                      <div className="absolute w-2 h-2 bg-indigo-400 rounded-full mt-1.5 -start-1.5 border border-white" />
+                                      <time className="mb-1 text-xs font-normal leading-none text-gray-400">
+                                        {new Date(h.changed_at).toLocaleString()} — {h.operation === "I" ? "Created" : h.operation === "U" ? "Updated" : "Deleted"}
+                                      </time>
+                                      <div className="text-sm text-gray-700">
+                                        {h.title ? <div><span className="font-medium">Title:</span> {h.title}</div> : null}
+                                        {h.description ? <div><span className="font-medium">Description:</span> {h.description}</div> : null}
+                                        {h.priority ? <div><span className="font-medium">Priority:</span> {h.priority}</div> : null}
+                                        {h.status ? <div><span className="font-medium">Status:</span> {h.status}</div> : null}
+                                      </div>
+                                    </li>
+                                  ))}
+                                  {(historyByTaskId[t.id] ?? []).length === 0 ? (
+                                    <li className="ms-4 text-xs text-gray-500">No history yet.</li>
+                                  ) : null}
+                                </ol>
+                              )}
+                            </div>
+                          ) : null}
                         </>
                       ) : (
                         <div onClick={(e) => e.stopPropagation()}>
