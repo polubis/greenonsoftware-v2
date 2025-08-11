@@ -3,7 +3,7 @@ import { useAppRedirectionWhenLoggedIn } from "../../shared/hooks/use-app-redire
 import { APIRouter } from "../../shared/routing/api-router";
 
 const LoginView = ({ activePathname }: { activePathname: string }) => {
-  useAppRedirectionWhenLoggedIn()
+  useAppRedirectionWhenLoggedIn();
 
   return (
     <>
@@ -103,7 +103,9 @@ const LoginView = ({ activePathname }: { activePathname: string }) => {
                   <div className="w-full border-t border-gray-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                  <span className="px-2 bg-white text-gray-500">
+                    Or continue with
+                  </span>
                 </div>
               </div>
 

@@ -25,7 +25,8 @@
     "astro": "^5.12.8",
     "nanostores": "^1.0.1",
     "react": "^19.1.1",
-    "react-dom": "^19.1.1"
+    "react-dom": "^19.1.1",
+    "zod": "^4.0.17"
   },
   "devDependencies": {
     "supabase": "^2.33.9"

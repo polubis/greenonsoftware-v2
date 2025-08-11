@@ -48,7 +48,11 @@ const DashboardView = () => {
   );
 };
 
-const ConnectedDashboardView = ({ activePathname }: { activePathname: string }) => {
+const ConnectedDashboardView = ({
+  activePathname,
+}: {
+  activePathname: string;
+}) => {
   return (
     <>
       <NavBar activePathname={activePathname} />

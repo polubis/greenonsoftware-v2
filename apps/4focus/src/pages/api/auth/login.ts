@@ -25,7 +25,9 @@ export const POST: APIRoute = async (context) => {
     }
 
     if (!data?.url) {
-      return new Response("Missing redirect URL from provider.", { status: 500 });
+      return new Response("Missing redirect URL from provider.", {
+        status: 500,
+      });
     }
 
     return context.redirect(data.url, 303);

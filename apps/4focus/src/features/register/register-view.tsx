@@ -3,7 +3,7 @@ import { useAppRedirectionWhenLoggedIn } from "../../shared/hooks/use-app-redire
 import { APIRouter } from "../../shared/routing/api-router";
 
 const RegisterView = ({ activePathname }: { activePathname: string }) => {
-  useAppRedirectionWhenLoggedIn()
+  useAppRedirectionWhenLoggedIn();
 
   return (
     <>
@@ -93,7 +93,6 @@ const RegisterView = ({ activePathname }: { activePathname: string }) => {
         </div>
       </div>
     </>
-
   );
 };
 

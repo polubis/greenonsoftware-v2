@@ -11,9 +11,7 @@ export const GET: APIRoute = async (context) => {
     return new Response("No code provided", { status: 400 });
   }
 
-  const { error } = await supabase.auth.exchangeCodeForSession(
-    code
-  );
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
     return new Response(error.message, { status: 500 });
@@ -21,5 +19,3 @@ export const GET: APIRoute = async (context) => {
 
   return context.redirect(AppRouter.getPath("dashboard"), 303);
 };
-
-
