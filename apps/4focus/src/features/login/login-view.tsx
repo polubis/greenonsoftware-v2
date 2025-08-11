@@ -1,5 +1,6 @@
 import { NavBar } from "../../shared/components/nav-bar";
 import { useAppRedirectionWhenLoggedIn } from "../../shared/hooks/use-app-redirection-when-logged-in";
+import { APIRouter } from "../../shared/routing/api-router";
 
 const LoginView = ({ activePathname }: { activePathname: string }) => {
   useAppRedirectionWhenLoggedIn()
@@ -18,7 +19,7 @@ const LoginView = ({ activePathname }: { activePathname: string }) => {
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             <form
               className="space-y-6"
-              action="/api/login"
+              action={APIRouter.getPath("login")}
               method="POST"
               data-astro-reload
             >
@@ -95,6 +96,29 @@ const LoginView = ({ activePathname }: { activePathname: string }) => {
                 </button>
               </div>
             </form>
+
+            <div className="mt-6">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-gray-300" />
+                </div>
+                <div className="relative flex justify-center text-sm">
+                  <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                </div>
+              </div>
+
+              <div className="mt-6 grid grid-cols-1 gap-3">
+                <form action={APIRouter.getPath("login")} method="POST">
+                  <input type="hidden" name="provider" value="google" />
+                  <button
+                    type="submit"
+                    className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md bg-white text-sm font-medium text-gray-500 hover:bg-gray-50"
+                  >
+                    Continue with Google
+                  </button>
+                </form>
+              </div>
+            </div>
           </div>
         </div>
       </div>

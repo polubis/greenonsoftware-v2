@@ -1,6 +1,7 @@
 import { AppRouter } from "../routing/app-router";
 import { useClientAuth } from "../client-auth/use-client-auth";
 import { useState } from "react";
+import { APIRouter } from "../routing/api-router";
 
 export const NavBar = ({ activePathname }: { activePathname: string }) => {
   const auth = useClientAuth();
@@ -91,7 +92,7 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
               </div>
               
               {/* Logout Button */}
-              <form action="/api/logout" method="POST" className="hidden sm:block">
+              <form action={APIRouter.getPath("logout")} method="POST" className="hidden sm:block">
                 <button className="bg-indigo-600 text-white px-6 py-2.5 rounded-md hover:bg-indigo-700 transition-colors duration-300">
                   Log out
                 </button>
@@ -184,7 +185,7 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
             )}
             {auth.status === "authenticated" && (
               <div className="sm:hidden mt-4 pb-2">
-                <form action="/api/logout" method="POST">
+                <form action={APIRouter.getPath("logout")} method="POST">
                   <button className="w-full bg-indigo-600 text-white px-4 py-2.5 rounded-md hover:bg-indigo-700 transition-colors duration-300">
                     Log out
                   </button>

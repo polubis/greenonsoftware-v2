@@ -1,5 +1,6 @@
 import { NavBar } from "../../shared/components/nav-bar";
 import { useAppRedirectionWhenLoggedIn } from "../../shared/hooks/use-app-redirection-when-logged-in";
+import { APIRouter } from "../../shared/routing/api-router";
 
 const RegisterView = ({ activePathname }: { activePathname: string }) => {
   useAppRedirectionWhenLoggedIn()
@@ -18,7 +19,7 @@ const RegisterView = ({ activePathname }: { activePathname: string }) => {
           <div className="bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
             <form
               className="space-y-6"
-              action="/api/register"
+              action={APIRouter.getPath("register")}
               method="POST"
               data-astro-reload
             >
