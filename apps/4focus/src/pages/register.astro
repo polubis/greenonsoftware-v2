@@ -4,7 +4,7 @@ import Layout from '../layouts/layout.astro';
 import { createSupabaseServerClient } from '../shared/db/supabase-server';
 import { AppRouter } from '../shared/routing/app-router';
 
-const supabase = createSupabaseServerClient({ cookies: Astro.cookies });
+const supabase = createSupabaseServerClient({ request: Astro.request, cookies: Astro.cookies });
 
 const {
   data: { user },

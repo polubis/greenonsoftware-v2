@@ -86,6 +86,10 @@ const updateTaskSchema = z
     { message: "At least one field must be provided for update", path: ["_"] },
   );
 
+const deleteTaskSchema = z.object({
+  id: z.coerce.number().int().positive(),
+});
+
 export const POST: APIRoute = async (context) => {
   const supabase = createSupabaseServerClient(context);
   const contentType = context.request.headers.get("content-type") ?? "";
@@ -199,6 +203,46 @@ export const PATCH: APIRoute = async (context) => {
   const { data, error } = await supabase
     .from("tasks")
     .update(update)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    return new Response(error.message, { status: 400 });
+  }
+
+  return new Response(JSON.stringify(data), {
+    status: 200,
+    headers: { "content-type": "application/json" },
+  });
+};
+
+export const DELETE: APIRoute = async (context) => {
+  const supabase = createSupabaseServerClient(context);
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  const raw = await parseBody(context.request);
+  const parsed = deleteTaskSchema.safeParse(raw);
+  if (!parsed.success) {
+    return new Response(JSON.stringify({ errors: parsed.error.flatten() }), {
+      status: 400,
+      headers: { "content-type": "application/json" },
+    });
+  }
+
+  const id = parsed.data.id;
+
+  const { data, error } = await supabase
+    .from("tasks")
+    .delete()
     .eq("id", id)
     .select()
     .single();

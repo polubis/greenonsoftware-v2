@@ -25,6 +25,8 @@ const TasksView = () => {
   const [editStatus, setEditStatus] = useState("todo");
   const [saving, setSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -98,6 +100,33 @@ const TasksView = () => {
       setSaveError((e as Error).message);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const deleteTask = async (taskId: number) => {
+    setDeleteError(null);
+    setDeletingId(taskId);
+    const previous = tasks;
+    try {
+      // optimistic UI
+      setTasks((prev) => prev.filter((t) => t.id !== taskId));
+      const res = await fetch(APIRouter.getPath("tasks"), {
+        method: "DELETE",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ id: taskId }),
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Failed to delete task");
+      }
+    } catch (e) {
+      setTasks(previous);
+      setDeleteError((e as Error).message);
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -269,8 +298,23 @@ const TasksView = () => {
                               </span>
                             </div>
                           </div>
-                          <div className="mt-2 text-xs text-gray-500">
-                            Created {new Date(t.creation_date).toLocaleString()} · Updated {new Date(t.update_date).toLocaleString()}
+                          <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+                            <div>
+                              Created {new Date(t.creation_date).toLocaleString()} · Updated {new Date(t.update_date).toLocaleString()}
+                            </div>
+                            <button
+                              type="button"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                void deleteTask(t.id);
+                              }}
+                              disabled={deletingId === t.id}
+                              className="ml-3 inline-flex items-center px-2 py-1 border border-red-300 text-red-700 bg-white rounded hover:bg-red-50 disabled:opacity-50"
+                              aria-label="Delete task"
+                              title="Delete"
+                            >
+                              {deletingId === t.id ? "Deleting..." : "Delete"}
+                            </button>
                           </div>
                         </>
                       ) : (
@@ -332,6 +376,9 @@ const TasksView = () => {
 
                             {saveError ? (
                               <div className="text-sm text-red-600">{saveError}</div>
+                            ) : null}
+                            {deleteError ? (
+                              <div className="text-sm text-red-600">{deleteError}</div>
                             ) : null}
 
                             <div className="flex items-center gap-2">
