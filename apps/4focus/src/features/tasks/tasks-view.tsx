@@ -3,9 +3,103 @@ import { APIRouter } from "../../shared/routing/api-router";
 import { NavBar } from "../../shared/components/nav-bar";
 import { useClientAuth } from "../../shared/client-auth/use-client-auth";
 import type { ClientAuthState } from "../../shared/client-auth/client-auth-store";
+import { useEffect, useState } from "react";
 
 const TasksView = () => {
   const auth = useClientAuth();
+  const [tasks, setTasks] = useState<Array<{
+    id: number;
+    title: string;
+    description: string | null;
+    priority: string;
+    status: string;
+    creation_date: string;
+    update_date: string;
+  }>>([]);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<number | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editDescription, setEditDescription] = useState<string | null>(null);
+  const [editPriority, setEditPriority] = useState("normal");
+  const [editStatus, setEditStatus] = useState("todo");
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+
+  useEffect(() => {
+    let mounted = true;
+    const fetchTasks = async () => {
+      if (auth.status !== "authenticated") return;
+      setLoading(true);
+      setLoadError(null);
+      try {
+        const res = await fetch(APIRouter.getPath("tasks"), {
+          headers: { accept: "application/json" },
+        });
+        if (!res.ok) {
+          const text = await res.text();
+          throw new Error(text || "Failed to load tasks");
+        }
+        const data = (await res.json()) as typeof tasks;
+        if (mounted) setTasks(data);
+      } catch (e) {
+        if (mounted) setLoadError((e as Error).message);
+      } finally {
+        if (mounted) setLoading(false);
+      }
+    };
+    fetchTasks();
+    return () => {
+      mounted = false;
+    };
+  }, [auth.status]);
+
+  const startEditing = (t: (typeof tasks)[number]) => {
+    setEditingId(t.id);
+    setEditTitle(t.title);
+    setEditDescription(t.description);
+    setEditPriority(t.priority);
+    setEditStatus(t.status);
+    setSaveError(null);
+  };
+
+  const cancelEditing = () => {
+    setEditingId(null);
+    setSaveError(null);
+  };
+
+  const saveEdits = async () => {
+    if (editingId == null) return;
+    setSaving(true);
+    setSaveError(null);
+    try {
+      const body: Record<string, unknown> = {
+        title: editTitle,
+        description: editDescription,
+        priority: editPriority,
+        status: editStatus,
+      };
+      const res = await fetch(APIRouter.getPath("tasks"), {
+        method: "PATCH",
+        headers: {
+          accept: "application/json",
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({ id: editingId, ...body }),
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Failed to update task");
+      }
+      const updated = (await res.json()) as (typeof tasks)[number];
+      setTasks((prev) => prev.map((x) => (x.id === updated.id ? updated : x)));
+      setEditingId(null);
+    } catch (e) {
+      setSaveError((e as Error).message);
+    } finally {
+      setSaving(false);
+    }
+  };
 
   if (auth.status === "idle") {
     return (
@@ -137,6 +231,138 @@ const TasksView = () => {
                 </button>
               </div>
             </form>
+          </div>
+
+          <div className="mt-10">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Tasks</h3>
+            {loading ? (
+              <div className="text-sm text-gray-600">Loading tasks...</div>
+            ) : loadError ? (
+              <div className="text-sm text-red-600">{loadError}</div>
+            ) : tasks.length === 0 ? (
+              <div className="text-sm text-gray-600">No tasks yet. Create your first task above.</div>
+            ) : (
+              <ul role="list" className="space-y-3">
+                {tasks.map((t) => {
+                  const isEditing = editingId === t.id;
+                  return (
+                    <li
+                      key={t.id}
+                      className="border rounded-md p-4 bg-white shadow-sm cursor-pointer"
+                      onClick={() => !isEditing && startEditing(t)}
+                    >
+                      {!isEditing ? (
+                        <>
+                          <div className="flex items-start justify-between">
+                            <div>
+                              <h4 className="text-base font-medium text-gray-900">{t.title}</h4>
+                              {t.description ? (
+                                <p className="mt-1 text-sm text-gray-700 whitespace-pre-wrap">{t.description}</p>
+                              ) : null}
+                            </div>
+                            <div className="ml-4 flex-shrink-0 flex items-center gap-2">
+                              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800">
+                                {t.status}
+                              </span>
+                              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-800">
+                                {t.priority}
+                              </span>
+                            </div>
+                          </div>
+                          <div className="mt-2 text-xs text-gray-500">
+                            Created {new Date(t.creation_date).toLocaleString()} · Updated {new Date(t.update_date).toLocaleString()}
+                          </div>
+                        </>
+                      ) : (
+                        <div onClick={(e) => e.stopPropagation()}>
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700">Title</label>
+                              <input
+                                value={editTitle}
+                                onChange={(e) => setEditTitle(e.target.value)}
+                                minLength={3}
+                                maxLength={280}
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-sm font-medium text-gray-700">Description</label>
+                              <textarea
+                                value={editDescription ?? ""}
+                                onChange={(e) =>
+                                  setEditDescription(e.target.value.trim() === "" ? null : e.target.value)
+                                }
+                                rows={3}
+                                minLength={editDescription ? 10 : undefined}
+                                maxLength={500}
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                              />
+                              <p className="mt-1 text-xs text-gray-500">Leave empty or use 10–500 characters.</p>
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700">Priority</label>
+                                <select
+                                  value={editPriority}
+                                  onChange={(e) => setEditPriority(e.target.value)}
+                                  className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                >
+                                  <option value="urgent">Urgent</option>
+                                  <option value="high">High</option>
+                                  <option value="normal">Normal</option>
+                                  <option value="low">Low</option>
+                                </select>
+                              </div>
+                              <div>
+                                <label className="block text-sm font-medium text-gray-700">Status</label>
+                                <select
+                                  value={editStatus}
+                                  onChange={(e) => setEditStatus(e.target.value)}
+                                  className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                >
+                                  <option value="todo">To do</option>
+                                  <option value="pending">Pending</option>
+                                  <option value="done">Done</option>
+                                </select>
+                              </div>
+                            </div>
+
+                            {saveError ? (
+                              <div className="text-sm text-red-600">{saveError}</div>
+                            ) : null}
+
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={saveEdits}
+                                disabled={saving || editTitle.trim().length < 3 || editTitle.trim().length > 280}
+                                className="inline-flex justify-center py-1.5 px-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                              >
+                                {saving ? "Saving..." : "Save"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={cancelEditing}
+                                disabled={saving}
+                                className="inline-flex justify-center py-1.5 px-3 border rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
+                              >
+                                Cancel
+                              </button>
+                            </div>
+                          </div>
+                          <div className="mt-2 text-xs text-gray-500">
+                            Created {new Date(t.creation_date).toLocaleString()} · Updated {new Date(t.update_date).toLocaleString()}
+                          </div>
+                        </div>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </div>
         </div>
       </div>

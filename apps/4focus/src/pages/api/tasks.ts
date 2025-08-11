@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createSupabaseServerClient } from "../../shared/db/supabase-server";
-import type { TablesInsert } from "../../shared/db/database.types";
+import type { TablesInsert, TablesUpdate } from "../../shared/db/database.types";
 import { AppRouter } from "../../shared/routing/app-router";
 import { z } from "zod";
 
@@ -21,6 +21,7 @@ const parseBody = async (
     const toStringOrUndefined = (v: FormDataEntryValue | null) =>
       v == null ? undefined : v.toString();
     return {
+      id: toStringOrUndefined(form.get("id")),
       title: toStringOrUndefined(form.get("title")),
       description: toStringOrUndefined(form.get("description")),
       priority: toStringOrUndefined(form.get("priority")),
@@ -56,6 +57,34 @@ const createTaskSchema = z.object({
     z.enum(["todo", "pending", "done"]).optional(),
   ),
 });
+
+const updateTaskSchema = z
+  .object({
+    id: z.coerce.number().int().positive(),
+    title: z
+      .preprocess((v) => (typeof v === "string" ? v.trim() : undefined),
+        z.string().min(3, { message: "title must be 3-280 characters" }).max(280, { message: "title must be 3-280 characters" })
+      )
+      .optional(),
+    description: z
+      .preprocess((v) => {
+        if (v === undefined) return undefined;
+        if (v == null) return null;
+        const trimmed = String(v).trim();
+        return trimmed === "" ? null : trimmed;
+      }, z.union([z.literal(null), z.string().min(10).max(500)]))
+      .optional(),
+    priority: z
+      .preprocess((v) => (v === "" ? undefined : v), z.enum(["urgent", "high", "normal", "low"]))
+      .optional(),
+    status: z
+      .preprocess((v) => (v === "" ? undefined : v), z.enum(["todo", "pending", "done"]))
+      .optional(),
+  })
+  .refine(
+    (d) => d.title !== undefined || d.description !== undefined || d.priority !== undefined || d.status !== undefined,
+    { message: "At least one field must be provided for update", path: ["_"] },
+  );
 
 export const POST: APIRoute = async (context) => {
   const supabase = createSupabaseServerClient(context);
@@ -107,6 +136,79 @@ export const POST: APIRoute = async (context) => {
 
   return new Response(JSON.stringify(data), {
     status: 201,
+    headers: { "content-type": "application/json" },
+  });
+};
+
+export const GET: APIRoute = async (context) => {
+  const supabase = createSupabaseServerClient(context);
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  const { data, error } = await supabase
+    .from("tasks")
+    .select("*")
+    .order("creation_date", { ascending: false });
+
+  if (error) {
+    return new Response(error.message, { status: 400 });
+  }
+
+  return new Response(JSON.stringify(data ?? []), {
+    status: 200,
+    headers: { "content-type": "application/json" },
+  });
+};
+
+export const PATCH: APIRoute = async (context) => {
+  const supabase = createSupabaseServerClient(context);
+
+  const {
+    data: { user },
+    error: userError,
+  } = await supabase.auth.getUser();
+
+  if (userError || !user) {
+    return new Response("Unauthorized", { status: 401 });
+  }
+
+  const raw = await parseBody(context.request);
+  const parsed = updateTaskSchema.safeParse(raw);
+  if (!parsed.success) {
+    return new Response(JSON.stringify({ errors: parsed.error.flatten() }), {
+      status: 400,
+      headers: { "content-type": "application/json" },
+    });
+  }
+
+  const id = parsed.data.id;
+  const update: TablesUpdate<"tasks"> = {
+    title: parsed.data.title,
+    description: parsed.data.description ?? undefined,
+    priority: parsed.data.priority,
+    status: parsed.data.status,
+  };
+
+  const { data, error } = await supabase
+    .from("tasks")
+    .update(update)
+    .eq("id", id)
+    .select()
+    .single();
+
+  if (error) {
+    return new Response(error.message, { status: 400 });
+  }
+
+  return new Response(JSON.stringify(data), {
+    status: 200,
     headers: { "content-type": "application/json" },
   });
 };

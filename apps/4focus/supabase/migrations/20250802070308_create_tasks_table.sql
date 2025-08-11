@@ -19,7 +19,7 @@ begin
   new.update_date = now();
   return new;
 end;
-$$ language plpgsql;
+$$ language plpgsql set search_path = '';
 
 create trigger on_task_update
 before update on public.tasks
@@ -46,7 +46,7 @@ create policy "Users can delete their own tasks." on public.tasks
 create table public.task_history (
   history_id bigserial primary key,
   task_id bigint not null,
-  operation char(1) not null check (operation in ('U', 'D')), -- U for Update, D for Delete
+  operation char(1) not null check (operation in ('I', 'U', 'D')), -- I for Insert, U for Update, D for Delete
   changed_at timestamptz not null default now(),
   
   -- Mirrored columns from tasks
@@ -60,11 +60,16 @@ create table public.task_history (
 );
 
 comment on table public.task_history is 'History of changes for the tasks table.';
-comment on column public.task_history.operation is 'U for Update, D for Delete.';
+comment on column public.task_history.operation is 'I for Insert, U for Update, D for Delete.';
 
 create or replace function public.copy_to_task_history()
 returns trigger as $$
 begin
+  if (TG_OP = 'INSERT') then
+    insert into public.task_history (task_id, operation, creation_date, update_date, title, description, priority, status, owner_id)
+    values (NEW.id, 'I', NEW.creation_date, NEW.update_date, NEW.title, NEW.description, NEW.priority, NEW.status, NEW.owner_id);
+    return NEW;
+  end if;
   if (TG_OP = 'UPDATE') then
     insert into public.task_history (task_id, operation, creation_date, update_date, title, description, priority, status, owner_id)
     values (OLD.id, 'U', OLD.creation_date, OLD.update_date, OLD.title, OLD.description, OLD.priority, OLD.status, OLD.owner_id);
@@ -76,8 +81,8 @@ begin
   end if;
   return null;
 end;
-$$ language plpgsql;
+$$ language plpgsql set search_path = '';
 
 create trigger tasks_history_trigger
-after update or delete on public.tasks
+after insert or update or delete on public.tasks
 for each row execute procedure public.copy_to_task_history();
