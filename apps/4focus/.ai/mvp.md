@@ -1,6 +1,6 @@
 # Application - 4focus (MVP)
 
-### Main problem
+## Main problem
 
 People affected by ADHD struggle to focus on specific activities. The application aims, based on techniques such as the Eisenhower Matrix (and, over time, others), to help organize activities.
 
@@ -9,7 +9,7 @@ The user will be able to easily add tasks via a voice interface and manage them 
 The application will allow adding tasks based on an AI assistant which, using a text interface, will break down
 any context into a set of appropriately chosen steps arranged in the right order.
 
-### Minimal set of features (MVP Scope)
+## Minimal set of features (MVP Scope)
 
 - Division of tasks into four categories according to the Eisenhower Matrix (for individual tasks)
 - Simple authentication and login with Google
@@ -18,6 +18,7 @@ any context into a set of appropriately chosen steps arranged in the right order
 - Support for mobile devices
 - Dashboard presenting a "health score" – based on data, we show how you're doing in your fight against ADHD
 - Blocker – a screen that makes it harder for users to exit the task they are currently performing
+- User is able to provide estimated time to end for their tasks (when it's finished in correct time there is a nice animation displayed that informs them they're doing good job)
 - Simple user interface, free of unnecessary colors
 - Statistics – at the end of each day, a report will be generated containing the following information:
   1. Average task completion time
@@ -29,11 +30,11 @@ any context into a set of appropriately chosen steps arranged in the right order
 
 If you want, I can also rewrite this in a more formal or marketing style — let me know!
 
-### What is NOT in the MVP scope
+## What is NOT in the MVP scope
 
 - Everything that goes beyond the "Minimal set of features."
 
-### Success criteria
+## Success criteria
 
 - 200 users will create an account within the first week after the application launches.
 - 75% of those 200 users will still be using the application one month after registration.
