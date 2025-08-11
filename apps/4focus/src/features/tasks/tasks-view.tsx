@@ -29,7 +29,7 @@ const TasksView = () => {
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
   const [historyByTaskId, setHistoryByTaskId] = useState<Record<number, Array<{
-    history_id: number;
+    id: number;
     task_id: number;
     operation: string;
     changed_at: string;
@@ -163,7 +163,7 @@ const TasksView = () => {
           throw new Error(text || "Failed to load history");
         }
         const history = (await res.json()) as Array<{
-          history_id: number;
+          id: number;
           task_id: number;
           operation: string;
           changed_at: string;
@@ -231,6 +231,26 @@ const TasksView = () => {
                     required
                     minLength={3}
                     maxLength={280}
+                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label
+                  htmlFor="estimatedDurationMinutes"
+                  className="block text-sm font-medium text-gray-700"
+                >
+                  Estimated Duration (minutes)
+                </label>
+                <div className="mt-1">
+                  <input
+                    id="estimatedDurationMinutes"
+                    name="estimatedDurationMinutes"
+                    type="number"
+                    required
+                    min={1}
+                    max={1000}
                     className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
                 </div>
@@ -414,7 +434,7 @@ const TasksView = () => {
                               ) : (
                                 <ol className="relative border-s border-gray-200 ms-3">
                                   {(historyByTaskId[t.id] ?? []).map((h) => (
-                                    <li key={h.history_id} className="mb-4 ms-4">
+                                    <li key={h.id} className="mb-4 ms-4">
                                       <div className="absolute w-2 h-2 bg-indigo-400 rounded-full mt-1.5 -start-1.5 border border-white" />
                                       <time className="mb-1 text-xs font-normal leading-none text-gray-400">
                                         {new Date(h.changed_at).toLocaleString()} — {h.operation === "I" ? "Created" : h.operation === "U" ? "Updated" : "Deleted"}

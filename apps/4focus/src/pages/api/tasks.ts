@@ -18,6 +18,7 @@ const parseBody = async (
     contentType.includes("multipart/form-data")
   ) {
     const form = await request.formData();
+    console.log(form.get("estimatedDurationMinutes"));
     const toStringOrUndefined = (v: FormDataEntryValue | null) =>
       v == null ? undefined : v.toString();
     return {
@@ -26,6 +27,8 @@ const parseBody = async (
       description: toStringOrUndefined(form.get("description")),
       priority: toStringOrUndefined(form.get("priority")),
       status: toStringOrUndefined(form.get("status")),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      estimatedDurationMinutes: Number.parseInt(form.get("estimatedDurationMinutes") as any),
     } as Record<string, unknown>;
   }
 
@@ -56,6 +59,7 @@ const createTaskSchema = z.object({
     (v) => (v === "" ? undefined : v),
     z.enum(["todo", "pending", "done"]).optional(),
   ),
+  estimatedDurationMinutes: z.number().int().positive(),
 });
 
 const updateTaskSchema = z
@@ -106,6 +110,7 @@ export const POST: APIRoute = async (context) => {
 
   const raw = await parseBody(context.request);
   const parsed = createTaskSchema.safeParse(raw);
+  console.log(raw);
   if (!parsed.success) {
     if (isJsonRequest) {
       return new Response(JSON.stringify({ errors: parsed.error.flatten() }), {
@@ -121,7 +126,8 @@ export const POST: APIRoute = async (context) => {
     description: parsed.data.description ?? null,
     priority: parsed.data.priority ?? undefined,
     status: parsed.data.status ?? undefined,
-    owner_id: user.id,
+    user_id: user.id,
+    estimated_duration_minutes: parsed.data.estimatedDurationMinutes,
   };
 
   const { data, error } = await supabase

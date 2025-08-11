@@ -34,78 +34,119 @@ export type Database = {
   }
   public: {
     Tables: {
-      task_history: {
+      focus_sessions: {
         Row: {
-          changed_at: string
-          creation_date: string | null
-          description: string | null
-          history_id: number
-          operation: string
-          owner_id: string | null
-          priority: string | null
-          status: string | null
-          task_id: number
-          title: string | null
-          update_date: string | null
+          ended_at: string | null
+          id: number
+          started_at: string
+          status: string
+          task_id: number | null
+          total_interruptions: number
+          user_id: string
         }
         Insert: {
-          changed_at?: string
-          creation_date?: string | null
-          description?: string | null
-          history_id?: number
-          operation: string
-          owner_id?: string | null
-          priority?: string | null
-          status?: string | null
-          task_id: number
-          title?: string | null
-          update_date?: string | null
+          ended_at?: string | null
+          id?: number
+          started_at?: string
+          status?: string
+          task_id?: number | null
+          total_interruptions?: number
+          user_id: string
         }
         Update: {
-          changed_at?: string
-          creation_date?: string | null
-          description?: string | null
-          history_id?: number
-          operation?: string
-          owner_id?: string | null
-          priority?: string | null
-          status?: string | null
-          task_id?: number
-          title?: string | null
-          update_date?: string | null
+          ended_at?: string | null
+          id?: number
+          started_at?: string
+          status?: string
+          task_id?: number | null
+          total_interruptions?: number
+          user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "focus_sessions_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tasks: {
         Row: {
           creation_date: string
           description: string | null
+          estimated_duration_minutes: number
           id: number
-          owner_id: string
           priority: string
           status: string
           title: string
           update_date: string
+          user_id: string
         }
         Insert: {
           creation_date?: string
           description?: string | null
+          estimated_duration_minutes: number
           id?: number
-          owner_id: string
           priority?: string
           status?: string
           title: string
           update_date?: string
+          user_id: string
         }
         Update: {
           creation_date?: string
           description?: string | null
+          estimated_duration_minutes?: number
           id?: number
-          owner_id?: string
           priority?: string
           status?: string
           title?: string
           update_date?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tasks_history: {
+        Row: {
+          changed_at: string
+          creation_date: string | null
+          description: string | null
+          id: number
+          operation: string
+          priority: string | null
+          status: string | null
+          task_id: number
+          title: string | null
+          update_date: string | null
+          user_id: string | null
+        }
+        Insert: {
+          changed_at?: string
+          creation_date?: string | null
+          description?: string | null
+          id?: number
+          operation: string
+          priority?: string | null
+          status?: string | null
+          task_id: number
+          title?: string | null
+          update_date?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          changed_at?: string
+          creation_date?: string | null
+          description?: string | null
+          id?: number
+          operation?: string
+          priority?: string | null
+          status?: string | null
+          task_id?: number
+          title?: string | null
+          update_date?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
