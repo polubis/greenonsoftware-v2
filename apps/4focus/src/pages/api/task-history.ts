@@ -29,7 +29,9 @@ export const GET: APIRoute = async (context) => {
 
   const { data, error } = await supabase
     .from("tasks_history")
-    .select("id, task_id, operation, changed_at, title, description, priority, status, creation_date, update_date")
+    .select(
+      "id, task_id, operation, changed_at, title, description, priority, status, creation_date, update_date",
+    )
     .eq("task_id", taskId)
     .order("changed_at", { ascending: false });
 
@@ -42,5 +44,3 @@ export const GET: APIRoute = async (context) => {
     headers: { "content-type": "application/json" },
   });
 };
-
-

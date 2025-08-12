@@ -1,8 +1,9 @@
 import type { APIRoute } from "astro";
-import { createSupabaseServerClient } from "../../shared/db/supabase-server";
-import type { TablesInsert, TablesUpdate } from "../../shared/db/database.types";
-import { AppRouter } from "../../shared/routing/app-router";
+import { createSupabaseServerClient } from "@/shared/db/supabase-server";
+import type { TablesInsert, TablesUpdate } from "@/shared/db/database.types";
+import { AppRouter } from "@/shared/routing/app-router";
 import { z } from "zod";
+import type { Focus4Contracts } from "@/shared/contracts";
 
 const parseBody = async (
   request: Request,
@@ -18,7 +19,7 @@ const parseBody = async (
     contentType.includes("multipart/form-data")
   ) {
     const form = await request.formData();
-    
+
     const toStringOrUndefined = (v: FormDataEntryValue | null) =>
       v == null ? undefined : v.toString();
     return {
@@ -27,8 +28,10 @@ const parseBody = async (
       description: toStringOrUndefined(form.get("description")),
       priority: toStringOrUndefined(form.get("priority")),
       status: toStringOrUndefined(form.get("status")),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      estimatedDurationMinutes: Number.parseInt(form.get("estimatedDurationMinutes") as any),
+      estimatedDurationMinutes: Number.parseInt(
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        form.get("estimatedDurationMinutes") as any,
+      ),
     } as Record<string, unknown>;
   }
 
@@ -66,27 +69,44 @@ const updateTaskSchema = z
   .object({
     id: z.coerce.number().int().positive(),
     title: z
-      .preprocess((v) => (typeof v === "string" ? v.trim() : undefined),
-        z.string().min(3, { message: "title must be 3-280 characters" }).max(280, { message: "title must be 3-280 characters" })
+      .preprocess(
+        (v) => (typeof v === "string" ? v.trim() : undefined),
+        z
+          .string()
+          .min(3, { message: "title must be 3-280 characters" })
+          .max(280, { message: "title must be 3-280 characters" }),
       )
       .optional(),
     description: z
-      .preprocess((v) => {
-        if (v === undefined) return undefined;
-        if (v == null) return null;
-        const trimmed = String(v).trim();
-        return trimmed === "" ? null : trimmed;
-      }, z.union([z.literal(null), z.string().min(10).max(500)]))
+      .preprocess(
+        (v) => {
+          if (v === undefined) return undefined;
+          if (v == null) return null;
+          const trimmed = String(v).trim();
+          return trimmed === "" ? null : trimmed;
+        },
+        z.union([z.literal(null), z.string().min(10).max(500)]),
+      )
       .optional(),
     priority: z
-      .preprocess((v) => (v === "" ? undefined : v), z.enum(["urgent", "high", "normal", "low"]))
+      .preprocess(
+        (v) => (v === "" ? undefined : v),
+        z.enum(["urgent", "high", "normal", "low"]),
+      )
       .optional(),
     status: z
-      .preprocess((v) => (v === "" ? undefined : v), z.enum(["todo", "pending", "done"]))
+      .preprocess(
+        (v) => (v === "" ? undefined : v),
+        z.enum(["todo", "pending", "done"]),
+      )
       .optional(),
   })
   .refine(
-    (d) => d.title !== undefined || d.description !== undefined || d.priority !== undefined || d.status !== undefined,
+    (d) =>
+      d.title !== undefined ||
+      d.description !== undefined ||
+      d.priority !== undefined ||
+      d.status !== undefined,
     { message: "At least one field must be provided for update", path: ["_"] },
   );
 
@@ -151,30 +171,57 @@ export const POST: APIRoute = async (context) => {
 };
 
 export const GET: APIRoute = async (context) => {
-  const supabase = createSupabaseServerClient(context);
+  try {
+    const supabase = createSupabaseServerClient(context);
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-  if (userError || !user) {
-    return new Response("Unauthorized", { status: 401 });
+    if (userError || !user) {
+      const apiError: Focus4Contracts["getTasks"]["error"] = {
+        type: "unauthorized",
+        status: 401,
+        message: "Unauthorized",
+      };
+      return new Response(JSON.stringify(apiError), {
+        status: apiError.status,
+      });
+    }
+
+    const { data, error } = await supabase
+      .from("tasks")
+      .select("*")
+      .order("creation_date", { ascending: false });
+
+    if (error) {
+      const apiError: Focus4Contracts["getTasks"]["error"] = {
+        type: "bad_request",
+        status: 400,
+        message: error.message,
+      };
+      return new Response(JSON.stringify(apiError), {
+        status: apiError.status,
+      });
+    }
+
+    const dto: Focus4Contracts["getTasks"]["dto"] = {
+      tasks: data,
+    };
+
+    return new Response(JSON.stringify(dto), {
+      status: 200,
+      headers: { "content-type": "application/json" },
+    });
+  } catch {
+    const apiError: Focus4Contracts["getTasks"]["error"] = {
+      type: "internal_server_error",
+      status: 500,
+      message: "Something went wrong during the request for tasks",
+    };
+    return new Response(JSON.stringify(apiError), { status: apiError.status });
   }
-
-  const { data, error } = await supabase
-    .from("tasks")
-    .select("*")
-    .order("creation_date", { ascending: false });
-
-  if (error) {
-    return new Response(error.message, { status: 400 });
-  }
-
-  return new Response(JSON.stringify(data ?? []), {
-    status: 200,
-    headers: { "content-type": "application/json" },
-  });
 };
 
 export const PATCH: APIRoute = async (context) => {

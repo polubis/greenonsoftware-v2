@@ -25,7 +25,7 @@ export const createSupabaseServerClient = ({
         },
         setAll(cookiesToSet) {
           cookiesToSet.forEach(({ name, value, options }) =>
-            cookies.set(name, value, options)
+            cookies.set(name, value, options),
           );
         },
       },

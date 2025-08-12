@@ -4,18 +4,21 @@ import { useClientAuth } from "../../shared/client-auth/use-client-auth";
 import type { ClientAuthState } from "../../shared/client-auth/client-auth-store";
 import { useEffect, useState } from "react";
 import { APIRouter } from "../../shared/routing/api-router";
+import type { Focus4Contracts } from "@/shared/contracts";
 
 const TasksView = () => {
   const auth = useClientAuth();
-  const [tasks, setTasks] = useState<Array<{
-    id: number;
-    title: string;
-    description: string | null;
-    priority: string;
-    status: string;
-    creation_date: string;
-    update_date: string;
-  }>>([]);
+  const [tasks, setTasks] = useState<
+    Array<{
+      id: number;
+      title: string;
+      description: string | null;
+      priority: string;
+      status: string;
+      creation_date: string;
+      update_date: string;
+    }>
+  >([]);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -28,20 +31,27 @@ const TasksView = () => {
   const [deletingId, setDeletingId] = useState<number | null>(null);
   const [deleteError, setDeleteError] = useState<string | null>(null);
   const [expandedTaskId, setExpandedTaskId] = useState<number | null>(null);
-  const [historyByTaskId, setHistoryByTaskId] = useState<Record<number, Array<{
-    id: number;
-    task_id: number;
-    operation: string;
-    changed_at: string;
-    title: string | null;
-    description: string | null;
-    priority: string | null;
-    status: string | null;
-    creation_date: string | null;
-    update_date: string | null;
-  }>>>({});
+  const [historyByTaskId, setHistoryByTaskId] = useState<
+    Record<
+      number,
+      Array<{
+        id: number;
+        task_id: number;
+        operation: string;
+        changed_at: string;
+        title: string | null;
+        description: string | null;
+        priority: string | null;
+        status: string | null;
+        creation_date: string | null;
+        update_date: string | null;
+      }>
+    >
+  >({});
   const [historyLoadingId, setHistoryLoadingId] = useState<number | null>(null);
-  const [historyErrorByTaskId, setHistoryErrorByTaskId] = useState<Record<number, string | null>>({});
+  const [historyErrorByTaskId, setHistoryErrorByTaskId] = useState<
+    Record<number, string | null>
+  >({});
 
   useEffect(() => {
     let mounted = true;
@@ -50,15 +60,15 @@ const TasksView = () => {
       setLoading(true);
       setLoadError(null);
       try {
-        const res = await fetch(APIRouter.getPath("tasks"), {
-          headers: { accept: "application/json" },
-        });
+        const res = await fetch(APIRouter.getPath("tasks"));
         if (!res.ok) {
           const text = await res.text();
+          console.log(text);
           throw new Error(text || "Failed to load tasks");
         }
-        const data = (await res.json()) as typeof tasks;
-        if (mounted) setTasks(data);
+        const data = (await res.json()) as Focus4Contracts["getTasks"]["dto"];
+        console.log(data);
+        if (mounted) setTasks(data.tasks);
       } catch (e) {
         if (mounted) setLoadError((e as Error).message);
       } finally {
@@ -155,9 +165,12 @@ const TasksView = () => {
       setHistoryLoadingId(taskId);
       setHistoryErrorByTaskId((p) => ({ ...p, [taskId]: null }));
       try {
-        const res = await fetch(`${APIRouter.getPath("taskHistory")}?id=${taskId}`, {
-          headers: { accept: "application/json" },
-        });
+        const res = await fetch(
+          `${APIRouter.getPath("taskHistory")}?id=${taskId}`,
+          {
+            headers: { accept: "application/json" },
+          },
+        );
         if (!res.ok) {
           const text = await res.text();
           throw new Error(text || "Failed to load history");
@@ -176,7 +189,10 @@ const TasksView = () => {
         }>;
         setHistoryByTaskId((prev) => ({ ...prev, [taskId]: history }));
       } catch (e) {
-        setHistoryErrorByTaskId((p) => ({ ...p, [taskId]: (e as Error).message }));
+        setHistoryErrorByTaskId((p) => ({
+          ...p,
+          [taskId]: (e as Error).message,
+        }));
       } finally {
         setHistoryLoadingId(null);
       }
@@ -336,13 +352,17 @@ const TasksView = () => {
           </div>
 
           <div className="mt-10">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">Your Tasks</h3>
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              Your Tasks
+            </h3>
             {loading ? (
               <div className="text-sm text-gray-600">Loading tasks...</div>
             ) : loadError ? (
               <div className="text-sm text-red-600">{loadError}</div>
             ) : tasks.length === 0 ? (
-              <div className="text-sm text-gray-600">No tasks yet. Create your first task above.</div>
+              <div className="text-sm text-gray-600">
+                No tasks yet. Create your first task above.
+              </div>
             ) : (
               <ul role="list" className="space-y-3">
                 {tasks.map((t) => {
@@ -357,9 +377,13 @@ const TasksView = () => {
                         <>
                           <div className="flex items-start justify-between">
                             <div>
-                              <h4 className="text-base font-medium text-gray-900">{t.title}</h4>
+                              <h4 className="text-base font-medium text-gray-900">
+                                {t.title}
+                              </h4>
                               {t.description ? (
-                                <p className="mt-1 text-sm text-gray-700 whitespace-pre-wrap">{t.description}</p>
+                                <p className="mt-1 text-sm text-gray-700 whitespace-pre-wrap">
+                                  {t.description}
+                                </p>
                               ) : null}
                             </div>
                             <div className="ml-4 flex-shrink-0 flex items-center gap-2">
@@ -409,7 +433,9 @@ const TasksView = () => {
                           </div>
                           <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
                             <div>
-                              Created {new Date(t.creation_date).toLocaleString()} · Updated {new Date(t.update_date).toLocaleString()}
+                              Created{" "}
+                              {new Date(t.creation_date).toLocaleString()} ·
+                              Updated {new Date(t.update_date).toLocaleString()}
                             </div>
                             <button
                               type="button"
@@ -428,27 +454,70 @@ const TasksView = () => {
                           {expandedTaskId === t.id ? (
                             <div className="mt-3 border-t pt-3">
                               {historyLoadingId === t.id ? (
-                                <div className="text-xs text-gray-500">Loading history...</div>
+                                <div className="text-xs text-gray-500">
+                                  Loading history...
+                                </div>
                               ) : historyErrorByTaskId[t.id] ? (
-                                <div className="text-xs text-red-600">{historyErrorByTaskId[t.id]}</div>
+                                <div className="text-xs text-red-600">
+                                  {historyErrorByTaskId[t.id]}
+                                </div>
                               ) : (
                                 <ol className="relative border-s border-gray-200 ms-3">
                                   {(historyByTaskId[t.id] ?? []).map((h) => (
                                     <li key={h.id} className="mb-4 ms-4">
                                       <div className="absolute w-2 h-2 bg-indigo-400 rounded-full mt-1.5 -start-1.5 border border-white" />
                                       <time className="mb-1 text-xs font-normal leading-none text-gray-400">
-                                        {new Date(h.changed_at).toLocaleString()} — {h.operation === "I" ? "Created" : h.operation === "U" ? "Updated" : "Deleted"}
+                                        {new Date(
+                                          h.changed_at,
+                                        ).toLocaleString()}{" "}
+                                        —{" "}
+                                        {h.operation === "I"
+                                          ? "Created"
+                                          : h.operation === "U"
+                                            ? "Updated"
+                                            : "Deleted"}
                                       </time>
                                       <div className="text-sm text-gray-700">
-                                        {h.title ? <div><span className="font-medium">Title:</span> {h.title}</div> : null}
-                                        {h.description ? <div><span className="font-medium">Description:</span> {h.description}</div> : null}
-                                        {h.priority ? <div><span className="font-medium">Priority:</span> {h.priority}</div> : null}
-                                        {h.status ? <div><span className="font-medium">Status:</span> {h.status}</div> : null}
+                                        {h.title ? (
+                                          <div>
+                                            <span className="font-medium">
+                                              Title:
+                                            </span>{" "}
+                                            {h.title}
+                                          </div>
+                                        ) : null}
+                                        {h.description ? (
+                                          <div>
+                                            <span className="font-medium">
+                                              Description:
+                                            </span>{" "}
+                                            {h.description}
+                                          </div>
+                                        ) : null}
+                                        {h.priority ? (
+                                          <div>
+                                            <span className="font-medium">
+                                              Priority:
+                                            </span>{" "}
+                                            {h.priority}
+                                          </div>
+                                        ) : null}
+                                        {h.status ? (
+                                          <div>
+                                            <span className="font-medium">
+                                              Status:
+                                            </span>{" "}
+                                            {h.status}
+                                          </div>
+                                        ) : null}
                                       </div>
                                     </li>
                                   ))}
-                                  {(historyByTaskId[t.id] ?? []).length === 0 ? (
-                                    <li className="ms-4 text-xs text-gray-500">No history yet.</li>
+                                  {(historyByTaskId[t.id] ?? []).length ===
+                                  0 ? (
+                                    <li className="ms-4 text-xs text-gray-500">
+                                      No history yet.
+                                    </li>
                                   ) : null}
                                 </ol>
                               )}
@@ -459,7 +528,9 @@ const TasksView = () => {
                         <div onClick={(e) => e.stopPropagation()}>
                           <div className="space-y-3">
                             <div>
-                              <label className="block text-sm font-medium text-gray-700">Title</label>
+                              <label className="block text-sm font-medium text-gray-700">
+                                Title
+                              </label>
                               <input
                                 value={editTitle}
                                 onChange={(e) => setEditTitle(e.target.value)}
@@ -470,26 +541,38 @@ const TasksView = () => {
                             </div>
 
                             <div>
-                              <label className="block text-sm font-medium text-gray-700">Description</label>
+                              <label className="block text-sm font-medium text-gray-700">
+                                Description
+                              </label>
                               <textarea
                                 value={editDescription ?? ""}
                                 onChange={(e) =>
-                                  setEditDescription(e.target.value.trim() === "" ? null : e.target.value)
+                                  setEditDescription(
+                                    e.target.value.trim() === ""
+                                      ? null
+                                      : e.target.value,
+                                  )
                                 }
                                 rows={3}
                                 minLength={editDescription ? 10 : undefined}
                                 maxLength={500}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                               />
-                              <p className="mt-1 text-xs text-gray-500">Leave empty or use 10–500 characters.</p>
+                              <p className="mt-1 text-xs text-gray-500">
+                                Leave empty or use 10–500 characters.
+                              </p>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                               <div>
-                                <label className="block text-sm font-medium text-gray-700">Priority</label>
+                                <label className="block text-sm font-medium text-gray-700">
+                                  Priority
+                                </label>
                                 <select
                                   value={editPriority}
-                                  onChange={(e) => setEditPriority(e.target.value)}
+                                  onChange={(e) =>
+                                    setEditPriority(e.target.value)
+                                  }
                                   className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 >
                                   <option value="urgent">Urgent</option>
@@ -499,10 +582,14 @@ const TasksView = () => {
                                 </select>
                               </div>
                               <div>
-                                <label className="block text-sm font-medium text-gray-700">Status</label>
+                                <label className="block text-sm font-medium text-gray-700">
+                                  Status
+                                </label>
                                 <select
                                   value={editStatus}
-                                  onChange={(e) => setEditStatus(e.target.value)}
+                                  onChange={(e) =>
+                                    setEditStatus(e.target.value)
+                                  }
                                   className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                                 >
                                   <option value="todo">To do</option>
@@ -513,17 +600,25 @@ const TasksView = () => {
                             </div>
 
                             {saveError ? (
-                              <div className="text-sm text-red-600">{saveError}</div>
+                              <div className="text-sm text-red-600">
+                                {saveError}
+                              </div>
                             ) : null}
                             {deleteError ? (
-                              <div className="text-sm text-red-600">{deleteError}</div>
+                              <div className="text-sm text-red-600">
+                                {deleteError}
+                              </div>
                             ) : null}
 
                             <div className="flex items-center gap-2">
                               <button
                                 type="button"
                                 onClick={saveEdits}
-                                disabled={saving || editTitle.trim().length < 3 || editTitle.trim().length > 280}
+                                disabled={
+                                  saving ||
+                                  editTitle.trim().length < 3 ||
+                                  editTitle.trim().length > 280
+                                }
                                 className="inline-flex justify-center py-1.5 px-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                               >
                                 {saving ? "Saving..." : "Save"}
@@ -539,7 +634,8 @@ const TasksView = () => {
                             </div>
                           </div>
                           <div className="mt-2 text-xs text-gray-500">
-                            Created {new Date(t.creation_date).toLocaleString()} · Updated {new Date(t.update_date).toLocaleString()}
+                            Created {new Date(t.creation_date).toLocaleString()}{" "}
+                            · Updated {new Date(t.update_date).toLocaleString()}
                           </div>
                         </div>
                       )}
