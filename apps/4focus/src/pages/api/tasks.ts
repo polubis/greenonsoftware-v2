@@ -18,7 +18,7 @@ const parseBody = async (
     contentType.includes("multipart/form-data")
   ) {
     const form = await request.formData();
-    console.log(form.get("estimatedDurationMinutes"));
+    
     const toStringOrUndefined = (v: FormDataEntryValue | null) =>
       v == null ? undefined : v.toString();
     return {
@@ -110,7 +110,7 @@ export const POST: APIRoute = async (context) => {
 
   const raw = await parseBody(context.request);
   const parsed = createTaskSchema.safeParse(raw);
-  console.log(raw);
+
   if (!parsed.success) {
     if (isJsonRequest) {
       return new Response(JSON.stringify({ errors: parsed.error.flatten() }), {

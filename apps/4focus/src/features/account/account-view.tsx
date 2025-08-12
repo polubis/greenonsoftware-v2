@@ -1,7 +1,7 @@
-import { AppRouter } from "../../shared/routing/app-router";
-import { NavBar } from "../../shared/components/nav-bar";
-import { useClientAuth } from "../../shared/client-auth/use-client-auth";
-import type { ClientAuthState } from "../../shared/client-auth/client-auth-store";
+import { AppRouter } from "@/shared/routing/app-router";
+import { NavBar } from "@/shared/components/nav-bar";
+import { useClientAuth } from "@/shared/client-auth/use-client-auth";
+import type { ClientAuthState } from "@/shared/client-auth/client-auth-store";
 
 const AccountView = () => {
   const auth = useClientAuth();
