@@ -151,7 +151,27 @@ const cleanAPIBrowser =
       }
     };
 
-    return { call, parseError };
+    const safeCall = async <TKey extends keyof TContracts>(
+      key: TKey,
+      ...args: TContracts[TKey] extends
+        | { pathParams: any }
+        | { searchParams: any }
+        | { payload: any }
+        ? [input: InferInput<TContracts, TContracts[TKey]>]
+        : []
+    ): Promise<
+      | [true, TContracts[TKey]["dto"]]
+      | [false, TContracts[TKey]["error"] | CleanBrowserAPIError]
+    > => {
+      try {
+        const result = await call(key, ...args as any);
+        return [true, result];
+      } catch (error) {
+        return [false, parseError(key, error)];
+      }
+    };
+
+    return { call, safeCall, parseError };
   };
 
 export { cleanAPIBrowser };

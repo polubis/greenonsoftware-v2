@@ -272,5 +272,214 @@ focus4APIBrowser
     const _ = res.success;
   });
 
+// ##################################################################
+// # safeCall tests
+// ##################################################################
+
+focus4APIBrowser.safeCall("getTasks").then((res) => {
+  if (res[0]) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res[1].tasks;
+  } else {
+    const error = res[1];
+    if (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = error.type;
+    }
+  }
+});
+
+// @ts-expect-error - Unexpected arguments for getTasks which takes no arguments
+focus4APIBrowser.safeCall("getTasks", {}).then((res) => {
+  if (res[0]) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res[1].tasks;
+  }
+});
+
+focus4APIBrowser
+  .safeCall("getTask", { pathParams: { id: 1 }, searchParams: { limit: 10 } })
+  .then((res) => {
+    if (res[0]) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = res[1].task;
+    } else {
+      const error = res[1];
+      if (error) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const _ = error.type;
+      }
+    }
+  });
+
+focus4APIBrowser
+  // @ts-expect-error - Missing pathParams
+  .safeCall("getTask", { searchParams: { limit: 10 } })
+  .then((res) => {
+    if (res[0]) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = res[1].task;
+    }
+  });
+
+focus4APIBrowser
+  // @ts-expect-error - Missing searchParams
+  .safeCall("getTask", { pathParams: { id: 1 } })
+  .then((res) => {
+    if (res[0]) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = res[1].task;
+    }
+  });
+
+focus4APIBrowser
+  // @ts-expect-error - Missing pathParams and searchParams
+  .safeCall("getTask", {})
+  .then((res) => {
+    if (res[0]) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = res[1].task;
+    }
+  });
+
+focus4APIBrowser
+  // @ts-expect-error - Missing all arguments
+  .safeCall("getTask")
+  .then((res) => {
+    if (res[0]) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = res[1].task;
+    }
+  });
+
+focus4APIBrowser
+  .safeCall("createTask", {
+    payload: {
+      query: "test",
+    },
+    searchParams: {
+      limit: 10,
+    },
+  })
+  .then((res) => {
+    if (res[0]) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = res[1].task;
+    } else {
+      const error = res[1];
+      if (error) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const _ = error.type;
+      }
+    }
+  });
+
+focus4APIBrowser
+  .safeCall("updateTask", {
+    payload: { query: "test" },
+    pathParams: { id: 1 },
+    searchParams: { limit: 10 },
+  })
+  .then((res) => {
+    if (res[0]) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = res[1].task;
+    } else {
+      const error = res[1];
+      if (error) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const _ = error.type;
+      }
+    }
+  });
+
+focus4APIBrowser
+  // @ts-expect-error - Missing searchParams
+  .safeCall("updateTask", {
+    payload: { query: "test" },
+    pathParams: { id: 1 },
+  })
+  .then((res) => {
+    if (res[0]) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = res[1].task;
+    }
+  });
+
+focus4APIBrowser
+  // @ts-expect-error - Missing pathParams
+  .safeCall("updateTask", {
+    payload: { query: "test" },
+    searchParams: { limit: 10 },
+  })
+  .then((res) => {
+    if (res[0]) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = res[1].task;
+    }
+  });
+
+focus4APIBrowser
+  // @ts-expect-error - Missing payload
+  .safeCall("updateTask", {
+    pathParams: { id: 1 },
+    searchParams: { limit: 10 },
+  })
+  .then((res) => {
+    if (res[0]) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = res[1].task;
+    }
+  });
+
+focus4APIBrowser
+  .safeCall("putTask", {
+    payload: { query: "test" },
+    pathParams: { id: 1 },
+    searchParams: { limit: 10 },
+  })
+  .then((res) => {
+    if (res[0]) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = res[1].task;
+    }
+  });
+
+focus4APIBrowser
+  // @ts-expect-error - Missing payload
+  .safeCall("putTask", {
+    pathParams: { id: 1 },
+    searchParams: { limit: 10 },
+  })
+  .then((res) => {
+    if (res[0]) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = res[1].task;
+    }
+  });
+
+focus4APIBrowser.safeCall("deleteTask", { pathParams: { id: 1 } }).then((res) => {
+  if (res[0]) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res[1].success;
+  } else {
+    const error = res[1];
+    if (error) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = error.type;
+    }
+  }
+});
+
+focus4APIBrowser
+  // @ts-expect-error - Missing pathParams
+  .safeCall("deleteTask", {})
+  .then((res) => {
+    if (res[0]) {
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const _ = res[1].success;
+    }
+  });
+
 export type { Focus4Contracts };
 export { focus4APIBrowser };
