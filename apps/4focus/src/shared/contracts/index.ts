@@ -75,7 +75,7 @@ type Focus4Contracts = {
   };
 };
 
-const focus4APIConfig = {
+const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>()({
   getTasks: {
     method: "get",
     path: "/api/tasks",
@@ -100,9 +100,7 @@ const focus4APIConfig = {
     method: "delete",
     path: "/api/tasks/:id",
   },
-} as const;
-
-const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>()(focus4APIConfig);
+});
 
 export type { Focus4Contracts };
 export { focus4APIBrowser };

@@ -163,6 +163,7 @@ const cleanAPIBrowser =
       | [false, TContracts[TKey]["error"] | CleanBrowserAPIError]
     > => {
       try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         const result = await call(key, ...args as any);
         return [true, result];
       } catch (error) {
