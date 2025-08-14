@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
 import type {
@@ -10,7 +9,7 @@ import type {
 
 const applyPathParams = (
   path: string,
-  pathParams?: Record<string, any>
+  pathParams?: Record<string, unknown>
 ): string => {
   let finalPath = path;
   if (pathParams) {
@@ -37,17 +36,17 @@ const cleanAPIBrowser =
     const call = async <TKey extends keyof TContracts>(
       key: TKey,
       ...args: TContracts[TKey] extends
-        | { pathParams: any }
-        | { searchParams: any }
-        | { payload: any }
+        | { pathParams: unknown }
+        | { searchParams: unknown }
+        | { payload: unknown }
         ? [input: InferInput<TContracts, TContracts[TKey]>]
         : []
     ): Promise<TContracts[TKey]["dto"]> => {
       const input = args[0] as
         | {
-            pathParams?: Record<string, any>;
-            searchParams?: Record<string, any>;
-            payload?: any;
+            pathParams?: Record<string, unknown>;
+            searchParams?: Record<string, unknown>;
+            payload?: unknown;
           }
         | undefined;
       const contract = config[key];
@@ -154,9 +153,9 @@ const cleanAPIBrowser =
     const safeCall = async <TKey extends keyof TContracts>(
       key: TKey,
       ...args: TContracts[TKey] extends
-        | { pathParams: any }
-        | { searchParams: any }
-        | { payload: any }
+        | { pathParams: unknown }
+        | { searchParams: unknown }
+        | { payload: unknown }
         ? [input: InferInput<TContracts, TContracts[TKey]>]
         : []
     ): Promise<

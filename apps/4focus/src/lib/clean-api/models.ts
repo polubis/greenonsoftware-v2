@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 type ErrorVariant<
   T extends string,
   TStatus extends number,
@@ -22,11 +21,11 @@ type ErrorVariant<
 type CleanAPIContracts = Record<
   string,
   {
-    dto: any;
+    dto: unknown;
     error: ErrorVariant<string, number, string>;
-    payload?: any;
-    pathParams?: Record<string, any>;
-    searchParams?: Record<string, any>;
+    payload?: unknown;
+    pathParams?: Record<string, unknown>;
+    searchParams?: Record<string, unknown>;
   }
 >;
 

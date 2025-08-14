@@ -18,14 +18,11 @@ type InternalServerError = ErrorVariant<"internal_server_error", 500, string>;
 type Focus4Contracts = {
   getTasks: {
     dto: { tasks: TaskRow[] };
-    error:
-      | BadRequestError
-      | UnauthorizedError
-      | InternalServerError
+    error: BadRequestError | UnauthorizedError | InternalServerError;
   };
   getTask: {
     dto: { task: TaskRow };
-    error:  BadRequestError | UnauthorizedError | InternalServerError;
+    error: BadRequestError | UnauthorizedError | InternalServerError;
     pathParams: {
       id: number;
     };
@@ -78,7 +75,7 @@ type Focus4Contracts = {
   };
 };
 
-const focus4APIConfig = {
+const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>()({
   getTasks: {
     method: "get",
     path: "/api/tasks",
@@ -103,9 +100,7 @@ const focus4APIConfig = {
     method: "delete",
     path: "/api/tasks/:id",
   },
-} as const;
-
-const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>()(focus4APIConfig);
+});
 
 focus4APIBrowser.call("getTasks").then((res) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -121,7 +116,8 @@ focus4APIBrowser
   .then((res) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = res.task;
-  }).catch(error => {
+  })
+  .catch((error) => {
     const r = focus4APIBrowser.parseError("getTask", error);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = r?.type;
@@ -458,17 +454,19 @@ focus4APIBrowser
     }
   });
 
-focus4APIBrowser.safeCall("deleteTask", { pathParams: { id: 1 } }).then(([ok, data]) => {
-  if (ok) {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _ = data.success
-  } else {
-    if (data) {
+focus4APIBrowser
+  .safeCall("deleteTask", { pathParams: { id: 1 } })
+  .then(([ok, data]) => {
+    if (ok) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const _ = data.type;
+      const _ = data.success;
+    } else {
+      if (data) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const _ = data.type;
+      }
     }
-  }
-});
+  });
 
 focus4APIBrowser
   // @ts-expect-error - Missing pathParams
