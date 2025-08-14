@@ -54,6 +54,19 @@ type Focus4Contracts = {
       limit: number;
     }
   }
+  updateTask: {
+    dto: { task: TaskRow };
+    error: BadRequestError | UnauthorizedError;
+    payload: {
+      query: string
+    }
+    searchParams: {
+      limit: number;
+    }
+    pathParams: {
+      id: number;
+    }
+  }
 };
 
 const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>({
@@ -67,6 +80,10 @@ const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>({
   },
   createTask: {
     method: "post",
+    path: "/api/tasks",
+  },
+  updateTask: {
+    method: "patch",
     path: "/api/tasks",
   },
 });
@@ -84,9 +101,58 @@ focus4APIBrowser.post("createTask", {
   searchParams: {
     limit: 10,
   },
-}).then((res) => { }).catch(error =>{
-  const r =  focus4APIBrowser.parseError('createTask', error);
+}).then((res) => { }).catch(error => {
+  const r = focus4APIBrowser.parseError('createTask', error);
   r?.type
 });
+
+focus4APIBrowser.patch("updateTask", {
+  payload: {
+    query: "test",
+  },
+  searchParams: {
+    limit: 10,
+  },
+  pathParams: {
+    id: 1
+  }
+}).then((res) => { }).catch(error => {
+  const r = focus4APIBrowser.parseError('createTask', error);
+  r?.type
+});
+
+focus4APIBrowser.call("getTasks").then((res) => { });
+focus4APIBrowser
+  .call("getTask", { pathParams: { id: 1 }, searchParams: { limit: 10 } })
+  .then((res) => { });
+focus4APIBrowser.call("getTasks").then((res) => { });
+
+focus4APIBrowser.call("createTask", {
+  payload: {
+    query: "test",
+  },
+  searchParams: {
+    limit: 10,
+  },
+}).then((res) => { }).catch(error => {
+  const r = focus4APIBrowser.parseError('createTask', error);
+  r?.type
+});
+
+focus4APIBrowser.call("updateTask", {
+  payload: {
+    query: "test",
+  },
+  searchParams: {
+    limit: 10,
+  },
+  pathParams: {
+    id: 1
+  }
+}).then((res) => { }).catch(error => {
+  const r = focus4APIBrowser.parseError('createTask', error);
+  r?.type
+});
+
 
 export type { Focus4Contracts };
