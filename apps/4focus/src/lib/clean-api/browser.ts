@@ -24,6 +24,13 @@ const applyPathParams = (
   return finalPath;
 };
 
+type CleanBrowserAPIError =
+  | ErrorVariant<"aborted", 0, string>
+  | ErrorVariant<"client_exception", -1, string>
+  | ErrorVariant<"no_internet", -2, string>
+  | ErrorVariant<"no_server_response", -3, string>
+  | ErrorVariant<"configuration_issue", -4, string>;
+
 const cleanAPIBrowser =
   <TContracts extends CleanAPIContracts>() =>
   <TConfig extends CleanAPIBrowserConfig<TContracts>>(config: TConfig) => {
@@ -65,13 +72,7 @@ const cleanAPIBrowser =
     const parseError = <TKey extends keyof TContracts>(
       _: TKey,
       error: unknown
-    ):
-      | TContracts[TKey]["error"]
-      | ErrorVariant<"aborted", 0, string>
-      | ErrorVariant<"client_exception", -1, string>
-      | ErrorVariant<"no_internet", -2, string>
-      | ErrorVariant<"no_server_response", -3, string>
-      | ErrorVariant<"configuration_issue", -4, string> => {
+    ): TContracts[TKey]["error"] | CleanBrowserAPIError => {
       if (axios.isAxiosError(error)) {
         // Case 1: The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -90,7 +91,10 @@ const cleanAPIBrowser =
         // `error.request` is an instance of XMLHttpRequest in the browser.
         else if (error.request) {
           if (typeof navigator !== "undefined" && !navigator.onLine) {
-            const result: ErrorVariant<"no_internet", -2, string> = {
+            const result: Extract<
+              CleanBrowserAPIError,
+              { type: "no_internet" }
+            > = {
               status: -2,
               type: "no_internet",
               message: "No internet connection",
@@ -99,7 +103,10 @@ const cleanAPIBrowser =
 
             return result;
           } else {
-            const result: ErrorVariant<"no_server_response", -3, string> = {
+            const result: Extract<
+              CleanBrowserAPIError,
+              { type: "no_server_response" }
+            > = {
               status: -3,
               type: "no_server_response",
               message: "No server response",
@@ -111,7 +118,10 @@ const cleanAPIBrowser =
         // Case 3: Something happened in setting up the request that triggered an Error.
         // This could be a configuration issue, or an issue with the request itself before it was sent.
         else {
-          const result: ErrorVariant<"configuration_issue", -4, string> = {
+          const result: Extract<
+            CleanBrowserAPIError,
+            { type: "configuration_issue" }
+          > = {
             status: -4,
             type: "configuration_issue",
             message: "Error setting up the request",
@@ -120,7 +130,7 @@ const cleanAPIBrowser =
           return result;
         }
       } else if (axios.isCancel(error)) {
-        const result: ErrorVariant<"aborted", 0, string> = {
+        const result: Extract<CleanBrowserAPIError, { type: "aborted" }> = {
           status: 0,
           type: "aborted",
           message: "Request aborted",
@@ -128,7 +138,10 @@ const cleanAPIBrowser =
         };
         return result;
       } else {
-        const result: ErrorVariant<"client_exception", -1, string> = {
+        const result: Extract<
+          CleanBrowserAPIError,
+          { type: "client_exception" }
+        > = {
           status: -1,
           type: "client_exception",
           message: "Client exception",
