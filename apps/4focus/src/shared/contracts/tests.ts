@@ -458,15 +458,14 @@ focus4APIBrowser
     }
   });
 
-focus4APIBrowser.safeCall("deleteTask", { pathParams: { id: 1 } }).then((res) => {
-  if (res[0]) {
+focus4APIBrowser.safeCall("deleteTask", { pathParams: { id: 1 } }).then(([ok, data]) => {
+  if (ok) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const _ = res[1].success;
+    const _ = data.success
   } else {
-    const error = res[1];
-    if (error) {
+    if (data) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const _ = error.type;
+      const _ = data.type;
     }
   }
 });
