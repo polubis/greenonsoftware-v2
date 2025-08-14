@@ -1,82 +1,91 @@
 import { cleanAPIBrowser } from "@/lib/clean-api/browser";
 import type { Database } from "../db/database.types";
+import type { ErrorVariant } from "@/lib/clean-api/models";
 
 type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
 
-type OmitUndefined<T> = {
-  [K in keyof T as T[K] extends undefined ? never : K]: T[K];
-};
-
-type ErrorVariant<
-  T extends string,
-  TStatus extends number,
-  TMessage extends string,
-  TMeta = undefined,
-> = TMeta extends undefined
-  ? {
-    type: T;
-    status: TStatus;
-    message: TMessage;
+type BadRequestError = ErrorVariant<
+  "bad_request",
+  400,
+  string,
+  {
+    id: number;
   }
-  : {
-    type: T;
-    status: TStatus;
-    message: TMessage;
-    meta: TMeta;
-  };
-
-type BadRequestError = ErrorVariant<"bad_request", 400, string>;
+>;
 type UnauthorizedError = ErrorVariant<"unauthorized", 401, string>;
 type InternalServerError = ErrorVariant<"internal_server_error", 500, string>;
 
 type Focus4Contracts = {
   getTasks: {
     dto: { tasks: TaskRow[] };
-    error: BadRequestError | UnauthorizedError | InternalServerError;
+    error:
+      | BadRequestError
+      | UnauthorizedError
+      | InternalServerError
   };
   getTask: {
     dto: { task: TaskRow };
-    error: BadRequestError | UnauthorizedError | InternalServerError;
+    error:  BadRequestError | UnauthorizedError | InternalServerError;
     pathParams: {
       id: number;
     };
     searchParams: {
       limit: number;
-    }
+    };
   };
   createTask: {
     dto: { task: TaskRow };
     error: BadRequestError | UnauthorizedError;
     payload: {
-      query: string
-    }
+      query: string;
+    };
     searchParams: {
       limit: number;
-    }
-  }
+    };
+  };
   updateTask: {
     dto: { task: TaskRow };
     error: BadRequestError | UnauthorizedError;
     payload: {
-      query: string
-    }
+      query: string;
+    };
     searchParams: {
       limit: number;
-    }
+    };
     pathParams: {
       id: number;
-    }
-  }
+    };
+  };
+  putTask: {
+    dto: { task: TaskRow };
+    error: BadRequestError | UnauthorizedError;
+    payload: {
+      query: string;
+    };
+    pathParams: {
+      id: number;
+    };
+    searchParams: {
+      limit: number;
+    };
+  };
+  deleteTask: {
+    dto: { success: boolean };
+    error: BadRequestError | UnauthorizedError;
+    pathParams: {
+      id: number;
+    };
+  };
 };
 
-const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>({
+const focus4APIConfig = {
   getTasks: {
     method: "get",
     path: "/api/tasks",
   },
   getTask: {
     method: "get",
-    path: "/api/tasks",
+    path: "/api/tasks/:id",
   },
   createTask: {
     method: "post",
@@ -84,75 +93,184 @@ const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>({
   },
   updateTask: {
     method: "patch",
-    path: "/api/tasks",
+    path: "/api/tasks/:id",
   },
+  putTask: {
+    method: "put",
+    path: "/api/tasks/:id",
+  },
+  deleteTask: {
+    method: "delete",
+    path: "/api/tasks/:id",
+  },
+} as const;
+
+const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>()(focus4APIConfig);
+
+focus4APIBrowser.call("getTasks").then((res) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _ = res.tasks;
 });
-
-focus4APIBrowser.get("getTasks").then((res) => { });
-focus4APIBrowser
-  .get("getTask", { pathParams: { id: 1 }, searchParams: { limit: 10 } })
-  .then((res) => { });
-focus4APIBrowser.get("getTasks").then((res) => { });
-
-focus4APIBrowser.post("createTask", {
-  payload: {
-    query: "test",
-  },
-  searchParams: {
-    limit: 10,
-  },
-}).then((res) => { }).catch(error => {
-  const r = focus4APIBrowser.parseError('createTask', error);
-  r?.type
+// @ts-expect-error - Unexpected arguments for getTasks which takes no arguments
+focus4APIBrowser.call("getTasks", {}).then((res) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _ = res.tasks;
 });
-
-focus4APIBrowser.patch("updateTask", {
-  payload: {
-    query: "test",
-  },
-  searchParams: {
-    limit: 10,
-  },
-  pathParams: {
-    id: 1
-  }
-}).then((res) => { }).catch(error => {
-  const r = focus4APIBrowser.parseError('createTask', error);
-  r?.type
-});
-
-focus4APIBrowser.call("getTasks").then((res) => { });
 focus4APIBrowser
   .call("getTask", { pathParams: { id: 1 }, searchParams: { limit: 10 } })
-  .then((res) => { });
-focus4APIBrowser.call("getTasks").then((res) => { });
+  .then((res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res.task;
+  }).catch(error => {
+    const r = focus4APIBrowser.parseError("getTask", error);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = r?.type;
+  });
+focus4APIBrowser
+  // @ts-expect-error - Missing pathParams
+  .call("getTask", { searchParams: { limit: 10 } })
+  .then((res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res.task;
+  });
+focus4APIBrowser
+  // @ts-expect-error - Missing searchParams
+  .call("getTask", { pathParams: { id: 1 } })
+  .then((res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res.task;
+  });
+focus4APIBrowser
+  // @ts-expect-error - Missing pathParams and searchParams
+  .call("getTask", {})
+  .then((res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res.task;
+  });
+focus4APIBrowser
+  // @ts-expect-error - Missing all arguments
+  .call("getTask")
+  .then((res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res.task;
+  });
+focus4APIBrowser
+  .call("createTask", {
+    payload: {
+      query: "test",
+    },
+    searchParams: {
+      limit: 10,
+    },
+  })
+  .then((res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res.task;
+  })
+  .catch((error) => {
+    const r = focus4APIBrowser.parseError("createTask", error);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = r?.type;
+  });
 
-focus4APIBrowser.call("createTask", {
-  payload: {
-    query: "test",
-  },
-  searchParams: {
-    limit: 10,
-  },
-}).then((res) => { }).catch(error => {
-  const r = focus4APIBrowser.parseError('createTask', error);
-  r?.type
+focus4APIBrowser
+  .call("updateTask", {
+    payload: { query: "test" },
+    pathParams: { id: 1 },
+    searchParams: { limit: 10 },
+  })
+  .then((res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res.task;
+  })
+  .catch((error) => {
+    const r = focus4APIBrowser.parseError("createTask", error);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = r?.type;
+  });
+
+focus4APIBrowser
+  // @ts-expect-error - Missing searchParams
+  .call("updateTask", {
+    payload: { query: "test" },
+    pathParams: { id: 1 },
+  })
+  .then((res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res.task;
+  })
+  .catch((error) => {
+    const r = focus4APIBrowser.parseError("createTask", error);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = r?.type;
+  });
+
+focus4APIBrowser
+  // @ts-expect-error - Missing pathParams
+  .call("updateTask", {
+    payload: { query: "test" },
+    searchParams: { limit: 10 },
+  })
+  .then((res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res.task;
+  })
+  .catch((error) => {
+    const r = focus4APIBrowser.parseError("createTask", error);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = r?.type;
+  });
+
+focus4APIBrowser
+  // @ts-expect-error - Missing payload
+  .call("updateTask", {
+    pathParams: { id: 1 },
+    searchParams: { limit: 10 },
+  })
+  .then((res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res.task;
+  })
+  .catch((error) => {
+    const r = focus4APIBrowser.parseError("createTask", error);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = r?.type;
+  });
+
+focus4APIBrowser
+  .call("putTask", {
+    payload: { query: "test" },
+    pathParams: { id: 1 },
+    searchParams: { limit: 10 },
+  })
+  .then((res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res.task;
+  });
+
+focus4APIBrowser
+  // @ts-expect-error - Missing payload
+  .call("putTask", {
+    pathParams: { id: 1 },
+    searchParams: { limit: 10 },
+  })
+  .then((res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res.task;
+  });
+
+focus4APIBrowser.call("deleteTask", { pathParams: { id: 1 } }).then((res) => {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const _ = res.success;
 });
 
-focus4APIBrowser.call("updateTask", {
-  payload: {
-    query: "test",
-  },
-  searchParams: {
-    limit: 10,
-  },
-  pathParams: {
-    id: 1
-  }
-}).then((res) => { }).catch(error => {
-  const r = focus4APIBrowser.parseError('createTask', error);
-  r?.type
-});
-
+focus4APIBrowser
+  // @ts-expect-error - Missing pathParams
+  .call("deleteTask", {})
+  .then((res) => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = res.success;
+  });
 
 export type { Focus4Contracts };
+export { focus4APIBrowser };
