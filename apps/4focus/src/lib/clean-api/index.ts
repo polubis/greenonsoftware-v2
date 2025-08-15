@@ -299,10 +299,35 @@ const cleanAPIBrowser =
     return { call, safeCall, parseError };
   };
 
+// ##################################################################
+// # Server-side Implementation
+// ##################################################################
+
+const cleanAPIServer = <TContracts extends CleanAPIContracts>() => {
+  const dto = <TKey extends keyof TContracts>(
+    _key: TKey,
+    dto: TContracts[TKey]["dto"],
+  ): TContracts[TKey]["dto"] => {
+    return dto;
+  };
+
+  const error = <TKey extends keyof TContracts>(
+    _key: TKey,
+    error: TContracts[TKey]["error"],
+  ): TContracts[TKey]["error"] => {
+    return error;
+  };
+
+  return {
+    dto,
+    error,
+  };
+};
+
 export type {
   CleanAPIBrowserConfig,
   CleanAPIContracts,
   ErrorVariant,
   InferInput,
 };
-export { cleanAPIBrowser, contract };
+export { cleanAPIBrowser, cleanAPIServer, contract };

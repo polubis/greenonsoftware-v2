@@ -1,4 +1,9 @@
-import { cleanAPIBrowser, contract, type ErrorVariant } from "@/lib/clean-api";
+import {
+  cleanAPIBrowser,
+  cleanAPIServer,
+  contract,
+  type ErrorVariant,
+} from "@/lib/clean-api";
 import type { Database } from "../db/database.types";
 
 type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
@@ -27,6 +32,7 @@ const focus4Contract = createFocus4Contract({
 });
 
 const focus4APIBrowser = createFocus4API(focus4Contract);
+const focus4APIServer = cleanAPIServer<Focus4Contracts>();
 
 export type { Focus4Contracts };
-export { focus4APIBrowser };
+export { focus4APIBrowser, focus4APIServer };

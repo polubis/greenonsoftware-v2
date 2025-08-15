@@ -3,7 +3,7 @@ import { createSupabaseServerClient } from "@/shared/db/supabase-server";
 import type { TablesInsert, TablesUpdate } from "@/shared/db/database.types";
 import { AppRouter } from "@/shared/routing/app-router";
 import { z } from "zod";
-import type { Focus4Contracts } from "@/shared/contracts";
+import { focus4APIServer } from "@/shared/contracts";
 
 const parseBody = async (
   request: Request,
@@ -180,13 +180,14 @@ export const GET: APIRoute = async (context) => {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      const apiError: Focus4Contracts["getTasks"]["error"] = {
+      const apiError = focus4APIServer.error("getTasks", {
         type: "unauthorized",
         status: 401,
         message: "Unauthorized",
-      };
+      });
       return new Response(JSON.stringify(apiError), {
         status: apiError.status,
+        headers: { "content-type": "application/json" },
       });
     }
 
@@ -196,31 +197,35 @@ export const GET: APIRoute = async (context) => {
       .order("creation_date", { ascending: false });
 
     if (error) {
-      const apiError: Focus4Contracts["getTasks"]["error"] = {
-        type: "bad_request",
-        status: 400,
-        message: error.message,
-      };
+      const apiError = focus4APIServer.error("getTasks", {
+        type: "internal_server_error",
+        status: 500,
+        message: "Failed to fetch tasks",
+      });
       return new Response(JSON.stringify(apiError), {
         status: apiError.status,
+        headers: { "content-type": "application/json" },
       });
     }
 
-    const dto: Focus4Contracts["getTasks"]["dto"] = {
+    const dto = focus4APIServer.dto("getTasks", {
       tasks: data,
-    };
+    });
 
     return new Response(JSON.stringify(dto), {
       status: 200,
       headers: { "content-type": "application/json" },
     });
   } catch {
-    const apiError: Focus4Contracts["getTasks"]["error"] = {
+    const apiError = focus4APIServer.error("getTasks", {
       type: "internal_server_error",
       status: 500,
       message: "Something went wrong during the request for tasks",
-    };
-    return new Response(JSON.stringify(apiError), { status: apiError.status });
+    });
+    return new Response(JSON.stringify(apiError), {
+      status: apiError.status,
+      headers: { "content-type": "application/json" },
+    });
   }
 };
 
