@@ -1,6 +1,5 @@
-import { cleanAPIBrowser } from "@/lib/clean-api/browser";
+import { cleanAPIBrowser, type ErrorVariant } from "@/lib/clean-api/browser";
 import type { Database } from "../db/database.types";
-import type { ErrorVariant } from "@/lib/clean-api/models";
 
 type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
 
@@ -72,6 +71,28 @@ type Focus4Contracts = {
       id: number;
     };
   };
+  // ##################################################################
+  // # Path validation tests
+  // ##################################################################
+  pathMissingParam: {
+    dto: { success: boolean };
+    error: BadRequestError;
+    pathParams: { id: number };
+  };
+  pathExtraParam: {
+    dto: { success: boolean };
+    error: BadRequestError;
+    pathParams: { id: number };
+  };
+  pathMismatchParam: {
+    dto: { success: boolean };
+    error: BadRequestError;
+    pathParams: { id: number };
+  };
+  pathNoSlash: {
+    dto: { success: boolean };
+    error: BadRequestError;
+  };
 };
 
 const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>()({
@@ -98,6 +119,33 @@ const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>()({
   deleteTask: {
     method: "delete",
     path: "/api/tasks/:id",
+  },
+  // ##################################################################
+  // # Path validation tests
+  // ##################################################################
+  pathMissingParam: {
+    // @ts-expect-error - Path "/api/test" is missing parameters from contract.
+    method: "get",
+    // @ts-expect-error - Path "/api/test" is missing parameters from contract.
+    path: "/api/test",
+  },
+  pathExtraParam: {
+    // @ts-expect-error - Path "/api/test/:id/:extra" has parameters not defined in contract.
+    method: "get",
+    // @ts-expect-error - Path "/api/test/:id/:extra" has parameters not defined in contract.
+    path: "/api/test/:id/:extra",
+  },
+  pathMismatchParam: {
+    // @ts-expect-error - Path "/api/test/:wrong_id" is missing parameters from contract.
+    method: "get",
+    // @ts-expect-error - Path "/api/test/:wrong_id" is missing parameters from contract.
+    path: "/api/test/:wrong_id",
+  },
+  pathNoSlash: {
+    // @ts-expect-error - Path "api/test" must start with a '/'.
+    method: "get",
+    // @ts-expect-error - Path "api/test" must start with a '/'.
+    path: "api/test",
   },
 });
 

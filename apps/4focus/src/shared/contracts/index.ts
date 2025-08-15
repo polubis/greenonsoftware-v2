@@ -1,6 +1,5 @@
-import { cleanAPIBrowser } from "@/lib/clean-api/browser";
+import { cleanAPIBrowser, type ErrorVariant } from "@/lib/clean-api/browser";
 import type { Database } from "../db/database.types";
-import type { ErrorVariant } from "@/lib/clean-api/models";
 
 type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
 
