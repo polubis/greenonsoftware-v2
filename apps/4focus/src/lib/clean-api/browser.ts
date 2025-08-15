@@ -125,12 +125,24 @@ const contract =
     return config;
   };
 
+type AbortedError = ErrorVariant<"aborted", 0>;
+type ClientExceptionError = ErrorVariant<"client_exception", -1>;
+type NoInternetError = ErrorVariant<"no_internet", -2>;
+type NoServerResponseError = ErrorVariant<"no_server_response", -3>;
+type ConfigurationIssueError = ErrorVariant<"configuration_issue", -4>;
+type UnsupportedServerResponseError = ErrorVariant<
+  "unsupported_server_response",
+  -5,
+  { originalStatus: number; originalResponse: unknown }
+>;
+
 type CleanBrowserAPIError =
-  | ErrorVariant<"aborted", 0>
-  | ErrorVariant<"client_exception", -1>
-  | ErrorVariant<"no_internet", -2>
-  | ErrorVariant<"no_server_response", -3>
-  | ErrorVariant<"configuration_issue", -4>;
+  | AbortedError
+  | ClientExceptionError
+  | NoInternetError
+  | NoServerResponseError
+  | ConfigurationIssueError
+  | UnsupportedServerResponseError;
 
 const cleanAPIBrowser =
   <TContracts extends CleanAPIContracts>() =>
@@ -179,13 +191,41 @@ const cleanAPIBrowser =
         // Case 1: The request was made and the server responded with a status code
         // that falls out of the range of 2xx
         if (error.response) {
-          const result = {
-            status: error.response.status,
-            type: error.response.statusText,
-            message: error.response.data.message,
-            rawError: error,
-            meta: error.response.data,
-          } as ParsedError<TContracts, TKey>;
+          const responseData = error.response.data as {
+            message?: string;
+            meta?: TContracts[TKey]["error"] extends { meta: infer TMeta }
+              ? TMeta
+              : never;
+          };
+
+          if (typeof responseData.message === "string") {
+            const baseError = {
+              status: error.response.status,
+              type: error.response.statusText,
+              message: responseData.message,
+              rawError: error,
+            };
+
+            const result = {
+              ...baseError,
+              ...(responseData.meta ? { meta: responseData.meta } : {}),
+            } as ParsedError<TContracts, TKey>;
+
+            return result;
+          }
+
+          const result: UnsupportedServerResponseError & { rawError: unknown } =
+            {
+              status: -5,
+              type: "unsupported_server_response",
+              message: "The server's error response format is unsupported.",
+              rawError: error,
+              meta: {
+                originalStatus: error.response.status,
+                originalResponse: error.response.data,
+              },
+            };
+
           return result;
         }
         // Case 2: The request was made but no response was received.
@@ -193,10 +233,7 @@ const cleanAPIBrowser =
         // `error.request` is an instance of XMLHttpRequest in the browser.
         else if (error.request) {
           if (typeof navigator !== "undefined" && !navigator.onLine) {
-            const result: Extract<
-              ParsedError<TContracts, TKey>,
-              { type: "no_internet" }
-            > = {
+            const result: NoInternetError & { rawError: unknown } = {
               status: -2,
               type: "no_internet",
               message: "No internet connection",
@@ -205,10 +242,7 @@ const cleanAPIBrowser =
 
             return result;
           } else {
-            const result: Extract<
-              ParsedError<TContracts, TKey>,
-              { type: "no_server_response" }
-            > = {
+            const result: NoServerResponseError & { rawError: unknown } = {
               status: -3,
               type: "no_server_response",
               message: "No server response",
@@ -220,10 +254,7 @@ const cleanAPIBrowser =
         // Case 3: Something happened in setting up the request that triggered an Error.
         // This could be a configuration issue, or an issue with the request itself before it was sent.
         else {
-          const result: Extract<
-            ParsedError<TContracts, TKey>,
-            { type: "configuration_issue" }
-          > = {
+          const result: ConfigurationIssueError & { rawError: unknown } = {
             status: -4,
             type: "configuration_issue",
             message: "Error setting up the request",
@@ -232,10 +263,7 @@ const cleanAPIBrowser =
           return result;
         }
       } else if (axios.isCancel(error)) {
-        const result: Extract<
-          ParsedError<TContracts, TKey>,
-          { type: "aborted" }
-        > = {
+        const result: AbortedError & { rawError: unknown } = {
           status: 0,
           type: "aborted",
           message: "Request aborted",
@@ -243,10 +271,7 @@ const cleanAPIBrowser =
         };
         return result;
       } else {
-        const result: Extract<
-          ParsedError<TContracts, TKey>,
-          { type: "client_exception" }
-        > = {
+        const result: ClientExceptionError & { rawError: unknown } = {
           status: -1,
           type: "client_exception",
           message: "Client exception",
