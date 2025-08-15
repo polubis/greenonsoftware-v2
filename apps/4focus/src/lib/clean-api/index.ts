@@ -97,6 +97,13 @@ type InferInput<
     ? { payload: TContract["payload"] }
     : unknown);
 
+type KeysWith<
+  TContracts extends CleanAPIContracts,
+  TProp extends "pathParams" | "searchParams" | "payload",
+> = {
+  [K in keyof TContracts]: TProp extends keyof TContracts[K] ? K : never;
+}[keyof TContracts];
+
 const applyPathParams = (
   path: string,
   pathParams?: Record<string, unknown>,
@@ -296,7 +303,35 @@ const cleanAPIBrowser =
       }
     };
 
-    return { call, safeCall, parseError };
+    const pathParams = <TKey extends KeysWith<TContracts, "pathParams">>(
+      _key: TKey,
+      pathParams: TContracts[TKey]["pathParams"],
+    ): TContracts[TKey]["pathParams"] => {
+      return pathParams;
+    };
+
+    const searchParams = <TKey extends KeysWith<TContracts, "searchParams">>(
+      _key: TKey,
+      searchParams: TContracts[TKey]["searchParams"],
+    ): TContracts[TKey]["searchParams"] => {
+      return searchParams;
+    };
+
+    const payload = <TKey extends KeysWith<TContracts, "payload">>(
+      _key: TKey,
+      payload: TContracts[TKey]["payload"],
+    ): TContracts[TKey]["payload"] => {
+      return payload;
+    };
+
+    return {
+      call,
+      safeCall,
+      parseError,
+      pathParams,
+      searchParams,
+      payload,
+    };
   };
 
 // ##################################################################

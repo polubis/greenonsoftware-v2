@@ -674,5 +674,40 @@ const err501 = serverAPI.error("getErrorWithoutMeta", {
   meta: { test: "data" },
 });
 
+// ##################################################################
+// # Client-side Helper Tests
+// ##################################################################
+
+// Correct usage
+const pathParams = clientAPI.pathParams("getTask", { id: 1 });
+const searchParams = clientAPI.searchParams("getTask", { limit: 10 });
+const payload = clientAPI.payload("createTask", { query: "test" });
+
+// Use the created parts in a call
+clientAPI.call("getTask", {
+  pathParams: pathParams,
+  searchParams: searchParams,
+});
+clientAPI.call("createTask", {
+  payload: payload,
+  searchParams: { limit: 10 },
+});
+
+// Incorrect key validation
+// @ts-expect-error - 'getTasks' does not have 'pathParams'.
+clientAPI.pathParams("getTasks", { id: 1 });
+// @ts-expect-error - 'deleteTask' does not have 'searchParams'.
+clientAPI.searchParams("deleteTask", { q: "test" });
+// @ts-expect-error - 'getTask' does not have 'payload'.
+clientAPI.payload("getTask", { data: "test" });
+
+// Incorrect shape validation
+// @ts-expect-error - 'pathParams' for 'getTask' has the wrong shape.
+clientAPI.pathParams("getTask", { id: "not-a-number" });
+// @ts-expect-error - 'searchParams' for 'createTask' has the wrong shape.
+clientAPI.searchParams("createTask", { limit: "not-a-number" });
+// @ts-expect-error - 'payload' for 'createTask' has the wrong shape.
+clientAPI.payload("createTask", { wrongKey: "test" });
+
 export type { Focus4Contracts };
 export { clientAPI };
