@@ -12,6 +12,8 @@ type BadRequestError = ErrorVariant<
 >;
 type UnauthorizedError = ErrorVariant<"unauthorized", 401, string>;
 type InternalServerError = ErrorVariant<"internal_server_error", 500, string>;
+type ForbiddenError = ErrorVariant<"forbidden", 403, { reason: string }>;
+type NoMetaError = ErrorVariant<"no_meta_error", 501>;
 
 type Focus4Contracts = {
   getTasks: {
@@ -98,6 +100,17 @@ type Focus4Contracts = {
     dto: { success: boolean };
     error: BadRequestError;
   };
+  // ##################################################################
+  // # Meta validation tests
+  // ##################################################################
+  getErrorWithMeta: {
+    dto: { success: boolean };
+    error: ForbiddenError;
+  };
+  getErrorWithoutMeta: {
+    dto: { success: boolean };
+    error: NoMetaError;
+  };
 };
 
 const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>()({
@@ -155,6 +168,17 @@ const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>()({
     method: "get",
     // @ts-expect-error - Path "api/test" must start with a '/'.
     path: "api/test",
+  },
+  // ##################################################################
+  // # Meta validation tests
+  // ##################################################################
+  getErrorWithMeta: {
+    method: "get",
+    path: "/api/error-with-meta",
+  },
+  getErrorWithoutMeta: {
+    method: "get",
+    path: "/api/error-without-meta",
   },
 });
 
@@ -533,6 +557,25 @@ focus4APIBrowser
       const _ = res[1].success;
     }
   });
+
+// ##################################################################
+// # Meta validation tests
+// ##################################################################
+
+focus4APIBrowser.safeCall("getErrorWithMeta").then(([ok, data]) => {
+  if (!ok && data.type === "forbidden") {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const reason: string = data.meta.reason;
+  }
+});
+
+focus4APIBrowser.safeCall("getErrorWithoutMeta").then(([ok, data]) => {
+  if (!ok && data.type === "no_meta_error") {
+    // @ts-expect-error Property 'meta' does not exist
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = data.meta;
+  }
+});
 
 export type { Focus4Contracts };
 export { focus4APIBrowser };

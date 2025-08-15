@@ -111,6 +111,18 @@ const applyPathParams = (
   return finalPath;
 };
 
+const contract =
+  <TContracts extends CleanAPIContracts>() =>
+  <
+    TConfig extends {
+      [K in keyof TContracts]: { method: CleanAPIMethod; path: string };
+    },
+  >(
+    config: TConfig & CleanAPIBrowserConfig<TContracts, TConfig>,
+  ) => {
+    return config;
+  };
+
 type CleanBrowserAPIError =
   | ErrorVariant<"aborted", 0>
   | ErrorVariant<"client_exception", -1>
@@ -266,4 +278,4 @@ export type {
   ErrorVariant,
   InferInput,
 };
-export { cleanAPIBrowser };
+export { cleanAPIBrowser, contract };
