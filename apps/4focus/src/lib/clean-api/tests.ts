@@ -3,7 +3,7 @@ import {
   cleanAPIServer,
   contract,
   type ErrorVariant,
-} from "@/lib/clean-api";
+} from ".";
 
 type TaskRow = { id: number; name: string };
 
