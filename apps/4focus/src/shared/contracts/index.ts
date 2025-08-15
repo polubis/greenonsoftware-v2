@@ -21,18 +21,15 @@ type Focus4Contracts = {
   };
 };
 
-const createFocus4Contract = contract<Focus4Contracts>();
-const createFocus4API = cleanAPIBrowser<Focus4Contracts>();
-
-const focus4Contract = createFocus4Contract({
+const focus4Contract = contract<Focus4Contracts>()({
   getTasks: {
     method: "get",
     path: "/api/tasks",
   },
 });
 
-const focus4APIBrowser = createFocus4API(focus4Contract);
-const focus4APIServer = cleanAPIServer<Focus4Contracts>();
+const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>()(focus4Contract);
+const focus4APIServer = cleanAPIServer<Focus4Contracts>()(focus4Contract);
 
 export type { Focus4Contracts };
 export { focus4APIBrowser, focus4APIServer };

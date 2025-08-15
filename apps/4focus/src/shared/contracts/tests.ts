@@ -1,6 +1,7 @@
 import {
   cleanAPIBrowser,
   cleanAPIServer,
+  contract,
   type ErrorVariant,
 } from "@/lib/clean-api";
 
@@ -123,7 +124,7 @@ type Focus4Contracts = {
   };
 };
 
-const clientAPI = cleanAPIBrowser<Focus4Contracts>()({
+const apiContract = contract<Focus4Contracts>()({
   getTasks: {
     method: "get",
     path: "/api/tasks",
@@ -200,6 +201,8 @@ const clientAPI = cleanAPIBrowser<Focus4Contracts>()({
     path: "/api/test/:id",
   },
 });
+
+const clientAPI = cleanAPIBrowser<Focus4Contracts>()(apiContract);
 
 clientAPI.call("getTasks").then((res) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -604,7 +607,7 @@ clientAPI.safeCall("getErrorWithoutMeta").then(([ok, data]) => {
 // # Server-side Helper Tests
 // ##################################################################
 
-const serverAPI = cleanAPIServer<Focus4Contracts>();
+const serverAPI = cleanAPIServer<Focus4Contracts>()(apiContract);
 
 // Correct DTO usage
 serverAPI.dto("getTasks", { tasks: [] as TaskRow[] });
@@ -614,7 +617,8 @@ serverAPI.dto("deleteTask", { success: true });
 serverAPI.dto("getTasks", { success: true });
 
 // Correct error usage
-serverAPI.error("getTask", {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const err1Getasks = serverAPI.error("getTask", {
   type: "bad_request",
   status: 400,
   message: "Invalid ID",
@@ -623,7 +627,6 @@ serverAPI.error("getTask", {
 
 serverAPI.error("getTask", {
   // @ts-expect-error - 'forbidden' is not a valid error type for `getTask`
-
   type: "forbidden",
   // @ts-expect-error - 'forbidden' is not a valid error type for `getTask`
   status: 403,
@@ -662,12 +665,13 @@ serverAPI.error("getErrorWithoutMeta", {
   message: "No meta here",
 });
 
-serverAPI.error("getErrorWithoutMeta", {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const err501 = serverAPI.error("getErrorWithoutMeta", {
   type: "no_meta_error",
   status: 501,
   message: "No meta here",
-  // @ts-expect-error - Unexpected `meta` property
-  meta: { some: "data" },
+  // Allows to pass additional properties if meta not defined
+  meta: { test: "data" },
 });
 
 export type { Focus4Contracts };

@@ -303,26 +303,39 @@ const cleanAPIBrowser =
 // # Server-side Implementation
 // ##################################################################
 
-const cleanAPIServer = <TContracts extends CleanAPIContracts>() => {
-  const dto = <TKey extends keyof TContracts>(
-    _key: TKey,
-    dto: TContracts[TKey]["dto"],
-  ): TContracts[TKey]["dto"] => {
-    return dto;
-  };
+const cleanAPIServer =
+  <TContracts extends CleanAPIContracts>() =>
+  <
+    TConfig extends {
+      [K in keyof TContracts]: { method: CleanAPIMethod; path: string };
+    },
+  >(
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    _contract: TConfig & CleanAPIBrowserConfig<TContracts, TConfig>,
+  ) => {
+    const dto = <TKey extends keyof TContracts>(
+      _key: TKey,
+      dto: TContracts[TKey]["dto"],
+    ): TContracts[TKey]["dto"] => {
+      return dto;
+    };
 
-  const error = <TKey extends keyof TContracts>(
-    _key: TKey,
-    error: TContracts[TKey]["error"],
-  ): TContracts[TKey]["error"] => {
-    return error;
-  };
+    const error = <
+      TKey extends keyof TContracts,
+      TError extends TContracts[TKey]["error"],
+    >(
+      _key: TKey,
+      error: TError &
+        Extract<TContracts[TKey]["error"], { type: TError["type"] }>,
+    ): TError => {
+      return error;
+    };
 
-  return {
-    dto,
-    error,
+    return {
+      dto,
+      error,
+    };
   };
-};
 
 export type {
   CleanAPIBrowserConfig,
