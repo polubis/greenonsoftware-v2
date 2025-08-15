@@ -26,7 +26,7 @@ const createFocus4API = cleanAPIBrowser<Focus4Contracts>();
 const focus4Contract = createFocus4Contract({
   getTasks: {
     method: "get",
-    path: "/api/tasks/cos/xd/:id",
+    path: "/api/tasks",
   },
 });
 

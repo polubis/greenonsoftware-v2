@@ -111,6 +111,13 @@ type Focus4Contracts = {
     dto: { success: boolean };
     error: NoMetaError;
   };
+  // ##################################################################
+  // # Without path parameters, but with path params must throw error
+  // ##################################################################
+  withoutPathParamsObjectButWithPathParams: {
+    dto: { success: boolean };
+    error: BadRequestError;
+  };
 };
 
 const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>()({
@@ -179,6 +186,15 @@ const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>()({
   getErrorWithoutMeta: {
     method: "get",
     path: "/api/error-without-meta",
+  },
+  // ##################################################################
+  // # Without path parameters, but with path params must throw error
+  // ##################################################################
+  withoutPathParamsObjectButWithPathParams: {
+    // @ts-expect-error - Dynamic path params are not allowed without a path params object.
+    method: "get",
+    // @ts-expect-error - Dynamic path params are not allowed without a path params object.
+    path: "/api/test/:id",
   },
 });
 

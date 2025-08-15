@@ -54,7 +54,9 @@ type ValidatedPath<TContract, TPath extends string> = TContract extends {
       : `Path "${TPath}" is missing parameters from contract.`
     : `Path "${TPath}" must start with a '/'.`
   : TPath extends `/${string}`
-    ? TPath
+    ? ExtractPathParams<TPath> extends never
+      ? TPath
+      : `Path "${TPath}" has dynamic parameters, but no 'pathParams' are defined in the contract.`
     : `Path "${TPath}" must start with a '/'.`;
 
 type CleanAPIBrowserConfig<
