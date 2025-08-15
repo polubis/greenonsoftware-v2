@@ -7,13 +7,12 @@ type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
 type BadRequestError = ErrorVariant<
   "bad_request",
   400,
-  string,
   {
     id: number;
   }
 >;
-type UnauthorizedError = ErrorVariant<"unauthorized", 401, string>;
-type InternalServerError = ErrorVariant<"internal_server_error", 500, string>;
+type UnauthorizedError = ErrorVariant<"unauthorized", 401>;
+type InternalServerError = ErrorVariant<"internal_server_error", 500>;
 
 type Focus4Contracts = {
   getTasks: {

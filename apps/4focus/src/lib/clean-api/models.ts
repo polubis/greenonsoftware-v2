@@ -1,19 +1,18 @@
 type ErrorVariant<
   T extends string,
   TStatus extends number,
-  TMessage extends string,
   TMeta = undefined,
 > = TMeta extends undefined
   ? {
       type: T;
       status: TStatus;
-      message: TMessage;
+      message: string;
       rawError: unknown;
     }
   : {
       type: T;
       status: TStatus;
-      message: TMessage;
+      message: string;
       meta: TMeta;
       rawError: unknown;
     };
@@ -22,7 +21,7 @@ type CleanAPIContracts = Record<
   string,
   {
     dto: unknown;
-    error: ErrorVariant<string, number, string>;
+    error: ErrorVariant<string, number>;
     payload?: unknown;
     pathParams?: Record<string, unknown>;
     searchParams?: Record<string, unknown>;

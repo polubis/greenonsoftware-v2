@@ -7,7 +7,6 @@ type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
 type BadRequestError = ErrorVariant<
   "bad_request",
   400,
-  string,
   {
     id: number;
   }
