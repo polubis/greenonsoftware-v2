@@ -97,6 +97,11 @@ type InferInput<
     ? { payload: TContract["payload"] }
     : unknown);
 
+type CleanAxiosRequestConfig = Omit<
+  AxiosRequestConfig,
+  "url" | "method" | "params" | "data"
+>;
+
 type KeysWith<
   TContracts extends CleanAPIContracts,
   TProp extends "pathParams" | "searchParams" | "payload",
@@ -159,6 +164,7 @@ const cleanAPIBrowser =
     },
   >(
     config: TConfig & CleanAPIBrowserConfig<TContracts, TConfig>,
+    baseConfig?: CleanAxiosRequestConfig,
   ) => {
     const call = async <TKey extends keyof TContracts>(
       key: TKey,
@@ -173,7 +179,10 @@ const cleanAPIBrowser =
         | undefined;
       const contract = config[key];
       const finalPath = applyPathParams(contract.path, input?.pathParams);
-      const axiosConfig: AxiosRequestConfig = { params: input?.searchParams };
+      const axiosConfig: AxiosRequestConfig = {
+        ...baseConfig,
+        params: input?.searchParams,
+      };
       const type = config[key].method;
 
       switch (type) {

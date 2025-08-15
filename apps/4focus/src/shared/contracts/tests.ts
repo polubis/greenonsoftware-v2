@@ -709,5 +709,23 @@ clientAPI.searchParams("createTask", { limit: "not-a-number" });
 // @ts-expect-error - 'payload' for 'createTask' has the wrong shape.
 clientAPI.payload("createTask", { wrongKey: "test" });
 
-export type { Focus4Contracts };
-export { clientAPI };
+// ##################################################################
+// # Axios Configuration Tests
+// ##################################################################
+
+// --- Factory Creation Tests ---
+
+// This demonstrates creating a client with a valid base config
+cleanAPIBrowser<Focus4Contracts>()(apiContract, {
+  headers: { "X-Base-Header": "base" },
+});
+
+cleanAPIBrowser<Focus4Contracts>()(apiContract, {
+  // @ts-expect-error - `params` is a forbidden property in the base config
+  params: { q: "test" },
+});
+
+cleanAPIBrowser<Focus4Contracts>()(apiContract, {
+  // @ts-expect-error - `data` is a forbidden property in the base config
+  data: { forbidden: true },
+});
