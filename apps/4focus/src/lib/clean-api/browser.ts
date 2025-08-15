@@ -10,14 +10,12 @@ type ErrorVariant<
       type: T;
       status: TStatus;
       message: string;
-      rawError: unknown;
     }
   : {
       type: T;
       status: TStatus;
       message: string;
       meta: TMeta;
-      rawError: unknown;
     };
 
 type CleanAPIContracts = Record<
@@ -39,6 +37,11 @@ type ExtractPathParams<TPath extends string> =
     : TPath extends `${string}/:${infer P}`
       ? P
       : never;
+
+type ParsedError<
+  TContracts extends CleanAPIContracts,
+  TKey extends keyof TContracts,
+> = (TContracts[TKey]["error"] | CleanBrowserAPIError) & { rawError: unknown };
 
 type ValidatedPath<TContract, TPath extends string> = TContract extends {
   pathParams: infer TPathParams;
@@ -157,7 +160,7 @@ const cleanAPIBrowser =
     const parseError = <TKey extends keyof TContracts>(
       _: TKey,
       error: unknown,
-    ): TContracts[TKey]["error"] | CleanBrowserAPIError => {
+    ): ParsedError<TContracts, TKey> => {
       if (axios.isAxiosError(error)) {
         // Case 1: The request was made and the server responded with a status code
         // that falls out of the range of 2xx
@@ -168,7 +171,7 @@ const cleanAPIBrowser =
             message: error.response.data.message,
             rawError: error,
             meta: error.response.data,
-          } as TContracts[TKey]["error"];
+          } as ParsedError<TContracts, TKey>;
           return result;
         }
         // Case 2: The request was made but no response was received.
@@ -177,7 +180,7 @@ const cleanAPIBrowser =
         else if (error.request) {
           if (typeof navigator !== "undefined" && !navigator.onLine) {
             const result: Extract<
-              CleanBrowserAPIError,
+              ParsedError<TContracts, TKey>,
               { type: "no_internet" }
             > = {
               status: -2,
@@ -189,7 +192,7 @@ const cleanAPIBrowser =
             return result;
           } else {
             const result: Extract<
-              CleanBrowserAPIError,
+              ParsedError<TContracts, TKey>,
               { type: "no_server_response" }
             > = {
               status: -3,
@@ -204,7 +207,7 @@ const cleanAPIBrowser =
         // This could be a configuration issue, or an issue with the request itself before it was sent.
         else {
           const result: Extract<
-            CleanBrowserAPIError,
+            ParsedError<TContracts, TKey>,
             { type: "configuration_issue" }
           > = {
             status: -4,
@@ -215,7 +218,10 @@ const cleanAPIBrowser =
           return result;
         }
       } else if (axios.isCancel(error)) {
-        const result: Extract<CleanBrowserAPIError, { type: "aborted" }> = {
+        const result: Extract<
+          ParsedError<TContracts, TKey>,
+          { type: "aborted" }
+        > = {
           status: 0,
           type: "aborted",
           message: "Request aborted",
@@ -224,7 +230,7 @@ const cleanAPIBrowser =
         return result;
       } else {
         const result: Extract<
-          CleanBrowserAPIError,
+          ParsedError<TContracts, TKey>,
           { type: "client_exception" }
         > = {
           status: -1,
