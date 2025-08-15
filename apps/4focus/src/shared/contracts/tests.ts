@@ -84,6 +84,11 @@ type Focus4Contracts = {
     error: BadRequestError;
     pathParams: { id: number };
   };
+  pathTwoParams: {
+    dto: { success: boolean };
+    error: BadRequestError;
+    pathParams: { id: number; second: string };
+  };
   pathMismatchParam: {
     dto: { success: boolean };
     error: BadRequestError;
@@ -134,6 +139,10 @@ const focus4APIBrowser = cleanAPIBrowser<Focus4Contracts>()({
     method: "get",
     // @ts-expect-error - Path "/api/test/:id/:extra" has parameters not defined in contract.
     path: "/api/test/:id/:extra",
+  },
+  pathTwoParams: {
+    method: "get",
+    path: "/api/test/:id/:second",
   },
   pathMismatchParam: {
     // @ts-expect-error - Path "/api/test/:wrong_id" is missing parameters from contract.

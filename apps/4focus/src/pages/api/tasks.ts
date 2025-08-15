@@ -180,7 +180,7 @@ export const GET: APIRoute = async (context) => {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      const apiError = {
+      const apiError: Focus4Contracts["getTasks"]["error"] = {
         type: "unauthorized",
         status: 401,
         message: "Unauthorized",
@@ -196,7 +196,7 @@ export const GET: APIRoute = async (context) => {
       .order("creation_date", { ascending: false });
 
     if (error) {
-      const apiError = {
+      const apiError: Focus4Contracts["getTasks"]["error"] = {
         type: "bad_request",
         status: 400,
         message: error.message,
@@ -215,7 +215,7 @@ export const GET: APIRoute = async (context) => {
       headers: { "content-type": "application/json" },
     });
   } catch {
-    const apiError = {
+    const apiError: Focus4Contracts["getTasks"]["error"] = {
       type: "internal_server_error",
       status: 500,
       message: "Something went wrong during the request for tasks",
