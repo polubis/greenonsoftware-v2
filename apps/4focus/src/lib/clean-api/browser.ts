@@ -69,6 +69,16 @@ type CleanAPIBrowserConfig<
   };
 };
 
+type CallArgs<
+  TContracts extends CleanAPIContracts,
+  TKey extends keyof TContracts,
+> = TContracts[TKey] extends
+  | { pathParams: unknown }
+  | { searchParams: unknown }
+  | { payload: unknown }
+  ? [input: InferInput<TContracts, TContracts[TKey]>]
+  : [];
+
 type InferInput<
   TContracts extends CleanAPIContracts,
   TContract extends TContracts[keyof TContracts],
@@ -116,12 +126,7 @@ const cleanAPIBrowser =
   ) => {
     const call = async <TKey extends keyof TContracts>(
       key: TKey,
-      ...args: TContracts[TKey] extends
-        | { pathParams: unknown }
-        | { searchParams: unknown }
-        | { payload: unknown }
-        ? [input: InferInput<TContracts, TContracts[TKey]>]
-        : []
+      ...args: CallArgs<TContracts, TKey>
     ): Promise<TContracts[TKey]["dto"]> => {
       const input = args[0] as
         | {
@@ -233,19 +238,13 @@ const cleanAPIBrowser =
 
     const safeCall = async <TKey extends keyof TContracts>(
       key: TKey,
-      ...args: TContracts[TKey] extends
-        | { pathParams: unknown }
-        | { searchParams: unknown }
-        | { payload: unknown }
-        ? [input: InferInput<TContracts, TContracts[TKey]>]
-        : []
+      ...args: CallArgs<TContracts, TKey>
     ): Promise<
       | [true, TContracts[TKey]["dto"]]
       | [false, TContracts[TKey]["error"] | CleanBrowserAPIError]
     > => {
       try {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        const result = await call(key, ...(args as any));
+        const result = await call(key, ...args);
         return [true, result];
       } catch (error) {
         return [false, parseError(key, error)];
