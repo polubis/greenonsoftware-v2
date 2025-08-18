@@ -9,6 +9,7 @@
     "astro": "astro",
     "lint": "next lint --max-warnings 0",
     "check-types": "tsc --noEmit",
+    "test": "vitest run",
     "db:start": "npx supabase start",
     "db:stop": "npx supabase stop",
     "db:migrate": "npx supabase migration up",
@@ -33,6 +34,14 @@
     "zod": "^4.0.17"
   },
   "devDependencies": {
-    "supabase": "^2.33.9"
+    "@testing-library/jest-dom": "^6.7.0",
+    "@testing-library/react": "^16.3.0",
+    "@vitejs/plugin-react": "^5.0.0",
+    "@vitest/ui": "^3.2.4",
+    "jsdom": "^26.1.0",
+    "supabase": "^2.33.9",
+    "tsconfig-paths": "^4.2.0",
+    "vite-tsconfig-paths": "^5.1.4",
+    "vitest": "^3.2.4"
   }
 }

@@ -14,6 +14,9 @@
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
     },
+    "test": {
+      "inputs": ["src/**/*.test.{ts,tsx}", "vitest.config.ts"]
+    },
     "lint": {
       "dependsOn": ["^lint"]
     },
