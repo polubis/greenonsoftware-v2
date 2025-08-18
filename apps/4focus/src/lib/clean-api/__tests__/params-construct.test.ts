@@ -1,18 +1,8 @@
-import { afterEach, beforeEach, describe, expectTypeOf, it, vi } from "vitest";
+import { describe, expectTypeOf, it } from "vitest";
 import type { ErrorVariant } from "..";
 import { cleanAPI, contract } from "..";
 
-vi.mock("axios");
-
 describe("params construction works when", () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
-
   it("path params are validated", () => {
     type Contracts = {
       "path-params": {

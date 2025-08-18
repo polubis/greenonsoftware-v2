@@ -307,8 +307,7 @@ const cleanAPI =
       key: TKey,
       ...args: CallArgs<TContracts, TKey>
     ): Promise<
-      | [true, TContracts[TKey]["dto"]]
-      | [false, TContracts[TKey]["error"] | CleanBrowserAPIError]
+      [true, TContracts[TKey]["dto"]] | [false, ParsedError<TContracts, TKey>]
     > => {
       try {
         const result = await call(key, ...args);
