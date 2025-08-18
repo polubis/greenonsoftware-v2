@@ -29,6 +29,7 @@
     "nanostores": "^1.0.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "rxjs": "^7.8.2",
     "zod": "^4.0.17"
   },
   "devDependencies": {
