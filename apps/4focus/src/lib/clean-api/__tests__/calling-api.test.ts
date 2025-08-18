@@ -96,6 +96,37 @@ describe("API calling works when", () => {
       expect(result).toEqual(responseData);
     });
 
+    it("makes a PUT request and returns data", async () => {
+      const responseData = { id: 1, name: "Updated User" };
+      mockedAxios.put.mockResolvedValue({ data: responseData });
+
+      const result = await api.call("updateUser", {
+        pathParams: { id: "1" },
+        payload: { name: "Updated User" },
+      });
+
+      expect(mockedAxios.put).toHaveBeenCalledWith(
+        "/users/1",
+        { name: "Updated User" },
+        { params: undefined },
+      );
+      expect(result).toEqual(responseData);
+    });
+
+    it("makes a DELETE request and returns data", async () => {
+      const responseData = { success: true };
+      mockedAxios.delete.mockResolvedValue({ data: responseData });
+
+      const result = await api.call("deleteUser", {
+        pathParams: { id: "1" },
+      });
+
+      expect(mockedAxios.delete).toHaveBeenCalledWith("/users/1", {
+        params: undefined,
+      });
+      expect(result).toEqual(responseData);
+    });
+
     it("handles calls with no arguments", async () => {
       const responseData = { status: "ok" };
       mockedAxios.get.mockResolvedValue({ data: responseData });
@@ -175,21 +206,107 @@ describe("API calling works when", () => {
       }
     });
 
-    it("returns [false, error] on network error", async () => {
-      mockedAxios.isAxiosError.mockReturnValue(true);
-      mockedAxios.get.mockRejectedValue({
-        isAxiosError: true,
-        request: {},
-      } as AxiosError);
-      vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
+    it("returns [true, data] on successful PUT request", async () => {
+      const responseData = { id: 1, name: "Updated User" };
+      mockedAxios.put.mockResolvedValue({ data: responseData });
 
-      const [isSuccess, result] = await api.safeCall("getHealth");
+      const [isSuccess, result] = await api.safeCall("updateUser", {
+        pathParams: { id: "1" },
+        payload: { name: "Updated User" },
+      });
+
+      expect(isSuccess).toBe(true);
+      if (isSuccess) {
+        expect(result).toEqual(responseData);
+      }
+    });
+
+    it("returns [false, error] on failed PUT request", async () => {
+      mockedAxios.isAxiosError.mockReturnValue(true);
+      mockedAxios.put.mockRejectedValue({
+        isAxiosError: true,
+        response: {
+          status: 500,
+          statusText: "update_failed",
+          data: { message: "Update operation failed" },
+        },
+      } as AxiosError);
+
+      const [isSuccess, result] = await api.safeCall("updateUser", {
+        pathParams: { id: "1" },
+        payload: { name: "Updated User" },
+      });
 
       expect(isSuccess).toBe(false);
-
       if (!isSuccess) {
-        expect(result.type).toBe("no_internet");
-        expect(result.status).toBe(-2);
+        expect(result.type).toBe("update_failed");
+        expect(result.status).toBe(500);
+      }
+    });
+
+    it("returns [true, data] on successful DELETE request", async () => {
+      const responseData = { success: true };
+      mockedAxios.delete.mockResolvedValue({ data: responseData });
+
+      const [isSuccess, result] = await api.safeCall("deleteUser", {
+        pathParams: { id: "1" },
+      });
+
+      expect(isSuccess).toBe(true);
+      if (isSuccess) {
+        expect(result).toEqual(responseData);
+      }
+    });
+
+    it("returns [false, error] on failed DELETE request", async () => {
+      mockedAxios.isAxiosError.mockReturnValue(true);
+      mockedAxios.delete.mockRejectedValue({
+        isAxiosError: true,
+        response: {
+          status: 500,
+          statusText: "delete_failed",
+          data: { message: "Delete operation failed" },
+        },
+      } as AxiosError);
+
+      const [isSuccess, result] = await api.safeCall("deleteUser", {
+        pathParams: { id: "1" },
+      });
+
+      expect(isSuccess).toBe(false);
+      if (!isSuccess) {
+        expect(result.type).toBe("delete_failed");
+        expect(result.status).toBe(500);
+      }
+    });
+
+    it("returns [false, error] on network error for any method", async () => {
+      mockedAxios.isAxiosError.mockReturnValue(true);
+      const networkError = { isAxiosError: true, request: {} } as AxiosError;
+      vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
+
+      mockedAxios.get.mockRejectedValue(networkError);
+      mockedAxios.post.mockRejectedValue(networkError);
+      mockedAxios.put.mockRejectedValue(networkError);
+      mockedAxios.delete.mockRejectedValue(networkError);
+
+      const calls = [
+        api.safeCall("getHealth"),
+        api.safeCall("createUser", { payload: { name: "test" } }),
+        api.safeCall("updateUser", {
+          pathParams: { id: "1" },
+          payload: { name: "test" },
+        }),
+        api.safeCall("deleteUser", { pathParams: { id: "1" } }),
+      ] as const;
+
+      for (const call of calls) {
+        const [isSuccess, result] = await call;
+        expect(isSuccess).toBe(false);
+        if (!isSuccess) {
+          expect(result.type).toBe("no_internet");
+          expect(result.status).toBe(-2);
+        }
       }
     });
 

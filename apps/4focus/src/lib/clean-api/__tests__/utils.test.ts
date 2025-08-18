@@ -127,13 +127,20 @@ describe("utils works when", () => {
     });
 
     it("fails type-checking for incorrect usage", () => {
-      api.error("createUser", {
+      const err1 = api.error("createUser", {
         // @ts-expect-error - 'error' is not a valid error type for `createUser`
         type: "error",
         // @ts-expect-error - 'error' is not a valid error type for `createUser`
         status: 500,
         message: "Server error",
       });
+
+      expectTypeOf(err1).toEqualTypeOf<{
+        type: "validation_error";
+        status: 400;
+        message: string;
+        meta: { fields: string[] };
+      }>();
 
       const invalidMetaError = {
         type: "validation_error",
@@ -142,7 +149,14 @@ describe("utils works when", () => {
         meta: { fields: [123] },
       };
       // @ts-expect-error - `meta` property has the wrong shape
-      api.error("createUser", invalidMetaError);
+      const err2 = api.error("createUser", invalidMetaError);
+
+      expectTypeOf(err2).toEqualTypeOf<{
+        type: "validation_error";
+        status: 400;
+        message: string;
+        meta: { fields: string[] };
+      }>();
     });
   });
 });
