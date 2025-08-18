@@ -9,8 +9,8 @@ import {
   it,
   vi,
 } from "vitest";
-import type { ErrorVariant, InferInput } from "../index";
-import { cleanAPI, contract } from "../index";
+import type { ErrorVariant, InferInput } from "..";
+import { cleanAPI, contract } from "..";
 
 vi.mock("axios");
 const mockedAxios = vi.mocked(axios, true);
