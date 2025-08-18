@@ -42,6 +42,10 @@ type TestContracts = {
     dto: { status: "ok" };
     error: ErrorVariant<"service_unavailable", 503>;
   };
+  noInput: {
+    dto: { success: boolean };
+    error: ErrorVariant<"error", 500>;
+  };
 };
 
 const testConfig = contract<TestContracts>()({
@@ -50,6 +54,7 @@ const testConfig = contract<TestContracts>()({
   updateUser: { method: "put", path: "/users/:id" },
   deleteUser: { method: "delete", path: "/users/:id" },
   getHealth: { method: "get", path: "/health" },
+  noInput: { method: "get", path: "/no-input" },
 });
 
 const api = cleanAPI<TestContracts>()(testConfig);
@@ -134,6 +139,18 @@ describe("API calling works when", () => {
       const result = await api.call("getHealth");
 
       expect(mockedAxios.get).toHaveBeenCalledWith("/health", {
+        params: undefined,
+      });
+      expect(result).toEqual(responseData);
+    });
+
+    it("handles noInput call correctly", async () => {
+      const responseData = { success: true };
+      mockedAxios.get.mockResolvedValue({ data: responseData });
+
+      const result = await api.call("noInput");
+
+      expect(mockedAxios.get).toHaveBeenCalledWith("/no-input", {
         params: undefined,
       });
       expect(result).toEqual(responseData);
@@ -277,6 +294,18 @@ describe("API calling works when", () => {
       if (!isSuccess) {
         expect(result.type).toBe("delete_failed");
         expect(result.status).toBe(500);
+      }
+    });
+
+    it("handles noInput safeCall correctly", async () => {
+      const responseData = { success: true };
+      mockedAxios.get.mockResolvedValue({ data: responseData });
+
+      const [isSuccess, result] = await api.safeCall("noInput");
+
+      expect(isSuccess).toBe(true);
+      if (isSuccess) {
+        expect(result).toEqual(responseData);
       }
     });
 
