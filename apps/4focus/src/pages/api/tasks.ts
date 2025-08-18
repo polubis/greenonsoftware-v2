@@ -3,7 +3,7 @@ import { createSupabaseServerClient } from "@/shared/db/supabase-server";
 import type { TablesInsert, TablesUpdate } from "@/shared/db/database.types";
 import { AppRouter } from "@/shared/routing/app-router";
 import { z } from "zod";
-import { focus4APIServer } from "@/shared/contracts";
+import { focus4API } from "@/shared/contracts";
 
 const parseBody = async (
   request: Request,
@@ -180,7 +180,7 @@ export const GET: APIRoute = async (context) => {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      const apiError = focus4APIServer.error("getTasks", {
+      const apiError = focus4API.error("getTasks", {
         type: "unauthorized",
         status: 401,
         message: "Unauthorized",
@@ -197,7 +197,7 @@ export const GET: APIRoute = async (context) => {
       .order("creation_date", { ascending: false });
 
     if (error) {
-      const apiError = focus4APIServer.error("getTasks", {
+      const apiError = focus4API.error("getTasks", {
         type: "internal_server_error",
         status: 500,
         message: "Failed to fetch tasks",
@@ -208,7 +208,7 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const dto = focus4APIServer.dto("getTasks", {
+    const dto = focus4API.dto("getTasks", {
       tasks: data,
     });
 
@@ -217,7 +217,7 @@ export const GET: APIRoute = async (context) => {
       headers: { "content-type": "application/json" },
     });
   } catch {
-    const apiError = focus4APIServer.error("getTasks", {
+    const apiError = focus4API.error("getTasks", {
       type: "internal_server_error",
       status: 500,
       message: "Something went wrong during the request for tasks",

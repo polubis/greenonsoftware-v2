@@ -59,7 +59,7 @@ type ValidatedPath<TContract, TPath extends string> = TContract extends {
       : `Path "${TPath}" has dynamic parameters, but no 'pathParams' are defined in the contract.`
     : `Path "${TPath}" must start with a '/'.`;
 
-type CleanAPIBrowserConfig<
+type CleanAPIConfig<
   TContracts extends CleanAPIContracts,
   TConfig extends {
     [K in keyof TContracts]: {
@@ -132,7 +132,7 @@ const contract =
       [K in keyof TContracts]: { method: CleanAPIMethod; path: string };
     },
   >(
-    config: TConfig & CleanAPIBrowserConfig<TContracts, TConfig>,
+    config: TConfig & CleanAPIConfig<TContracts, TConfig>,
   ) => {
     return config;
   };
@@ -156,14 +156,14 @@ type CleanBrowserAPIError =
   | ConfigurationIssueError
   | UnsupportedServerResponseError;
 
-const cleanAPIBrowser =
+const cleanAPI =
   <TContracts extends CleanAPIContracts>() =>
   <
     TConfig extends {
       [K in keyof TContracts]: { method: CleanAPIMethod; path: string };
     },
   >(
-    config: TConfig & CleanAPIBrowserConfig<TContracts, TConfig>,
+    config: TConfig & CleanAPIConfig<TContracts, TConfig>,
     baseConfig?: CleanAxiosRequestConfig,
   ) => {
     const call = async <TKey extends keyof TContracts>(
@@ -333,30 +333,6 @@ const cleanAPIBrowser =
       return payload;
     };
 
-    return {
-      call,
-      safeCall,
-      parseError,
-      pathParams,
-      searchParams,
-      payload,
-    };
-  };
-
-// ##################################################################
-// # Server-side Implementation
-// ##################################################################
-
-const cleanAPIServer =
-  <TContracts extends CleanAPIContracts>() =>
-  <
-    TConfig extends {
-      [K in keyof TContracts]: { method: CleanAPIMethod; path: string };
-    },
-  >(
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    _contract: TConfig & CleanAPIBrowserConfig<TContracts, TConfig>,
-  ) => {
     const dto = <TKey extends keyof TContracts>(
       _key: TKey,
       dto: TContracts[TKey]["dto"],
@@ -376,15 +352,16 @@ const cleanAPIServer =
     };
 
     return {
+      call,
+      safeCall,
+      parseError,
+      pathParams,
+      searchParams,
+      payload,
       dto,
       error,
     };
   };
 
-export type {
-  CleanAPIBrowserConfig,
-  CleanAPIContracts,
-  ErrorVariant,
-  InferInput,
-};
-export { cleanAPIBrowser, cleanAPIServer, contract };
+export type { CleanAPIConfig, CleanAPIContracts, ErrorVariant, InferInput };
+export { cleanAPI, contract };

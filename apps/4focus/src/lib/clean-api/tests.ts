@@ -1,9 +1,4 @@
-import {
-  cleanAPIBrowser,
-  cleanAPIServer,
-  contract,
-  type ErrorVariant,
-} from ".";
+import { cleanAPI, contract, type ErrorVariant } from ".";
 
 type TaskRow = { id: number; name: string };
 
@@ -202,57 +197,57 @@ const apiContract = contract<Focus4Contracts>()({
   },
 });
 
-const clientAPI = cleanAPIBrowser<Focus4Contracts>()(apiContract);
+const api = cleanAPI<Focus4Contracts>()(apiContract);
 
-clientAPI.call("getTasks").then((res) => {
+api.call("getTasks").then((res) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _ = res.tasks;
 });
 // @ts-expect-error - Unexpected arguments for getTasks which takes no arguments
-clientAPI.call("getTasks", {}).then((res) => {
+api.call("getTasks", {}).then((res) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _ = res.tasks;
 });
-clientAPI
+api
   .call("getTask", { pathParams: { id: 1 }, searchParams: { limit: 10 } })
   .then((res) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = res.task;
   })
   .catch((error) => {
-    const r = clientAPI.parseError("getTask", error);
+    const r = api.parseError("getTask", error);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = r?.type;
   });
-clientAPI
+api
   // @ts-expect-error - Missing pathParams
   .call("getTask", { searchParams: { limit: 10 } })
   .then((res) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = res.task;
   });
-clientAPI
+api
   // @ts-expect-error - Missing searchParams
   .call("getTask", { pathParams: { id: 1 } })
   .then((res) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = res.task;
   });
-clientAPI
+api
   // @ts-expect-error - Missing pathParams and searchParams
   .call("getTask", {})
   .then((res) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = res.task;
   });
-clientAPI
+api
   // @ts-expect-error - Missing all arguments
   .call("getTask")
   .then((res) => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = res.task;
   });
-clientAPI
+api
   .call("createTask", {
     payload: {
       query: "test",
@@ -266,12 +261,12 @@ clientAPI
     const _ = res.task;
   })
   .catch((error) => {
-    const r = clientAPI.parseError("createTask", error);
+    const r = api.parseError("createTask", error);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = r?.type;
   });
 
-clientAPI
+api
   .call("updateTask", {
     payload: { query: "test" },
     pathParams: { id: 1 },
@@ -282,12 +277,12 @@ clientAPI
     const _ = res.task;
   })
   .catch((error) => {
-    const r = clientAPI.parseError("createTask", error);
+    const r = api.parseError("createTask", error);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = r?.type;
   });
 
-clientAPI
+api
   // @ts-expect-error - Missing searchParams
   .call("updateTask", {
     payload: { query: "test" },
@@ -298,12 +293,12 @@ clientAPI
     const _ = res.task;
   })
   .catch((error) => {
-    const r = clientAPI.parseError("createTask", error);
+    const r = api.parseError("createTask", error);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = r?.type;
   });
 
-clientAPI
+api
   // @ts-expect-error - Missing pathParams
   .call("updateTask", {
     payload: { query: "test" },
@@ -314,12 +309,12 @@ clientAPI
     const _ = res.task;
   })
   .catch((error) => {
-    const r = clientAPI.parseError("createTask", error);
+    const r = api.parseError("createTask", error);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = r?.type;
   });
 
-clientAPI
+api
   // @ts-expect-error - Missing payload
   .call("updateTask", {
     pathParams: { id: 1 },
@@ -330,12 +325,12 @@ clientAPI
     const _ = res.task;
   })
   .catch((error) => {
-    const r = clientAPI.parseError("createTask", error);
+    const r = api.parseError("createTask", error);
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = r?.type;
   });
 
-clientAPI
+api
   .call("putTask", {
     payload: { query: "test" },
     pathParams: { id: 1 },
@@ -346,7 +341,7 @@ clientAPI
     const _ = res.task;
   });
 
-clientAPI
+api
   // @ts-expect-error - Missing payload
   .call("putTask", {
     pathParams: { id: 1 },
@@ -357,12 +352,12 @@ clientAPI
     const _ = res.task;
   });
 
-clientAPI.call("deleteTask", { pathParams: { id: 1 } }).then((res) => {
+api.call("deleteTask", { pathParams: { id: 1 } }).then((res) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const _ = res.success;
 });
 
-clientAPI
+api
   // @ts-expect-error - Missing pathParams
   .call("deleteTask", {})
   .then((res) => {
@@ -374,7 +369,7 @@ clientAPI
 // # safeCall tests
 // ##################################################################
 
-clientAPI.safeCall("getTasks").then((res) => {
+api.safeCall("getTasks").then((res) => {
   if (res[0]) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = res[1].tasks;
@@ -388,14 +383,14 @@ clientAPI.safeCall("getTasks").then((res) => {
 });
 
 // @ts-expect-error - Unexpected arguments for getTasks which takes no arguments
-clientAPI.safeCall("getTasks", {}).then((res) => {
+api.safeCall("getTasks", {}).then((res) => {
   if (res[0]) {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const _ = res[1].tasks;
   }
 });
 
-clientAPI
+api
   .safeCall("getTask", { pathParams: { id: 1 }, searchParams: { limit: 10 } })
   .then((res) => {
     if (res[0]) {
@@ -410,7 +405,7 @@ clientAPI
     }
   });
 
-clientAPI
+api
   // @ts-expect-error - Missing pathParams
   .safeCall("getTask", { searchParams: { limit: 10 } })
   .then((res) => {
@@ -420,7 +415,7 @@ clientAPI
     }
   });
 
-clientAPI
+api
   // @ts-expect-error - Missing searchParams
   .safeCall("getTask", { pathParams: { id: 1 } })
   .then((res) => {
@@ -430,7 +425,7 @@ clientAPI
     }
   });
 
-clientAPI
+api
   // @ts-expect-error - Missing pathParams and searchParams
   .safeCall("getTask", {})
   .then((res) => {
@@ -440,7 +435,7 @@ clientAPI
     }
   });
 
-clientAPI
+api
   // @ts-expect-error - Missing all arguments
   .safeCall("getTask")
   .then((res) => {
@@ -450,7 +445,7 @@ clientAPI
     }
   });
 
-clientAPI
+api
   .safeCall("createTask", {
     payload: {
       query: "test",
@@ -472,7 +467,7 @@ clientAPI
     }
   });
 
-clientAPI
+api
   .safeCall("updateTask", {
     payload: { query: "test" },
     pathParams: { id: 1 },
@@ -491,7 +486,7 @@ clientAPI
     }
   });
 
-clientAPI
+api
   // @ts-expect-error - Missing searchParams
   .safeCall("updateTask", {
     payload: { query: "test" },
@@ -504,7 +499,7 @@ clientAPI
     }
   });
 
-clientAPI
+api
   // @ts-expect-error - Missing pathParams
   .safeCall("updateTask", {
     payload: { query: "test" },
@@ -517,7 +512,7 @@ clientAPI
     }
   });
 
-clientAPI
+api
   // @ts-expect-error - Missing payload
   .safeCall("updateTask", {
     pathParams: { id: 1 },
@@ -530,7 +525,7 @@ clientAPI
     }
   });
 
-clientAPI
+api
   .safeCall("putTask", {
     payload: { query: "test" },
     pathParams: { id: 1 },
@@ -543,7 +538,7 @@ clientAPI
     }
   });
 
-clientAPI
+api
   // @ts-expect-error - Missing payload
   .safeCall("putTask", {
     pathParams: { id: 1 },
@@ -556,21 +551,19 @@ clientAPI
     }
   });
 
-clientAPI
-  .safeCall("deleteTask", { pathParams: { id: 1 } })
-  .then(([ok, data]) => {
-    if (ok) {
+api.safeCall("deleteTask", { pathParams: { id: 1 } }).then(([ok, data]) => {
+  if (ok) {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const _ = data.success;
+  } else {
+    if (data) {
       // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      const _ = data.success;
-    } else {
-      if (data) {
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const _ = data.type;
-      }
+      const _ = data.type;
     }
-  });
+  }
+});
 
-clientAPI
+api
   // @ts-expect-error - Missing pathParams
   .safeCall("deleteTask", {})
   .then((res) => {
@@ -584,14 +577,14 @@ clientAPI
 // # Meta validation tests
 // ##################################################################
 
-clientAPI.safeCall("getErrorWithMeta").then(([ok, data]) => {
+api.safeCall("getErrorWithMeta").then(([ok, data]) => {
   if (!ok && data.type === "forbidden") {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const reason: string = data.meta.reason;
   }
 });
 
-clientAPI.safeCall("getErrorWithoutMeta").then(([ok, data]) => {
+api.safeCall("getErrorWithoutMeta").then(([ok, data]) => {
   if (!ok && data.type === "no_meta_error") {
     // @ts-expect-error Property 'meta' does not exist
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -607,25 +600,23 @@ clientAPI.safeCall("getErrorWithoutMeta").then(([ok, data]) => {
 // # Server-side Helper Tests
 // ##################################################################
 
-const serverAPI = cleanAPIServer<Focus4Contracts>()(apiContract);
-
 // Correct DTO usage
-serverAPI.dto("getTasks", { tasks: [] as TaskRow[] });
-serverAPI.dto("deleteTask", { success: true });
+api.dto("getTasks", { tasks: [] as TaskRow[] });
+api.dto("deleteTask", { success: true });
 
 // @ts-expect-error - Incorrect DTO shape for `getTasks`
-serverAPI.dto("getTasks", { success: true });
+api.dto("getTasks", { success: true });
 
 // Correct error usage
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const err1Getasks = serverAPI.error("getTask", {
+const err1Getasks = api.error("getTask", {
   type: "bad_request",
   status: 400,
   message: "Invalid ID",
   meta: { id: 123 },
 });
 
-serverAPI.error("getTask", {
+api.error("getTask", {
   // @ts-expect-error - 'forbidden' is not a valid error type for `getTask`
   type: "forbidden",
   // @ts-expect-error - 'forbidden' is not a valid error type for `getTask`
@@ -636,7 +627,7 @@ serverAPI.error("getTask", {
 });
 
 // Correct error with required meta
-serverAPI.error("getErrorWithMeta", {
+api.error("getErrorWithMeta", {
   type: "forbidden",
   status: 403,
   message: "Forbidden",
@@ -644,13 +635,13 @@ serverAPI.error("getErrorWithMeta", {
 });
 
 // @ts-expect-error - Missing `meta` property when it is required
-serverAPI.error("getErrorWithMeta", {
+api.error("getErrorWithMeta", {
   type: "forbidden",
   status: 403,
   message: "Forbidden",
 });
 
-serverAPI.error("getErrorWithMeta", {
+api.error("getErrorWithMeta", {
   type: "forbidden",
   status: 403,
   message: "Forbidden",
@@ -659,14 +650,14 @@ serverAPI.error("getErrorWithMeta", {
 });
 
 // Correct error with no meta
-serverAPI.error("getErrorWithoutMeta", {
+api.error("getErrorWithoutMeta", {
   type: "no_meta_error",
   status: 501,
   message: "No meta here",
 });
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-const err501 = serverAPI.error("getErrorWithoutMeta", {
+const err501 = api.error("getErrorWithoutMeta", {
   type: "no_meta_error",
   status: 501,
   message: "No meta here",
@@ -679,35 +670,35 @@ const err501 = serverAPI.error("getErrorWithoutMeta", {
 // ##################################################################
 
 // Correct usage
-const pathParams = clientAPI.pathParams("getTask", { id: 1 });
-const searchParams = clientAPI.searchParams("getTask", { limit: 10 });
-const payload = clientAPI.payload("createTask", { query: "test" });
+const pathParams = api.pathParams("getTask", { id: 1 });
+const searchParams = api.searchParams("getTask", { limit: 10 });
+const payload = api.payload("createTask", { query: "test" });
 
 // Use the created parts in a call
-clientAPI.call("getTask", {
+api.call("getTask", {
   pathParams: pathParams,
   searchParams: searchParams,
 });
-clientAPI.call("createTask", {
+api.call("createTask", {
   payload: payload,
   searchParams: { limit: 10 },
 });
 
 // Incorrect key validation
 // @ts-expect-error - 'getTasks' does not have 'pathParams'.
-clientAPI.pathParams("getTasks", { id: 1 });
+api.pathParams("getTasks", { id: 1 });
 // @ts-expect-error - 'deleteTask' does not have 'searchParams'.
-clientAPI.searchParams("deleteTask", { q: "test" });
+api.searchParams("deleteTask", { q: "test" });
 // @ts-expect-error - 'getTask' does not have 'payload'.
-clientAPI.payload("getTask", { data: "test" });
+api.payload("getTask", { data: "test" });
 
 // Incorrect shape validation
 // @ts-expect-error - 'pathParams' for 'getTask' has the wrong shape.
-clientAPI.pathParams("getTask", { id: "not-a-number" });
+api.pathParams("getTask", { id: "not-a-number" });
 // @ts-expect-error - 'searchParams' for 'createTask' has the wrong shape.
-clientAPI.searchParams("createTask", { limit: "not-a-number" });
+api.searchParams("createTask", { limit: "not-a-number" });
 // @ts-expect-error - 'payload' for 'createTask' has the wrong shape.
-clientAPI.payload("createTask", { wrongKey: "test" });
+api.payload("createTask", { wrongKey: "test" });
 
 // ##################################################################
 // # Axios Configuration Tests
@@ -716,16 +707,16 @@ clientAPI.payload("createTask", { wrongKey: "test" });
 // --- Factory Creation Tests ---
 
 // This demonstrates creating a client with a valid base config
-cleanAPIBrowser<Focus4Contracts>()(apiContract, {
+cleanAPI<Focus4Contracts>()(apiContract, {
   headers: { "X-Base-Header": "base" },
 });
 
-cleanAPIBrowser<Focus4Contracts>()(apiContract, {
+cleanAPI<Focus4Contracts>()(apiContract, {
   // @ts-expect-error - `params` is a forbidden property in the base config
   params: { q: "test" },
 });
 
-cleanAPIBrowser<Focus4Contracts>()(apiContract, {
+cleanAPI<Focus4Contracts>()(apiContract, {
   // @ts-expect-error - `data` is a forbidden property in the base config
   data: { forbidden: true },
 });
