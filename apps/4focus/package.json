@@ -10,6 +10,7 @@
     "lint": "next lint --max-warnings 0",
     "check-types": "tsc --noEmit",
     "test": "vitest run",
+    "test:watch": "vitest run --watch",
     "db:start": "npx supabase start",
     "db:stop": "npx supabase stop",
     "db:migrate": "npx supabase migration up",

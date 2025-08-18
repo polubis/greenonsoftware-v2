@@ -187,15 +187,21 @@ const cleanAPI =
 
       switch (type) {
         case "get":
-          return axios.get(finalPath, axiosConfig);
+          return axios.get(finalPath, axiosConfig).then((res) => res.data);
         case "post":
-          return axios.post(finalPath, input?.payload, axiosConfig);
+          return axios
+            .post(finalPath, input?.payload, axiosConfig)
+            .then((res) => res.data);
         case "put":
-          return axios.put(finalPath, input?.payload, axiosConfig);
+          return axios
+            .put(finalPath, input?.payload, axiosConfig)
+            .then((res) => res.data);
         case "patch":
-          return axios.patch(finalPath, input?.payload, axiosConfig);
+          return axios
+            .patch(finalPath, input?.payload, axiosConfig)
+            .then((res) => res.data);
         case "delete":
-          return axios.delete(finalPath, axiosConfig);
+          return axios.delete(finalPath, axiosConfig).then((res) => res.data);
       }
     };
 
