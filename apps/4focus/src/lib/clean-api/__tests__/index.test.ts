@@ -15,6 +15,12 @@ import { cleanAPI, contract } from "..";
 vi.mock("axios");
 const mockedAxios = vi.mocked(axios, true);
 
+const { isAxiosError, isCancel } = await vi.importActual("axios");
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+mockedAxios.isAxiosError.mockImplementation(isAxiosError as any);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+mockedAxios.isCancel.mockImplementation(isCancel as any);
+
 type TestContracts = {
   getUser: {
     dto: { id: number; name: string };
@@ -166,7 +172,7 @@ describe("cleanAPI", () => {
       expect(mockedAxios.post).toHaveBeenCalledWith(
         "/users",
         { name: "New User" },
-        { headers: { "X-Test-Header": "base" }, params: undefined },
+        { headers: { "X-Test-Header": "base" } },
       );
       expect(result).toEqual(responseData);
     });

@@ -6,6 +6,12 @@ import axios from "axios";
 vi.mock("axios");
 const mockedAxios = vi.mocked(axios, true);
 
+const { isAxiosError, isCancel } = await vi.importActual("axios");
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+mockedAxios.isAxiosError.mockImplementation(isAxiosError as any);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+mockedAxios.isCancel.mockImplementation(isCancel as any);
+
 describe("searchParams", () => {
   type Contracts = {
     get: {

@@ -1,10 +1,16 @@
 import { describe, it, vi, expect, beforeEach } from "vitest";
-import type { ErrorVariant } from "..";
+import type { CleanAPIContractsConfig, ErrorVariant } from "..";
 import { cleanAPI, contract } from "..";
 import axios from "axios";
 
 vi.mock("axios");
 const mockedAxios = vi.mocked(axios, true);
+
+const { isAxiosError, isCancel } = await vi.importActual("axios");
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+mockedAxios.isAxiosError.mockImplementation(isAxiosError as any);
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+mockedAxios.isCancel.mockImplementation(isCancel as any);
 
 describe("configuration", () => {
   type Contracts = {
@@ -34,7 +40,7 @@ describe("configuration", () => {
 
   it("applies base configuration to 'call'", async () => {
     const abortController = new AbortController();
-    const baseConfig = {
+    const baseConfig: CleanAPIContractsConfig = {
       headers: { "X-Base-Header": "base" },
       timeout: 5000,
       signal: abortController.signal,
@@ -60,7 +66,7 @@ describe("configuration", () => {
 
   it("applies base configuration to 'safeCall'", async () => {
     const abortController = new AbortController();
-    const baseConfig = {
+    const baseConfig: CleanAPIContractsConfig = {
       headers: { "X-Base-Header": "base-safe" },
       timeout: 1000,
       signal: abortController.signal,
@@ -96,7 +102,7 @@ describe("configuration", () => {
   });
 
   it("correctly merges path and search parameters with base config", async () => {
-    const baseConfig = {
+    const baseConfig: CleanAPIContractsConfig = {
       baseURL: "https://api.example.com",
       headers: { Authorization: "Bearer my-token" },
     };

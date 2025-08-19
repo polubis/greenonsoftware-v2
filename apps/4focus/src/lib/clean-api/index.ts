@@ -1,5 +1,6 @@
 import type { AxiosRequestConfig } from "axios";
 import axios from "axios";
+import merge from "lodash/merge";
 
 type ErrorVariant<
   T extends string,
@@ -97,9 +98,9 @@ type InferInput<
     ? { payload: TContract["payload"] }
     : unknown);
 
-type CleanAxiosRequestConfig = Omit<
+type CleanAPIContractsConfig = Pick<
   AxiosRequestConfig,
-  "url" | "method" | "params" | "data"
+  "headers" | "baseURL" | "signal" | "timeout"
 >;
 
 type KeysWith<
@@ -164,7 +165,7 @@ const cleanAPI =
     },
   >(
     config: TConfig & CleanAPIConfig<TContracts, TConfig>,
-    baseConfig?: CleanAxiosRequestConfig,
+    baseConfig?: CleanAPIContractsConfig,
   ) => {
     const call = async <TKey extends keyof TContracts>(
       key: TKey,
@@ -178,10 +179,10 @@ const cleanAPI =
           }
         | undefined;
       const contract = config[key];
-      const axiosConfig: AxiosRequestConfig = {
-        ...baseConfig,
+      const axiosConfig: AxiosRequestConfig = merge({}, baseConfig, {
         params: input?.searchParams,
-      };
+      });
+
       const finalPath = `${axiosConfig.baseURL ?? ""}${applyPathParams(contract.path, input?.pathParams)}`;
 
       const type = config[key].method;
@@ -369,5 +370,11 @@ const cleanAPI =
     };
   };
 
-export type { CleanAPIConfig, CleanAPIContracts, ErrorVariant, InferInput };
+export type {
+  CleanAPIConfig,
+  CleanAPIContracts,
+  ErrorVariant,
+  InferInput,
+  CleanAPIContractsConfig,
+};
 export { cleanAPI, contract };
