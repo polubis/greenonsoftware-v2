@@ -182,9 +182,7 @@ const cleanAPI =
         ...baseConfig,
         params: input?.searchParams,
       };
-      const finalPath =
-        (axiosConfig.baseURL ?? "") +
-        applyPathParams(contract.path, input?.pathParams);
+      const finalPath = `${axiosConfig.baseURL ?? ""}${applyPathParams(contract.path, input?.pathParams)}`;
 
       const type = config[key].method;
 
