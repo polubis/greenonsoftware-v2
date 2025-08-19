@@ -29,6 +29,7 @@
     "@types/react-dom": "^19.1.7",
     "astro": "^5.12.8",
     "axios": "^1.11.0",
+    "lodash": "^4.17.21",
     "nanostores": "^1.0.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
@@ -38,6 +39,7 @@
   "devDependencies": {
     "@testing-library/jest-dom": "^6.7.0",
     "@testing-library/react": "^16.3.0",
+    "@types/lodash": "^4.17.20",
     "@vitejs/plugin-react": "^5.0.0",
     "@vitest/coverage-v8": "^3.2.4",
     "@vitest/ui": "^3.2.4",
