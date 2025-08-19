@@ -49,7 +49,7 @@ const testConfig = contract<TestContracts>()({
 
 const api = cleanAPI<TestContracts>()(testConfig);
 
-describe("utils works when", () => {
+describe("utils", () => {
   describe("pathParams", () => {
     it("returns and infers the correct type", () => {
       const pathParams = { id: "1" };

@@ -82,7 +82,7 @@ describe("cleanAPI", () => {
   });
 
   describe("Type Safety and Contract Validation", () => {
-    it("should enforce correct input types with InferInput", () => {
+    it("enforces correct input types with InferInput", () => {
       type CreateUserInput = InferInput<
         TestContracts,
         TestContracts["createUser"]
@@ -98,7 +98,7 @@ describe("cleanAPI", () => {
       expectTypeOf(undefined as HealthInput).toEqualTypeOf<unknown>();
     });
 
-    it("should fail type checking for invalid paths", () => {
+    it("fails type checking for invalid paths", () => {
       contract<TestContracts>()({
         ...testConfig,
         // @ts-expect-error - Path must start with '/'
@@ -120,7 +120,7 @@ describe("cleanAPI", () => {
       });
     });
 
-    it("should accept valid contract configurations", () => {
+    it("accepts valid contract configurations", () => {
       const validConfig = contract<{
         staticPath: { dto: boolean; error: ErrorVariant<"", 0> };
         withParams: {
@@ -137,7 +137,7 @@ describe("cleanAPI", () => {
   });
 
   describe("call", () => {
-    it("should make a GET request with correct path, search params, and headers", async () => {
+    it("makes a GET request with correct path, search params, and headers", async () => {
       const responseData = { id: 1, name: "Test User" };
       mockedAxios.get.mockResolvedValue({ data: responseData });
 
@@ -154,7 +154,7 @@ describe("cleanAPI", () => {
       expect(result).toEqual(responseData);
     });
 
-    it("should make a POST request with the correct payload", async () => {
+    it("makes a POST request with the correct payload", async () => {
       const responseData = { id: 2, name: "New User" };
       mockedAxios.post.mockResolvedValue({ data: responseData });
 
@@ -171,7 +171,7 @@ describe("cleanAPI", () => {
       expect(result).toEqual(responseData);
     });
 
-    it("should make a PUT request", async () => {
+    it("makes a PUT request", async () => {
       const responseData = { id: 1, name: "Updated User" };
       mockedAxios.put.mockResolvedValue({ data: responseData });
       const result = await api.call("updateUser", {
@@ -186,7 +186,7 @@ describe("cleanAPI", () => {
       expect(result).toEqual(responseData);
     });
 
-    it("should make a PATCH request", async () => {
+    it("makes a PATCH request", async () => {
       const responseData = { id: 1, name: "Patched User" };
       mockedAxios.patch.mockResolvedValue({ data: responseData });
       const result = await api.call("patchUser", {
@@ -201,7 +201,7 @@ describe("cleanAPI", () => {
       expect(result).toEqual(responseData);
     });
 
-    it("should make a DELETE request", async () => {
+    it("makes a DELETE request", async () => {
       const responseData = { success: true };
       mockedAxios.delete.mockResolvedValue({ data: responseData });
       const result = await api.call("deleteUser", { pathParams: { id: "1" } });
@@ -212,7 +212,7 @@ describe("cleanAPI", () => {
       expect(result).toEqual(responseData);
     });
 
-    it("should handle calls with no arguments", async () => {
+    it("handles calls with no arguments", async () => {
       const responseData = { status: "ok" };
       mockedAxios.get.mockResolvedValue({ data: responseData });
       const result = await api.call("getHealth");
@@ -225,7 +225,7 @@ describe("cleanAPI", () => {
   });
 
   describe("parseError", () => {
-    it("should parse a server error with a valid error contract", () => {
+    it("parses a server error with a valid error contract", () => {
       const axiosError = {
         isAxiosError: true,
         response: {
@@ -246,7 +246,7 @@ describe("cleanAPI", () => {
       expect(parsed.rawError).toBe(axiosError);
     });
 
-    it("should parse an unsupported server response", () => {
+    it("parses an unsupported server response", () => {
       const axiosError = {
         isAxiosError: true,
         response: { status: 500, data: { error: "Internal Error" } },
@@ -267,7 +267,7 @@ describe("cleanAPI", () => {
       });
     });
 
-    it('should parse a "no internet" error', () => {
+    it('parses a "no internet" error', () => {
       vi.spyOn(navigator, "onLine", "get").mockReturnValue(false);
       const axiosError = {
         isAxiosError: true,
@@ -279,7 +279,7 @@ describe("cleanAPI", () => {
       expect(parsed.status).toBe(-2);
     });
 
-    it('should parse a "no server response" error', () => {
+    it('parses a "no server response" error', () => {
       const axiosError = {
         isAxiosError: true,
         request: {},
@@ -290,7 +290,7 @@ describe("cleanAPI", () => {
       expect(parsed.status).toBe(-3);
     });
 
-    it('should parse a "configuration issue" error', () => {
+    it('parses a "configuration issue" error', () => {
       const axiosError = {
         isAxiosError: true,
         message: "Config error",
@@ -301,7 +301,7 @@ describe("cleanAPI", () => {
       expect(parsed.status).toBe(-4);
     });
 
-    it("should parse a request cancellation", () => {
+    it("parses a request cancellation", () => {
       const cancelError = new axios.Cancel("Request aborted by user");
       mockedAxios.isCancel.mockReturnValue(true);
 
@@ -313,7 +313,7 @@ describe("cleanAPI", () => {
       expect(parsed.rawError).toBe(cancelError);
     });
 
-    it("should parse a generic client exception", () => {
+    it("parses a generic client exception", () => {
       const error = new Error("Something broke");
       mockedAxios.isAxiosError.mockReturnValue(false);
       const parsed = api.parseError("getUser", error);
@@ -325,7 +325,7 @@ describe("cleanAPI", () => {
   });
 
   describe("safeCall", () => {
-    it("should return [true, data] on success", async () => {
+    it("returns [true, data] on success", async () => {
       const responseData = { id: 1, name: "Test User" };
       mockedAxios.get.mockResolvedValue({ data: responseData });
 
@@ -341,7 +341,7 @@ describe("cleanAPI", () => {
       }
     });
 
-    it("should return [false, error] on failure", async () => {
+    it("returns [false, error] on failure", async () => {
       const axiosError = {
         isAxiosError: true,
         response: {
@@ -371,35 +371,35 @@ describe("cleanAPI", () => {
   });
 
   describe("Helper Functions", () => {
-    it("should return input for pathParams and infer correct type", () => {
+    it("returns input for pathParams and infers correct type", () => {
       const params = { id: "123" };
       const result = api.pathParams("getUser", params);
       expect(result).toBe(params);
       expectTypeOf(result).toEqualTypeOf<{ id: string }>();
     });
 
-    it("should return input for searchParams and infer correct type", () => {
+    it("returns input for searchParams and infers correct type", () => {
       const params = { version: 1 };
       const result = api.searchParams("getUser", params);
       expect(result).toBe(params);
       expectTypeOf(result).toEqualTypeOf<{ version: number }>();
     });
 
-    it("should return input for payload and infer correct type", () => {
+    it("returns input for payload and infers correct type", () => {
       const p = { name: "test" };
       const result = api.payload("createUser", p);
       expect(result).toBe(p);
       expectTypeOf(result).toEqualTypeOf<{ name: string }>();
     });
 
-    it("should return input for dto and infer correct type", () => {
+    it("returns input for dto and infers correct type", () => {
       const d = { id: 1, name: "test" };
       const result = api.dto("createUser", d);
       expect(result).toBe(d);
       expectTypeOf(result).toEqualTypeOf<{ id: number; name: string }>();
     });
 
-    it("should return input for error and infer correct type", () => {
+    it("returns input for error and infers correct type", () => {
       const e: TestContracts["createUser"]["error"] = {
         type: "validation_error",
         status: 400,

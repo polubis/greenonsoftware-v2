@@ -59,7 +59,7 @@ const testConfig = contract<TestContracts>()({
 
 const api = cleanAPI<TestContracts>()(testConfig);
 
-describe("API calling works when", () => {
+describe("API calling", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.spyOn(navigator, "onLine", "get").mockReturnValue(true);
@@ -173,6 +173,14 @@ describe("API calling works when", () => {
       // @ts-expect-error - Missing pathParams
       api.call("getUser", { searchParams: { version: 1 } });
 
+      // @ts-expect-error - Missing searchParams
+      api.call("getUser", {
+        pathParams: { id: "1" },
+      });
+
+      // @ts-expect-error - Missing all arguments
+      api.call("getUser");
+
       api.call("getUser", {
         pathParams: { id: "1" },
         searchParams: { version: 1 },
@@ -220,6 +228,57 @@ describe("API calling works when", () => {
         expect(result.type).toBe("user_not_found");
         expect(result.status).toBe(404);
         expectTypeOf(result.rawError).toEqualTypeOf<unknown>();
+      }
+    });
+
+    it("returns [false, error] on server error with meta", async () => {
+      mockedAxios.isAxiosError.mockReturnValue(true);
+      mockedAxios.post.mockRejectedValue({
+        isAxiosError: true,
+        response: {
+          status: 400,
+          statusText: "validation_error",
+          data: {
+            message: "Validation failed",
+            meta: { fields: ["name"] },
+          },
+        },
+      } as AxiosError);
+
+      const [isSuccess, result] = await api.safeCall("createUser", {
+        payload: { name: "New User" },
+      });
+
+      expect(isSuccess).toBe(false);
+
+      if (!isSuccess && result.type === "validation_error") {
+        expect(result.meta.fields).toEqual(["name"]);
+        expectTypeOf(result.meta).toEqualTypeOf<{ fields: string[] }>();
+      }
+    });
+
+    it("returns [false, error] on server error without meta", async () => {
+      mockedAxios.isAxiosError.mockReturnValue(true);
+      mockedAxios.get.mockRejectedValue({
+        isAxiosError: true,
+        response: {
+          status: 404,
+          statusText: "user_not_found",
+          data: { message: "User does not exist" },
+        },
+      } as AxiosError);
+
+      const [isSuccess, result] = await api.safeCall("getUser", {
+        pathParams: { id: "1" },
+        searchParams: { version: 1 },
+      });
+
+      expect(isSuccess).toBe(false);
+
+      if (!isSuccess && result.type === "user_not_found") {
+        // @ts-expect-error - meta does not exist on this error type
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const _ = result.meta;
       }
     });
 
@@ -345,6 +404,15 @@ describe("API calling works when", () => {
 
       // @ts-expect-error - Missing payload for createUser
       api.safeCall("createUser", {});
+
+      // @ts-expect-error - Missing pathParams
+      api.safeCall("getUser", { searchParams: { version: 1 } });
+
+      // @ts-expect-error - Missing searchParams
+      api.safeCall("getUser", { pathParams: { id: "1" } });
+
+      // @ts-expect-error - Missing all arguments
+      api.safeCall("getUser");
     });
   });
 });
