@@ -98,7 +98,7 @@ type InferInput<
     ? { payload: TContract["payload"] }
     : unknown);
 
-type CleanAPIContractsConfig = Pick<
+type CleanAPIRootConfig = Pick<
   AxiosRequestConfig,
   "headers" | "baseURL" | "signal" | "timeout"
 >;
@@ -165,7 +165,7 @@ const cleanAPI =
     },
   >(
     config: TConfig & CleanAPIConfig<TContracts, TConfig>,
-    baseConfig?: CleanAPIContractsConfig,
+    baseConfig?: CleanAPIRootConfig,
   ) => {
     const call = async <TKey extends keyof TContracts>(
       key: TKey,
@@ -375,6 +375,6 @@ export type {
   CleanAPIContracts,
   ErrorVariant,
   InferInput,
-  CleanAPIContractsConfig,
+  CleanAPIRootConfig,
 };
 export { cleanAPI, contract };
