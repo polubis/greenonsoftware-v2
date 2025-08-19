@@ -33,6 +33,12 @@ type TestContracts = {
     pathParams: { id: string };
     payload: { name: string };
   };
+  patchUser: {
+    dto: { id: number; name: string };
+    error: ErrorVariant<"patch_failed", 500>;
+    pathParams: { id: string };
+    payload: { name?: string };
+  };
   deleteUser: {
     dto: { success: boolean };
     error: ErrorVariant<"delete_failed", 500>;
@@ -52,6 +58,7 @@ const testConfig = contract<TestContracts>()({
   getUser: { method: "get", path: "/users/:id" },
   createUser: { method: "post", path: "/users" },
   updateUser: { method: "put", path: "/users/:id" },
+  patchUser: { method: "patch", path: "/users/:id" },
   deleteUser: { method: "delete", path: "/users/:id" },
   getHealth: { method: "get", path: "/health" },
   noInput: { method: "get", path: "/no-input" },
@@ -113,6 +120,23 @@ describe("API calling", () => {
       expect(mockedAxios.put).toHaveBeenCalledWith(
         "/users/1",
         { name: "Updated User" },
+        { params: undefined },
+      );
+      expect(result).toEqual(responseData);
+    });
+
+    it("makes a PATCH request and returns data", async () => {
+      const responseData = { id: 1, name: "Patched User" };
+      mockedAxios.patch.mockResolvedValue({ data: responseData });
+
+      const result = await api.call("patchUser", {
+        pathParams: { id: "1" },
+        payload: { name: "Patched User" },
+      });
+
+      expect(mockedAxios.patch).toHaveBeenCalledWith(
+        "/users/1",
+        { name: "Patched User" },
         { params: undefined },
       );
       expect(result).toEqual(responseData);
@@ -291,6 +315,11 @@ describe("API calling", () => {
         payload: { name: "Updated User" },
       });
 
+      expect(mockedAxios.put).toHaveBeenCalledWith(
+        "/users/1",
+        { name: "Updated User" },
+        { params: undefined },
+      );
       expect(isSuccess).toBe(true);
       if (isSuccess) {
         expect(result).toEqual(responseData);
@@ -320,6 +349,26 @@ describe("API calling", () => {
       }
     });
 
+    it("returns [true, data] on successful PATCH request", async () => {
+      const responseData = { id: 1, name: "Patched User" };
+      mockedAxios.patch.mockResolvedValue({ data: responseData });
+
+      const [isSuccess, result] = await api.safeCall("patchUser", {
+        pathParams: { id: "1" },
+        payload: { name: "Patched User" },
+      });
+
+      expect(mockedAxios.patch).toHaveBeenCalledWith(
+        "/users/1",
+        { name: "Patched User" },
+        { params: undefined },
+      );
+      expect(isSuccess).toBe(true);
+      if (isSuccess) {
+        expect(result).toEqual(responseData);
+      }
+    });
+
     it("returns [true, data] on successful DELETE request", async () => {
       const responseData = { success: true };
       mockedAxios.delete.mockResolvedValue({ data: responseData });
@@ -328,6 +377,9 @@ describe("API calling", () => {
         pathParams: { id: "1" },
       });
 
+      expect(mockedAxios.delete).toHaveBeenCalledWith("/users/1", {
+        params: undefined,
+      });
       expect(isSuccess).toBe(true);
       if (isSuccess) {
         expect(result).toEqual(responseData);

@@ -178,11 +178,14 @@ const cleanAPI =
           }
         | undefined;
       const contract = config[key];
-      const finalPath = applyPathParams(contract.path, input?.pathParams);
       const axiosConfig: AxiosRequestConfig = {
         ...baseConfig,
         params: input?.searchParams,
       };
+      const finalPath =
+        (axiosConfig.baseURL ?? "") +
+        applyPathParams(contract.path, input?.pathParams);
+
       const type = config[key].method;
 
       switch (type) {
