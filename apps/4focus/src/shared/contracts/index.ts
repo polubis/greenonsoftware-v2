@@ -1,5 +1,6 @@
 import { cleanAPI, type ErrorVariant } from "@/lib/clean-api";
 import type { Database } from "../db/database.types";
+import { APIRouter } from "../routing/api-router";
 
 type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
 
@@ -19,7 +20,7 @@ type Focus4Contracts = {
 const focus4API = cleanAPI<Focus4Contracts>()({
   getTasks: {
     method: "get",
-    path: "/api/tasks",
+    path: APIRouter.getPath("tasks"),
   },
 });
 
