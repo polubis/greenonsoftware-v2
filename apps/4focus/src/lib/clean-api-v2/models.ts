@@ -49,20 +49,18 @@ type CallArgs<
   TContracts extends Contracts,
   TKey extends keyof TContracts,
 > = TContracts[TKey] extends
-  | { pathParams: unknown }
-  | { searchParams: unknown }
-  | { payload: unknown }
-  | { extra: unknown }
+  | { pathParams?: unknown }
+  | { searchParams?: unknown }
+  | { payload?: unknown }
+  | { extra?: unknown }
   ? [
       input: InferInput<TContracts, TContracts[TKey]> &
         (TConfiguration extends undefined
           ? unknown
           : { config: TConfiguration }),
     ]
-  : [
-      config: TConfiguration extends undefined
-        ? unknown
-        : { config: TConfiguration },
-    ];
+  : TConfiguration extends undefined
+    ? []
+    : [input: { config: TConfiguration }];
 
 export type { Contracts, ErrorVariant, CallArgs, InferInput, Configuration };

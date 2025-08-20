@@ -10,8 +10,8 @@ describe("contracts enforcing works when", () => {
         searchParams: { version: number };
         dto: { tasks: { id: number }[] };
         error:
-        | ErrorVariant<"bad_request", 400>
-        | ErrorVariant<"unauthorized", 401>;
+          | ErrorVariant<"bad_request", 400>
+          | ErrorVariant<"unauthorized", 401>;
       };
     };
 
@@ -51,6 +51,135 @@ describe("contracts enforcing works when", () => {
     });
   });
 
+  it("endpoint with global config but no other inputs is handled correctly", async () => {
+    type APIContracts = {
+      getStatus: {
+        dto: { status: "ok" };
+        error: ErrorVariant<"server_error", 500>;
+      };
+    };
+
+    const spy = vi.fn();
+    const contractWithConfig = configure({ url: "https://api.example.com" });
+
+    const api = contractWithConfig<APIContracts>()({
+      getStatus: {
+        resolver: (input) => {
+          spy(input);
+          return Promise.resolve({ status: "ok" });
+        },
+      },
+    });
+
+    await api.call("getStatus");
+
+    expect(spy).toHaveBeenCalledWith({
+      config: { url: "https://api.example.com" },
+    });
+  });
+
+  it("handles optional input properties correctly", async () => {
+    type APIContracts = {
+      search: {
+        payload?: { query: string };
+        dto: { results: string[] };
+        error: ErrorVariant<"bad_request", 400>;
+      };
+    };
+
+    const contract = configure({ url: "https://api.example.com" });
+    const create = contract<APIContracts>();
+    const spy = vi.fn();
+
+    const api = create({
+      search: {
+        resolver: (input) => {
+          // @ts-expect-error - wrong property
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars
+          const { config, searchParams, payload, extra } = input;
+          spy(input);
+          if (
+            input &&
+            typeof input === "object" &&
+            "payload" in input &&
+            input.payload
+          ) {
+            return Promise.resolve({
+              results: [(input.payload as { query: string }).query],
+            });
+          }
+          return Promise.resolve({ results: [] });
+        },
+      },
+    });
+    // @ts-expect-error - not needed objects passed
+    await api.call("search", {});
+    expect(spy).toHaveBeenCalledWith({
+      config: { url: "https://api.example.com" },
+    });
+
+    await api.call("search", { payload: { query: "test" } });
+    expect(spy).toHaveBeenCalledWith({
+      payload: { query: "test" },
+      config: { url: "https://api.example.com" },
+    });
+
+    // @ts-expect-error - wrong property
+    api.call("search", { payload: { name: "test" } });
+    api.call("search", { payload: undefined });
+  });
+
+  it("deep enforcement of required and optional properties within an input object", () => {
+    type APIContracts = {
+      updateProfile: {
+        payload: { name: string; age?: number };
+        dto: { success: boolean };
+        error: ErrorVariant<"bad_request", 400>;
+      };
+    };
+
+    const contract = configure();
+    const create = contract<APIContracts>();
+
+    const api = create({
+      updateProfile: {
+        resolver: () => Promise.resolve({ success: true }),
+      },
+    });
+
+    api.call("updateProfile", { payload: { name: "test" } });
+    api.call("updateProfile", { payload: { name: "test", age: 30 } });
+    api.call("updateProfile", { payload: { name: "test", age: undefined } });
+
+    // @ts-expect-error - required property 'name' is missing
+    api.call("updateProfile", { payload: { age: 30 } });
+  });
+
+  it("handles endpoint with no inputs and no global configuration", async () => {
+    type APIContracts = {
+      ping: {
+        dto: { pong: true };
+        error: ErrorVariant<"server_error", 500>;
+      };
+    };
+
+    const contractWithoutConfig = configure();
+    const spy = vi.fn();
+
+    const api = contractWithoutConfig<APIContracts>()({
+      ping: {
+        // @ts-expect-error - shows error when no config and no additional input
+        resolver: (input) => {
+          spy(input);
+          return Promise.resolve({ pong: true });
+        },
+      },
+    });
+
+    await api.call("ping");
+    expect(spy).toHaveBeenCalledWith({});
+  });
+
   it("creation is protected from wrong types", () => {
     type APIContracts = {
       get: {
@@ -58,8 +187,8 @@ describe("contracts enforcing works when", () => {
         searchParams: { version: number };
         dto: { tasks: { id: number }[] };
         error:
-        | ErrorVariant<"bad_request", 400>
-        | ErrorVariant<"unauthorized", 401>;
+          | ErrorVariant<"bad_request", 400>
+          | ErrorVariant<"unauthorized", 401>;
       };
       post: {
         payload: { name: string };
@@ -67,8 +196,8 @@ describe("contracts enforcing works when", () => {
         searchParams: { version: number };
         dto: { tasks: { id: number }[] };
         error:
-        | ErrorVariant<"bad_request", 400>
-        | ErrorVariant<"unauthorized", 401>;
+          | ErrorVariant<"bad_request", 400>
+          | ErrorVariant<"unauthorized", 401>;
       };
     };
 
@@ -78,13 +207,13 @@ describe("contracts enforcing works when", () => {
     create({
       get: {
         // @ts-expect-error - wrong dto type
-        resolver: () => { },
+        resolver: () => {},
       },
     });
     create({
       // @ts-expect-error - typo in key
       getType: {
-        resolver: () => { },
+        resolver: () => {},
       },
     });
     // @ts-expect-error - not full contract configured
@@ -156,8 +285,8 @@ describe("contracts enforcing works when", () => {
         searchParams: { version: number };
         dto: { tasks: { id: number }[] };
         error:
-        | ErrorVariant<"bad_request", 400>
-        | ErrorVariant<"unauthorized", 401>;
+          | ErrorVariant<"bad_request", 400>
+          | ErrorVariant<"unauthorized", 401>;
       };
       post: {
         payload: { name: string };
@@ -165,8 +294,8 @@ describe("contracts enforcing works when", () => {
         searchParams: { version: number };
         dto: { tasks: { id: number }[] };
         error:
-        | ErrorVariant<"bad_request", 400>
-        | ErrorVariant<"unauthorized", 401>;
+          | ErrorVariant<"bad_request", 400>
+          | ErrorVariant<"unauthorized", 401>;
       };
     };
 
