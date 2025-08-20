@@ -1,17 +1,51 @@
 import { describe, expectTypeOf, it } from "vitest";
 import type { ErrorVariant } from "../models";
-import { create } from "..";
+import { configure } from "..";
 
 describe("contracts enforcing works when", () => {
-  it("creation & configuration is protected from wrong types", () => {
+  it("configuration is passed to the resolver and contract is protected from wrong types", () => {
     type APIContracts = {
       get: {
         extra: { fetch: boolean };
         searchParams: { version: number };
         dto: { tasks: { id: number }[] };
         error:
-          | ErrorVariant<"bad_request", 400>
-          | ErrorVariant<"unauthorized", 401>;
+        | ErrorVariant<"bad_request", 400>
+        | ErrorVariant<"unauthorized", 401>;
+      };
+    };
+
+    const contractWithoutConfig = configure()
+    const contractWithConfig = configure({ url: "https://api.example.com" })
+
+
+    contractWithoutConfig<APIContracts>()({
+      get: {
+        // @ts-expect-error - config is not defined in the contract
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        resolver: ({ searchParams, extra, config }) => {
+          return Promise.resolve({ tasks: [{ id: 1 }], searchParams, extra });
+        },
+      },
+    });
+    contractWithConfig<APIContracts>()({
+      get: {
+        resolver: ({ searchParams, extra, config }) => {
+          return Promise.resolve({ tasks: [{ id: 1 }], searchParams, extra, config });
+        },
+      },
+    });
+  })
+
+  it("creation is protected from wrong types", () => {
+    type APIContracts = {
+      get: {
+        extra: { fetch: boolean };
+        searchParams: { version: number };
+        dto: { tasks: { id: number }[] };
+        error:
+        | ErrorVariant<"bad_request", 400>
+        | ErrorVariant<"unauthorized", 401>;
       };
       post: {
         payload: { name: string };
@@ -19,21 +53,24 @@ describe("contracts enforcing works when", () => {
         searchParams: { version: number };
         dto: { tasks: { id: number }[] };
         error:
-          | ErrorVariant<"bad_request", 400>
-          | ErrorVariant<"unauthorized", 401>;
+        | ErrorVariant<"bad_request", 400>
+        | ErrorVariant<"unauthorized", 401>;
       };
     };
 
-    create<APIContracts>()({
+    const contract = configure()
+    const create = contract<APIContracts>()
+
+    create({
       get: {
         // @ts-expect-error - wrong dto type
-        resolver: () => {},
+        resolver: () => { },
       },
     });
-    create<APIContracts>()({
+    create({
       // @ts-expect-error - typo in key
       getType: {
-        resolver: () => {},
+        resolver: () => { },
       },
     });
     // @ts-expect-error - not full contract configured
@@ -42,7 +79,7 @@ describe("contracts enforcing works when", () => {
         resolver: () => Promise.resolve({ tasks: [{ id: 1 }] }),
       },
     });
-    create<APIContracts>()({
+    create({
       get: {
         // @ts-expect-error - payload and pathParams are not defined in the contract
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -60,7 +97,7 @@ describe("contracts enforcing works when", () => {
         },
       },
     });
-    create<APIContracts>()({
+    create({
       post: {
         // @ts-expect-error - extra is not defined in the contract
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -79,7 +116,7 @@ describe("contracts enforcing works when", () => {
         },
       },
     });
-    create<APIContracts>()({
+    create({
       post: {
         resolver: ({ pathParams, searchParams, payload }) => {
           return Promise.resolve({
@@ -105,8 +142,8 @@ describe("contracts enforcing works when", () => {
         searchParams: { version: number };
         dto: { tasks: { id: number }[] };
         error:
-          | ErrorVariant<"bad_request", 400>
-          | ErrorVariant<"unauthorized", 401>;
+        | ErrorVariant<"bad_request", 400>
+        | ErrorVariant<"unauthorized", 401>;
       };
       post: {
         payload: { name: string };
@@ -114,11 +151,15 @@ describe("contracts enforcing works when", () => {
         searchParams: { version: number };
         dto: { tasks: { id: number }[] };
         error:
-          | ErrorVariant<"bad_request", 400>
-          | ErrorVariant<"unauthorized", 401>;
+        | ErrorVariant<"bad_request", 400>
+        | ErrorVariant<"unauthorized", 401>;
       };
     };
-    const api = create<APIContracts>()({
+
+    const contract = configure()
+    const create = contract<APIContracts>()
+
+    const api = create({
       post: {
         resolver: ({ pathParams, searchParams, payload }) => {
           return Promise.resolve({
@@ -164,7 +205,7 @@ describe("contracts enforcing works when", () => {
     });
     const postDto = api.call("post", {
       payload: { name: "test" },
-      pathParams: { id: "1" },  
+      pathParams: { id: "1" },
       searchParams: { version: 1 },
     });
     const awaitedPostDto = await api.call("post", {
