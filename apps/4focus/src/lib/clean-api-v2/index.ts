@@ -1,7 +1,7 @@
 import type { CallArgs, Contracts } from "./models";
 
 const create = <TContracts extends Contracts>() => <
-    TConfig extends {
+    TContractsSignature extends {
         [K in keyof TContracts]: {
             resolver: (
                 ...args: CallArgs<TContracts, K>
@@ -9,7 +9,7 @@ const create = <TContracts extends Contracts>() => <
         };
     },
 >(
-    config: TConfig
+    contracts: TContractsSignature,
 ) => {
 
     return {
@@ -17,7 +17,7 @@ const create = <TContracts extends Contracts>() => <
             key: TKey,
             ...args: CallArgs<TContracts, TKey>
         ): Promise<TContracts[TKey]["dto"]> => {
-            const resolver = config[key].resolver;
+            const resolver = contracts[key].resolver;
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
             return await resolver(...args as any);
         }
