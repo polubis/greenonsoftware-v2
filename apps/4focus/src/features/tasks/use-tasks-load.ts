@@ -38,9 +38,13 @@ const useTasksLoad = () => {
         return;
       }
 
+      const abortController = new AbortController()
+
       setState({ status: "busy" });
 
-      const [success, data] = await focus4API.safeCall("getTasks");
+      const [success, data] = await focus4API.safeCall("getTasks", {
+        extra: { signal: abortController.signal },
+      });
 
       if (success) {
         setState({

@@ -1,6 +1,6 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import type { ErrorVariant } from "../models";
-import { configure } from "..";
+import { init } from "../core";
 
 describe("contracts enforcing works when", () => {
   it("configuration is passed to the resolver and contract is protected from wrong types", async () => {
@@ -15,8 +15,8 @@ describe("contracts enforcing works when", () => {
       };
     };
 
-    const contractWithoutConfig = configure();
-    const contractWithConfig = configure({ url: "https://api.example.com" });
+    const contractWithoutConfig = init();
+    const contractWithConfig = init({ url: "https://api.example.com" });
 
     contractWithoutConfig<APIContracts>()({
       get: {
@@ -60,7 +60,7 @@ describe("contracts enforcing works when", () => {
     };
 
     const spy = vi.fn();
-    const contractWithConfig = configure({ url: "https://api.example.com" });
+    const contractWithConfig = init({ url: "https://api.example.com" });
 
     const api = contractWithConfig<APIContracts>()({
       getStatus: {
@@ -87,7 +87,7 @@ describe("contracts enforcing works when", () => {
       };
     };
 
-    const contract = configure({ url: "https://api.example.com" });
+    const contract = init({ url: "https://api.example.com" });
     const create = contract<APIContracts>();
     const spy = vi.fn();
 
@@ -128,7 +128,7 @@ describe("contracts enforcing works when", () => {
       };
     };
 
-    const contract = configure();
+    const contract = init();
     const create = contract<APIContracts>();
 
     const api = create({
@@ -153,7 +153,7 @@ describe("contracts enforcing works when", () => {
       };
     };
 
-    const contractWithoutConfig = configure();
+    const contractWithoutConfig = init();
     const spy = vi.fn();
 
     const api = contractWithoutConfig<APIContracts>()({
@@ -191,7 +191,7 @@ describe("contracts enforcing works when", () => {
       };
     };
 
-    const contract = configure();
+    const contract = init();
     const create = contract<APIContracts>();
 
     create({
@@ -289,7 +289,7 @@ describe("contracts enforcing works when", () => {
       };
     };
 
-    const contract = configure();
+    const contract = init();
     const create = contract<APIContracts>();
 
     const api = create({

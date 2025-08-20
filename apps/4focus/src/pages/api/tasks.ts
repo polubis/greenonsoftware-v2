@@ -181,7 +181,7 @@ export const GET: APIRoute = async (context) => {
 
     if (userError || !user) {
       const apiError = focus4API.error("getTasks", {
-        type: "unauthorized",
+        type: 'unauthorized',
         status: 401,
         message: "Unauthorized",
       });
@@ -198,7 +198,7 @@ export const GET: APIRoute = async (context) => {
 
     if (error) {
       const apiError = focus4API.error("getTasks", {
-        type: "internal_server_error",
+        type: 'internal_server_error',
         status: 500,
         message: "Failed to fetch tasks",
       });
