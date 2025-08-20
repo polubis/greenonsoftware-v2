@@ -23,7 +23,7 @@ describe("contracts enforcing works when", () => {
         // @ts-expect-error - config is not defined in the contract
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         resolver: ({ searchParams, extra, config }) => {
-          return Promise.resolve({ tasks: [{ id: 1 }], searchParams, extra });
+          return Promise.resolve({ tasks: [{ id: 1 }] });
         },
       },
     });
@@ -98,16 +98,6 @@ describe("contracts enforcing works when", () => {
           // eslint-disable-next-line @typescript-eslint/no-unused-vars
           const { config, searchParams, payload, extra } = input;
           spy(input);
-          if (
-            input &&
-            typeof input === "object" &&
-            "payload" in input &&
-            input.payload
-          ) {
-            return Promise.resolve({
-              results: [(input.payload as { query: string }).query],
-            });
-          }
           return Promise.resolve({ results: [] });
         },
       },
