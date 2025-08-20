@@ -5,8 +5,10 @@ import type { ClientAuthState } from "../../shared/client-auth/client-auth-store
 import { useEffect, useState } from "react";
 import { APIRouter } from "../../shared/routing/api-router";
 import type { Focus4Contracts } from "@/shared/contracts";
+import { useTasksLoad } from "./use-tasks-load";
 
 const TasksView = () => {
+  useTasksLoad();
   const auth = useClientAuth();
   const [tasks, setTasks] = useState<
     Array<{

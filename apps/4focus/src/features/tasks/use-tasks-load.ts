@@ -34,7 +34,6 @@ const useTasksLoad = () => {
 
   useEffect(() => {
     (async () => {
-      console.log(authState.status);
       if (authState.status !== "authenticated") {
         return;
       }
@@ -69,7 +68,7 @@ const useTasksLoad = () => {
     })();
 
     return () => {};
-  }, [authState]);
+  }, [authState.status]);
 
   return [state] as const;
 };
