@@ -19,7 +19,7 @@ type Contracts = Record<
     string,
     {
         dto: unknown;
-        error: ErrorVariant<string, number>;
+        error: unknown;
         payload?: unknown;
         pathParams?: Record<string, unknown>;
         searchParams?: Record<string, unknown>;
@@ -37,6 +37,9 @@ type InferInput<
         : unknown) &
     ("payload" extends keyof TContract
         ? { payload: TContract["payload"] }
+        : unknown) &
+    ("extra" extends keyof TContract
+        ? { extra: TContract["extra"] }
         : unknown);
 
 type CallArgs<
@@ -46,6 +49,7 @@ type CallArgs<
     | { pathParams: unknown }
     | { searchParams: unknown }
     | { payload: unknown }
+    | { extra: unknown }
     ? [input: InferInput<TContracts, TContracts[TKey]>]
     : [];
 
