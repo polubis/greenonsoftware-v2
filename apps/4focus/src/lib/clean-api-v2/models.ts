@@ -4,16 +4,16 @@ type ErrorVariant<
   TMeta = undefined,
 > = TMeta extends undefined
   ? {
-    type: T;
-    status: TStatus;
-    message: string;
-  }
+      type: T;
+      status: TStatus;
+      message: string;
+    }
   : {
-    type: T;
-    status: TStatus;
-    message: string;
-    meta: TMeta;
-  };
+      type: T;
+      status: TStatus;
+      message: string;
+      meta: TMeta;
+    };
 
 type Contracts = Record<
   string,
@@ -54,14 +54,14 @@ type CallArgs<
   | { payload?: unknown }
   | { extra?: unknown }
   ? [
-    input: InferInput<TContracts, TContracts[TKey]> &
-    (TConfiguration extends undefined
-      ? unknown
-      : { config: TConfiguration }),
-  ]
+      input: InferInput<TContracts, TContracts[TKey]> &
+        (TConfiguration extends undefined
+          ? unknown
+          : { config: TConfiguration }),
+    ]
   : TConfiguration extends undefined
-  ? []
-  : [input: { config: TConfiguration }];
+    ? []
+    : [input: { config: TConfiguration }];
 
 type KeysWith<
   TContracts extends Contracts,
@@ -70,4 +70,11 @@ type KeysWith<
   [K in keyof TContracts]: TProp extends keyof TContracts[K] ? K : never;
 }[keyof TContracts];
 
-export type { Contracts, ErrorVariant, CallArgs, InferInput, Configuration, KeysWith };
+export type {
+  Contracts,
+  ErrorVariant,
+  CallArgs,
+  InferInput,
+  Configuration,
+  KeysWith,
+};

@@ -1,2 +1,2 @@
-export { init } from './core'
-export type { ErrorVariant } from './models'
+export { init } from "./core";
+export type { ErrorVariant } from "./models";

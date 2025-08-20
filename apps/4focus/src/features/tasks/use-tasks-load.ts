@@ -38,7 +38,7 @@ const useTasksLoad = () => {
         return;
       }
 
-      const abortController = new AbortController()
+      const abortController = new AbortController();
 
       setState({ status: "busy" });
 
@@ -60,13 +60,9 @@ const useTasksLoad = () => {
           })),
         });
       } else {
-        if (data.type === "aborted") {
-          return;
-        }
-
         setState({
           status: "error",
-          message: data.message,
+          message: "ups",
         });
       }
     })();
