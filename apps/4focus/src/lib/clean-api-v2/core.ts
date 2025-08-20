@@ -14,10 +14,7 @@ const init =
   >(
     contracts: TContractsSignature,
   ): CleanApi<TContracts> => {
-    const call = async <TKey extends keyof TContracts>(
-      key: TKey,
-      ...args: CallArgs<undefined, TContracts, TKey>
-    ): Promise<TContracts[TKey]["dto"]> => {
+    const call: CleanApi<TContracts>["call"] = async (key, ...args) => {
       const resolver = contracts[key].resolver;
       const input = (args[0] ?? {}) as {
         pathParams?: Record<string, unknown>;
@@ -51,10 +48,7 @@ const init =
       return await resolver(finalInput as any);
     };
 
-    const safeCall = async <TKey extends keyof TContracts>(
-      key: TKey,
-      ...args: CallArgs<undefined, TContracts, TKey>
-    ): Promise<[true, TContracts[TKey]["dto"]] | [false, unknown]> => {
+    const safeCall: CleanApi<TContracts>["safeCall"] = async (key, ...args) => {
       try {
         const result = await call(key, ...args);
         return [true, result];
