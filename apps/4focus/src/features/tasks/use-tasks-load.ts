@@ -1,5 +1,5 @@
 import { useClientAuthState } from "@/shared/client-auth/use-client-auth-state";
-import { focus4API } from "@/shared/contracts";
+import { focus4API, parseFocus4APIError } from "@/shared/contracts";
 import { useEffect, useState } from "react";
 
 type Task = {
@@ -33,12 +33,12 @@ const useTasksLoad = () => {
   const [state, setState] = useState<TasksLoadState>({ status: "idle" });
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     (async () => {
       if (authState.status !== "authenticated") {
         return;
       }
-
-      const abortController = new AbortController();
 
       setState({ status: "busy" });
 
@@ -60,14 +60,22 @@ const useTasksLoad = () => {
           })),
         });
       } else {
+        const parsed = parseFocus4APIError("getTasks", data);
+
+        if (parsed.type === "aborted") {
+          return;
+        }
+
         setState({
           status: "error",
-          message: "ups",
+          message: parsed.message,
         });
       }
     })();
 
-    return () => {};
+    return () => {
+      abortController.abort();
+    };
   }, [authState.status]);
 
   return [state] as const;

@@ -70,6 +70,64 @@ type KeysWith<
   [K in keyof TContracts]: TProp extends keyof TContracts[K] ? K : never;
 }[keyof TContracts];
 
+type CleanApi<TContracts extends Contracts> = {
+  call: <TKey extends keyof TContracts>(
+    key: TKey,
+    ...args: CallArgs<undefined, TContracts, TKey>
+  ) => Promise<TContracts[TKey]["dto"]>;
+  safeCall: <TKey extends keyof TContracts>(
+    key: TKey,
+    ...args: CallArgs<undefined, TContracts, TKey>
+  ) => Promise<[true, TContracts[TKey]["dto"]] | [false, unknown]>;
+  error: <
+    TKey extends keyof TContracts,
+    TError extends TContracts[TKey]["error"],
+  >(
+    _key: TKey,
+    error: TError & TContracts[TKey]["error"],
+  ) => TError;
+  dto: <TKey extends keyof TContracts>(
+    _key: TKey,
+    dto: TContracts[TKey]["dto"],
+  ) => TContracts[TKey]["dto"];
+  pathParams: <TKey extends KeysWith<TContracts, "pathParams">>(
+    _key: TKey,
+    pathParams: TContracts[TKey]["pathParams"],
+  ) => TContracts[TKey]["pathParams"];
+  searchParams: <TKey extends KeysWith<TContracts, "searchParams">>(
+    _key: TKey,
+    searchParams: TContracts[TKey]["searchParams"],
+  ) => TContracts[TKey]["searchParams"];
+  payload: <TKey extends KeysWith<TContracts, "payload">>(
+    _key: TKey,
+    payload: TContracts[TKey]["payload"],
+  ) => TContracts[TKey]["payload"];
+};
+
+type AbortedError = ErrorVariant<"aborted", 0>;
+type ClientExceptionError = ErrorVariant<"client_exception", -1>;
+type NoInternetError = ErrorVariant<"no_internet", -2>;
+type NoServerResponseError = ErrorVariant<"no_server_response", -3>;
+type ConfigurationIssueError = ErrorVariant<"configuration_issue", -4>;
+type UnsupportedServerResponseError = ErrorVariant<
+  "unsupported_server_response",
+  -5,
+  { originalStatus: number; originalResponse: unknown }
+>;
+
+type BrowserError =
+  | AbortedError
+  | ClientExceptionError
+  | NoInternetError
+  | NoServerResponseError
+  | ConfigurationIssueError
+  | UnsupportedServerResponseError;
+
+type ParsedError<
+  TContracts extends Contracts,
+  TKey extends keyof TContracts,
+> = (TContracts[TKey]["error"] | BrowserError) & { rawError: unknown };
+
 export type {
   Contracts,
   ErrorVariant,
@@ -77,4 +135,13 @@ export type {
   InferInput,
   Configuration,
   KeysWith,
+  CleanApi,
+  ParsedError,
+  BrowserError,
+  AbortedError,
+  ClientExceptionError,
+  NoInternetError,
+  NoServerResponseError,
+  ConfigurationIssueError,
+  UnsupportedServerResponseError,
 };

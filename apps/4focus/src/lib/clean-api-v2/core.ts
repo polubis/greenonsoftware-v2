@@ -1,4 +1,4 @@
-import type { CallArgs, Configuration, Contracts, KeysWith } from "./models";
+import type { CallArgs, CleanApi, Configuration, Contracts } from "./models";
 
 const init =
   <TConfiguration extends Configuration | undefined>(config?: TConfiguration) =>
@@ -13,7 +13,7 @@ const init =
     },
   >(
     contracts: TContractsSignature,
-  ) => {
+  ): CleanApi<TContracts> => {
     const call = async <TKey extends keyof TContracts>(
       key: TKey,
       ...args: CallArgs<undefined, TContracts, TKey>
@@ -63,43 +63,19 @@ const init =
       }
     };
 
-    const pathParams = <TKey extends KeysWith<TContracts, "pathParams">>(
-      _key: TKey,
-      pathParams: TContracts[TKey]["pathParams"],
-    ): TContracts[TKey]["pathParams"] => {
-      return pathParams;
-    };
+    const pathParams: CleanApi<TContracts>["pathParams"] = (_key, pathParams) =>
+      pathParams;
 
-    const searchParams = <TKey extends KeysWith<TContracts, "searchParams">>(
-      _key: TKey,
-      searchParams: TContracts[TKey]["searchParams"],
-    ): TContracts[TKey]["searchParams"] => {
-      return searchParams;
-    };
+    const searchParams: CleanApi<TContracts>["searchParams"] = (
+      _key,
+      searchParams,
+    ) => searchParams;
 
-    const payload = <TKey extends KeysWith<TContracts, "payload">>(
-      _key: TKey,
-      payload: TContracts[TKey]["payload"],
-    ): TContracts[TKey]["payload"] => {
-      return payload;
-    };
+    const payload: CleanApi<TContracts>["payload"] = (_key, payload) => payload;
 
-    const error = <
-      TKey extends keyof TContracts,
-      TError extends TContracts[TKey]["error"],
-    >(
-      _key: TKey,
-      error: TError & TContracts[TKey]["error"],
-    ): TError => {
-      return error;
-    };
+    const error: CleanApi<TContracts>["error"] = (_key, error) => error;
 
-    const dto = <TKey extends keyof TContracts>(
-      _key: TKey,
-      dto: TContracts[TKey]["dto"],
-    ): TContracts[TKey]["dto"] => {
-      return dto;
-    };
+    const dto: CleanApi<TContracts>["dto"] = (_key, dto) => dto;
 
     return {
       call,

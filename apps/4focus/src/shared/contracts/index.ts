@@ -2,6 +2,7 @@ import type { ErrorVariant } from "@/lib/clean-api-v2";
 import type { Database } from "../db/database.types";
 import { APIRouter } from "../routing/api-router";
 import { init } from "@/lib/clean-api-v2/core";
+import { errorParser } from "@/lib/clean-api-v2/adapters/axios";
 
 type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
 
@@ -21,6 +22,7 @@ type Focus4Contracts = {
 
 const contract = init();
 const create = contract<Focus4Contracts>();
+
 const focus4API = create({
   getTasks: {
     resolver: async ({ extra: { signal } }) => {
@@ -31,5 +33,7 @@ const focus4API = create({
   },
 });
 
+const parseFocus4APIError = errorParser(focus4API);
+
 export type { Focus4Contracts };
-export { focus4API };
+export { focus4API, parseFocus4APIError };
