@@ -12,7 +12,11 @@ describe("search params construction works when", () => {
       post: {
         dto: null;
         error: null;
-        searchParams: { version: number };
+        searchParams: { version: number; optional?: string };
+      };
+      put: {
+        dto: null;
+        error: null;
       };
     };
 
@@ -29,6 +33,11 @@ describe("search params construction works when", () => {
           return Promise.resolve(null);
         },
       },
+      put: {
+        resolver: () => {
+          return Promise.resolve(null);
+        },
+      },
     });
 
     const searchParams = api.searchParams("get", { version: 1 });
@@ -39,5 +48,29 @@ describe("search params construction works when", () => {
     // @ts-expect-error - missing search params
     expect(api.searchParams("get")).toEqual(undefined);
     expectTypeOf(searchParams).toEqualTypeOf<{ version: number }>();
+
+    const postSearchParams1 = api.searchParams("post", { version: 2 });
+    const postSearchParams2 = api.searchParams("post", {
+      version: 2,
+      optional: "test",
+    });
+    const postSearchParams3 = api.searchParams("post", {
+      version: 2,
+      optional: undefined,
+    });
+
+    expect(postSearchParams1).toEqual({ version: 2 });
+    expect(postSearchParams2).toEqual({ version: 2, optional: "test" });
+    expect(postSearchParams3).toEqual({ version: 2, optional: undefined });
+    expectTypeOf(postSearchParams1).toEqualTypeOf<{
+      version: number;
+      optional?: string;
+    }>();
+
+    // @ts-expect-error - wrong property type
+    api.searchParams("post", { version: 2, optional: 123 });
+
+    // @ts-expect-error - endpoint does not have searchParams
+    api.searchParams("put", {});
   });
 });

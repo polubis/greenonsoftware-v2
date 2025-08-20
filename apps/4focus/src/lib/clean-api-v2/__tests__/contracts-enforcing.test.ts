@@ -170,6 +170,36 @@ describe("contracts enforcing works when", () => {
     expect(spy).toHaveBeenCalledWith({});
   });
 
+  it("handles endpoint with only extra and no other inputs", async () => {
+    type APIContracts = {
+      log: {
+        extra: { silent: boolean };
+        dto: { success: boolean };
+        error: ErrorVariant<"server_error", 500>;
+      };
+    };
+
+    const contract = init();
+    const spy = vi.fn();
+
+    const api = contract<APIContracts>()({
+      log: {
+        resolver: (input) => {
+          spy(input);
+          return Promise.resolve({ success: true });
+        },
+      },
+    });
+
+    await api.call("log", { extra: { silent: true } });
+    expect(spy).toHaveBeenCalledWith({ extra: { silent: true } });
+
+    // @ts-expect-error - missing extra property
+    await api.call("log", {});
+    // @ts-expect-error - wrong type for silent property
+    await api.call("log", { extra: { silent: "true" } });
+  });
+
   it("creation is protected from wrong types", () => {
     type APIContracts = {
       get: {
