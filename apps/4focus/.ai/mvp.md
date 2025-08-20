@@ -1,39 +1,40 @@
-# Aplikacja - 4focus (MVP)
+# Application - 4focus (MVP)
 
-### Główny problem
+## Main problem
 
-Osoby dotknięte ADHD mają duży problem ze skupieniem się na konkretnych czynnościach. Aplikacja ma za zadanie, w oparciu o techniki takie jak macierz Eisenhowera (oraz z czasem inne), pomagać w organizacji aktywności.
+People affected by ADHD struggle to focus on specific activities. The application aims, based on techniques such as the Eisenhower Matrix (and, over time, others), to help organize activities.
 
-Użytkownik będzie mógł w łatwy sposób dodawać zadania za pomocą interfejsu głosowego oraz zarządzać nimi (kolejnością, priorytetem, kategorią, opisem i nazwą).
+The user will be able to easily add tasks via a voice interface and manage them (order, priority, category, description, and name).
 
-Aplikacja będzie umożliwiać dodawanie zadań w oparciu o asystenta AI, który w oparciu o interfejs tekstowy pozwoli na rozbicie
-dowolnego kontekstu na zestaw odpowiednio dobranych kroków i ustawionych w odpowiedniej kolejności.
+The application will allow adding tasks based on an AI assistant which, using a text interface, will break down
+any context into a set of appropriately chosen steps arranged in the right order.
 
-### Najmniejszy zestaw funkcjonalności (MVP Scope)
+## Minimal set of features (MVP Scope)
 
-- Podział zadań na cztery kategorie zgodnie z macierzą Eisenhowera (dla poszczególnych zadań)
-- Prosta autoryzacja i logowanie za pomocą Google
-- Zaznaczanie zadań jako wykonanych oraz zmiana ich statusu
-- Tworzenie zadań na "potem"
-- Wsparcie dla urządzeń mobilnych
-- Dashboard przedstawiający "health score" - w oparciu o dane pokazujemy to jak idzie Ci walka z ADHD
-- Blocker – ekran, który utrudnia użytkownikom wyjście z aktualnie wykonywanego zadania
-- Prosty interfejs użytkownika, pozbawiony zbędnych kolorów
-- Statystyki – na koniec każdego dnia generowany będzie raport zawierający następujące informacje:
-  1. Średni czas wykonania zadania
-  2. Liczba przypadków, gdy użytkownik niepotrzebnie sięgnął po telefon
-  3. Punkty karne – czy użytkownik zmieniał priorytet zadania lub się z niego wycofywał
-  4. Ocena (1-10)
-  5. Sugestie - lista tips&tricks, które pozwolą zniwelować powtarzające się problemy
-- Konfiguracja profilu - ustawienia w postaci nazwy użytkownika, bio oraz wybór avatara w ASCII, lub wgranie własnego, który będzie przedstawiał twój profil i styl
+- Division of tasks into four categories according to the Eisenhower Matrix (for individual tasks)
+- Simple authentication and login with Google
+- Marking tasks as completed and changing their status
+- Creating tasks for "later"
+- Support for mobile devices
+- Dashboard presenting a "health score" – based on data, we show how you're doing in your fight against ADHD
+- Blocker – a screen that makes it harder for users to exit the task they are currently performing
+- User is able to provide estimated time to end for their tasks (when it's finished in correct time there is a nice animation displayed that informs them they're doing good job)
+- Simple user interface, free of unnecessary colors
+- Statistics – at the end of each day, a report will be generated containing the following information:
+  1. Average task completion time
+  2. Number of instances where the user picked up their phone unnecessarily
+  3. Penalty points – whether the user changed a task's priority or backed out of it
+  4. Rating (1–10)
+  5. Suggestions – a list of tips & tricks that help mitigate recurring problems
+- Profile configuration – settings such as username, bio, and selection of an ASCII avatar, or uploading your own, which will represent your profile and style
 
-Jeśli chcesz, mogę też przeredagować to jeszcze bardziej formalnie albo w stylu marketingowym – daj znać!
+If you want, I can also rewrite this in a more formal or marketing style — let me know!
 
-### Co NIE wchodzi w zakres MVP
+## What is NOT in the MVP scope
 
-- Wszystko, co wykracza poza "Najmniejszy zestaw funkcjonalności".
+- Everything that goes beyond the "Minimal set of features."
 
-### Kryteria sukcesu
+## Success criteria
 
-- 200 użytkowników założy konto w ciągu pierwszego tygodnia od uruchomienia aplikacji.
-- 75% z tych 200 użytkowników nadal korzysta z aplikacji po miesiącu od rejestracji.
+- 200 users will create an account within the first week after the application launches.
+- 75% of those 200 users will still be using the application one month after registration.

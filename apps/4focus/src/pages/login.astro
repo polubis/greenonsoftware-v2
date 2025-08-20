@@ -1,0 +1,22 @@
+---
+import { LoginView } from '../features/login/login-view';
+import Layout from '../layouts/layout.astro';
+import { createSupabaseServerClient } from '../shared/db/supabase-server';
+import { AppRouter } from '../shared/routing/app-router';
+
+const supabase = createSupabaseServerClient({ request: Astro.request, cookies: Astro.cookies });
+
+const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+if (user) {
+  return Astro.redirect(AppRouter.getPath('dashboard'));
+}
+
+const activePathname = new URL(Astro.request.url).pathname;
+---
+
+<Layout title="Sign In">
+  <LoginView client:load activePathname={activePathname} />
+</Layout>

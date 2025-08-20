@@ -1,0 +1,12 @@
+---
+import { TasksView } from "../../features/tasks/tasks-view";
+import AppLayout from "../../layouts/app-layout.astro";
+
+export const prerender = true;
+
+const activePathname = new URL(Astro.request.url).pathname;
+---
+
+<AppLayout title="Tasks">
+  <TasksView client:only="react" activePathname={activePathname} />
+</AppLayout>

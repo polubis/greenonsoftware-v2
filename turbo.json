@@ -1,11 +1,21 @@
 {
   "$schema": "https://turborepo.com/schema.json",
   "ui": "tui",
+  "globalEnv": [
+    "PUBLIC_SUPABASE_URL",
+    "PUBLIC_SUPABASE_ANON_KEY",
+    "AUTH_CALLBACK_URL",
+    "SUPABASE_GOOGLE_CLIENT_SECRET",
+    "SUPABASE_GOOGLE_CLIENT_ID"
+  ],
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
       "outputs": [".next/**", "!.next/cache/**", "dist/**"]
+    },
+    "test": {
+      "inputs": ["src/**/*.test.{ts,tsx}", "vitest.config.ts"]
     },
     "lint": {
       "dependsOn": ["^lint"]

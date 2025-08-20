@@ -18,3 +18,9 @@
 
 - Github Actions
 - Docker
+- Cloudflare
+
+## Other
+
+- Zod
+- RxJs

@@ -5,10 +5,11 @@
     "build": "turbo run build",
     "dev": "turbo run dev",
     "lint": "turbo run lint",
+    "test": "turbo run test",
     "format": "prettier --write \"**/*.{ts,js,json,tsx,md,css,scss,html}\"",
     "check-types": "turbo run check-types",
     "prepare": "husky",
-    "pre-commit:tasks": "npm-run-all --parallel check-types lint format"
+    "pre-commit:tasks": "npm-run-all --parallel check-types lint format test"
   },
   "devDependencies": {
     "@commitlint/cli": "^19.8.1",
