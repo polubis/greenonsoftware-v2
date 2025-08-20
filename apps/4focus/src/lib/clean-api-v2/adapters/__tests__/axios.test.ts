@@ -19,7 +19,7 @@ describe("axios adapter error parsing works when", () => {
   type APIContracts = {
     get: {
       dto: { id: number };
-      error: ErrorVariant<"NOT_FOUND", 404, { resource: string }>;
+      error: ErrorVariant<"not_found", 404, { resource: string }>;
     };
   };
 
@@ -37,9 +37,10 @@ describe("axios adapter error parsing works when", () => {
       isAxiosError: true,
       response: {
         status: 404,
-        statusText: "Not Found",
+        statusText: "not_found",
         data: {
-          type: "NOT_FOUND",
+          type: "not_found",
+          status: 404,
           message: "Resource could not be found.",
           meta: { resource: "item" },
         },
@@ -50,12 +51,12 @@ describe("axios adapter error parsing works when", () => {
     const parsed = parser("get", mockError);
 
     expect(parsed.status).toBe(404);
-    expect(parsed.type).toBe("NOT_FOUND");
+    expect(parsed.type).toBe("not_found");
     expect(parsed.message).toBe("Resource could not be found.");
-    if (parsed.type === "NOT_FOUND") {
+    if (parsed.type === "not_found") {
       expect(parsed.meta).toEqual({ resource: "item" });
       expectTypeOf(parsed).toEqualTypeOf<
-        ErrorVariant<"NOT_FOUND", 404, { resource: string }> & {
+        ErrorVariant<"not_found", 404, { resource: string }> & {
           rawError: unknown;
         }
       >();
