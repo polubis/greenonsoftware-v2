@@ -1,9 +1,9 @@
-import { describe, expectTypeOf, it } from "vitest";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import type { ErrorVariant } from "../models";
 import { configure } from "..";
 
 describe("contracts enforcing works when", () => {
-  it("configuration is passed to the resolver and contract is protected from wrong types", () => {
+  it("configuration is passed to the resolver and contract is protected from wrong types", async () => {
     type APIContracts = {
       get: {
         extra: { fetch: boolean };
@@ -15,9 +15,8 @@ describe("contracts enforcing works when", () => {
       };
     };
 
-    const contractWithoutConfig = configure()
-    const contractWithConfig = configure({ url: "https://api.example.com" })
-
+    const contractWithoutConfig = configure();
+    const contractWithConfig = configure({ url: "https://api.example.com" });
 
     contractWithoutConfig<APIContracts>()({
       get: {
@@ -28,14 +27,29 @@ describe("contracts enforcing works when", () => {
         },
       },
     });
-    contractWithConfig<APIContracts>()({
+
+    const spy = vi.fn();
+
+    const api = contractWithConfig<APIContracts>()({
       get: {
-        resolver: ({ searchParams, extra, config }) => {
-          return Promise.resolve({ tasks: [{ id: 1 }], searchParams, extra, config });
+        resolver: (input) => {
+          spy(input);
+          return Promise.resolve({ tasks: [{ id: 1 }] });
         },
       },
     });
-  })
+
+    await api.call("get", {
+      searchParams: { version: 1 },
+      extra: { fetch: true },
+    });
+
+    expect(spy).toHaveBeenCalledWith({
+      config: { url: "https://api.example.com" },
+      searchParams: { version: 1 },
+      extra: { fetch: true },
+    });
+  });
 
   it("creation is protected from wrong types", () => {
     type APIContracts = {
@@ -58,8 +72,8 @@ describe("contracts enforcing works when", () => {
       };
     };
 
-    const contract = configure()
-    const create = contract<APIContracts>()
+    const contract = configure();
+    const create = contract<APIContracts>();
 
     create({
       get: {
@@ -74,7 +88,7 @@ describe("contracts enforcing works when", () => {
       },
     });
     // @ts-expect-error - not full contract configured
-    create<APIContracts>()({
+    create({
       post: {
         resolver: () => Promise.resolve({ tasks: [{ id: 1 }] }),
       },
@@ -156,8 +170,8 @@ describe("contracts enforcing works when", () => {
       };
     };
 
-    const contract = configure()
-    const create = contract<APIContracts>()
+    const contract = configure();
+    const create = contract<APIContracts>();
 
     const api = create({
       post: {
@@ -178,7 +192,7 @@ describe("contracts enforcing works when", () => {
     });
 
     // @ts-expect-error - missing input
-    await expect(api.call("get")).rejects.toThrow();
+    api.call("get");
     // @ts-expect-error - empty input
     api.call("get", {});
     // @ts-expect-error - not full input
@@ -187,7 +201,7 @@ describe("contracts enforcing works when", () => {
     api.call("get", { searchParams: { version: 1 }, typo: true });
 
     // @ts-expect-error - missing input
-    await expect(api.call("post")).rejects.toThrow();
+    api.call("post");
     // @ts-expect-error - empty input
     api.call("post", {});
     // @ts-expect-error - not full input
