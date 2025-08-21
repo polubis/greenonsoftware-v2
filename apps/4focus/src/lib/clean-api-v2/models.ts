@@ -99,23 +99,23 @@ type CleanApi<TContracts extends Contracts> = {
     TKey extends keyof TContracts,
     TError extends TContracts[TKey]["error"],
   >(
-    _key: TKey,
+    key: TKey,
     error: TError & TContracts[TKey]["error"],
   ) => TError;
   dto: <TKey extends keyof TContracts>(
-    _key: TKey,
+    key: TKey,
     dto: TContracts[TKey]["dto"],
   ) => TContracts[TKey]["dto"];
   pathParams: <TKey extends KeysWith<TContracts, "pathParams">>(
-    _key: TKey,
+    key: TKey,
     pathParams: TContracts[TKey]["pathParams"],
   ) => TContracts[TKey]["pathParams"];
   searchParams: <TKey extends KeysWith<TContracts, "searchParams">>(
-    _key: TKey,
+    key: TKey,
     searchParams: TContracts[TKey]["searchParams"],
   ) => TContracts[TKey]["searchParams"];
   payload: <TKey extends KeysWith<TContracts, "payload">>(
-    _key: TKey,
+    key: TKey,
     payload: TContracts[TKey]["payload"],
   ) => TContracts[TKey]["payload"];
 };
