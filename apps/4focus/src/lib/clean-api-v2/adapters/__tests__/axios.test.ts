@@ -185,7 +185,7 @@ describe("axios adapter error parsing works when", () => {
     const parsed = parser("get", mockError);
     if (parsed.type === "validation_error") {
       expect(parsed.type).toBe("validation_error");
-      expect(parsed.status).toBe(-1);
+      expect(parsed.status).toBe(-6);
       expect(parsed.meta.issues).toEqual([
         { path: ["id"], message: "Something broke" },
       ]);

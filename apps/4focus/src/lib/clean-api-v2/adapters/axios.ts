@@ -1,23 +1,39 @@
 import axios from "axios";
-import type {
-  AbortedError,
-  ClientExceptionError,
-  ConfigurationIssueError,
-  Contracts,
-  NoInternetError,
-  NoServerResponseError,
-  ParsedError,
-  UnsupportedServerResponseError,
-  CleanApi,
+import {
+  type AbortedError,
+  type ClientExceptionError,
+  type ConfigurationIssueError,
+  type Contracts,
+  type NoInternetError,
+  type NoServerResponseError,
+  type ParsedError,
+  type UnsupportedServerResponseError,
+  type CleanApi,
+  ValidationException,
+  type ValidationError,
 } from "../models";
 
 const errorParser =
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  <TContracts extends Contracts>(api: CleanApi<TContracts>) =>
+  <TContracts extends Contracts>(_api: CleanApi<TContracts>) =>
     <TKey extends keyof TContracts>(
-      key: TKey,
+      _key: TKey,
       error: unknown,
     ): ParsedError<TContracts, TKey> => {
+      if (error instanceof ValidationException) {
+        const result: ValidationError & { rawError: unknown } = {
+          status: -6,
+          type: "validation_error",
+          message: "Invalid input",
+          meta: {
+            issues: error.issues,
+          },
+          rawError: error,
+        };
+
+        return result;
+      }
+
       if (axios.isAxiosError(error)) {
         // Case 1: The request was made and the server responded with a status code
         // that falls out of the range of 2xx

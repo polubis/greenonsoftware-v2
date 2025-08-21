@@ -107,10 +107,6 @@ type CleanApi<TContracts extends Contracts> = {
     _key: TKey,
     dto: TContracts[TKey]["dto"],
   ) => TContracts[TKey]["dto"];
-  safeDto: <TKey extends keyof TContracts>(
-    _key: TKey,
-    dto: TContracts[TKey]["dto"],
-  ) => [true, TContracts[TKey]["dto"]] | [false, ValidationError];
   pathParams: <TKey extends KeysWith<TContracts, "pathParams">>(
     _key: TKey,
     pathParams: TContracts[TKey]["pathParams"],

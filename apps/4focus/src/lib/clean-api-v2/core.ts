@@ -4,9 +4,7 @@ import type {
   Configuration,
   Contracts,
   ContractSchemas,
-  ValidationError,
 } from "./models";
-import { ValidationException } from "./models";
 
 const init =
   <TConfiguration extends Configuration | undefined>(config?: TConfiguration) =>
@@ -78,32 +76,12 @@ const init =
 
     const error: CleanApi<TContracts>["error"] = (_key, error) => error;
 
-    const dto: CleanApi<TContracts>["dto"] = (_key, dto) => {
-      return dto;
-    };
+    const dto: CleanApi<TContracts>["dto"] = (key, dto) => {
+      const schema = contracts[key]?.schemas?.dto;
 
-    const safeDto: CleanApi<TContracts>["safeDto"] = (key, dto) => {
-      const schema = contracts[key].schemas?.dto;
-      if (!schema) {
-        return [true, dto];
-      }
-      try {
-        schema(dto);
-        return [true, dto];
-      } catch (error) {
-        if (error instanceof ValidationException) {
-          const validationError: ValidationError = {
-            type: "validation_error",
-            status: -6,
-            message: error.message || "Validation failed",
-            meta: {
-              issues: error.issues,
-            },
-          };
-          return [false, validationError];
-        }
-        throw error;
-      }
+      schema?.(dto);
+
+      return dto;
     };
 
     return {
@@ -111,7 +89,6 @@ const init =
       safeCall,
       error,
       dto,
-      safeDto,
       pathParams,
       searchParams,
       payload,

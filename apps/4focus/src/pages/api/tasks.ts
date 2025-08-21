@@ -4,6 +4,7 @@ import type { TablesInsert, TablesUpdate } from "@/shared/db/database.types";
 import { AppRouter } from "@/shared/routing/app-router";
 import { z } from "zod";
 import { focus4API } from "@/shared/contracts";
+import { ValidationException } from "@/lib/clean-api-v2";
 
 const parseBody = async (
   request: Request,
@@ -208,33 +209,37 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const [success, dto] = focus4API.safeDto("getTasks", {
+    const dto = focus4API.dto("getTasks", {
       tasks: data,
     });
-
-    if (!success) {
-      const apiError = focus4API.error("getTasks", {
-        type: "bad_request",
-        status: 400,
-        message: "Invalid input",
-      });
-
-      return new Response(JSON.stringify(apiError), {
-        status: 400,
-        headers: { "content-type": "application/json" },
-      });
-    }
 
     return new Response(JSON.stringify(dto), {
       status: 200,
       headers: { "content-type": "application/json" },
     });
-  } catch {
+  } catch (error) {
+    if (error instanceof ValidationException) {
+      const apiError = focus4API.error("getTasks", {
+        type: "bad_request",
+        status: 400,
+        message: "Invalid input",
+        meta: {
+          issues: error.issues,
+        },
+      });
+
+      return new Response(JSON.stringify(apiError), {
+        status: apiError.status,
+        headers: { "content-type": "application/json" },
+      });
+    }
+
     const apiError = focus4API.error("getTasks", {
       type: "internal_server_error",
       status: 500,
       message: "Something went wrong during the request for tasks",
     });
+
     return new Response(JSON.stringify(apiError), {
       status: apiError.status,
       headers: { "content-type": "application/json" },

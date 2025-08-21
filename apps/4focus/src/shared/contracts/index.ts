@@ -7,7 +7,11 @@ import z from "zod";
 
 type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
 
-type BadRequest = ErrorVariant<"bad_request", 400>;
+type BadRequest = ErrorVariant<
+  "bad_request",
+  400,
+  { issues: { path: (string | number)[]; message: string }[] }
+>;
 type UnauthorizedError = ErrorVariant<"unauthorized", 401>;
 type InternalServerError = ErrorVariant<"internal_server_error", 500>;
 
