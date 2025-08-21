@@ -296,6 +296,16 @@ describe("contracts enforcing works when", () => {
         },
       },
     });
+
+    create({
+      get: {
+        resolver: () => Promise.resolve({ tasks: [{ id: 1 }] }),
+      },
+      post: {
+        // @ts-expect-error - resolver's return type does not match DTO contract
+        resolver: () => Promise.resolve({ tasks: [{ id: "not a number" }] }),
+      },
+    });
   });
 
   it("calling is protected from wrong types", async () => {
@@ -393,5 +403,88 @@ describe("contracts enforcing works when", () => {
     expectTypeOf(awaitedPostDto).toEqualTypeOf<{
       tasks: { id: number }[];
     }>();
+  });
+
+  it("schemas are protected from wrong types", () => {
+    type APIContracts = {
+      get: {
+        dto: { id: number };
+        error: null;
+      };
+      post: {
+        dto: { success: boolean };
+        error: null;
+        payload: { name: string };
+        searchParams: { q: string };
+      };
+    };
+
+    const contract = init();
+    const create = contract<APIContracts>();
+
+    // Valid usage
+    create({
+      get: {
+        resolver: () => Promise.resolve({ id: 1 }),
+        schemas: {
+          dto: (data) => {
+            expectTypeOf(data).toEqualTypeOf<{ id: number }>();
+          },
+        },
+      },
+      post: {
+        resolver: () => Promise.resolve({ success: true }),
+        schemas: {
+          dto: (data) => {
+            expectTypeOf(data).toEqualTypeOf<{ success: boolean }>();
+          },
+          payload: (data) => {
+            expectTypeOf(data).toEqualTypeOf<{ name: string }>();
+          },
+          searchParams: (data) => {
+            expectTypeOf(data).toEqualTypeOf<{ q: string }>();
+          },
+        },
+      },
+    });
+
+    // Invalid usage
+    create({
+      get: {
+        resolver: () => Promise.resolve({ id: 1 }),
+        schemas: {
+          // @ts-expect-error - payload is not in the contract for 'get'
+          payload: () => {},
+        },
+      },
+      post: {
+        resolver: () => Promise.resolve({ success: true }),
+        schemas: {
+          dto: (data) => {
+            expectTypeOf(data).toEqualTypeOf<{ success: boolean }>();
+          },
+        },
+      },
+    });
+
+    create({
+      get: {
+        resolver: () => Promise.resolve({ id: 1 }),
+        schemas: {
+          dto: (data) => {
+            expectTypeOf(data).toEqualTypeOf<{ id: number }>();
+          },
+        },
+      },
+      post: {
+        resolver: () => Promise.resolve({ success: true }),
+        schemas: {
+          // @ts-expect-error - wrong type for dto validator
+          dto: (data: { success: string }) => {
+            console.log(data);
+          },
+        },
+      },
+    });
   });
 });

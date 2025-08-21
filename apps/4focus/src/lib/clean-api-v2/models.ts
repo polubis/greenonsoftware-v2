@@ -82,7 +82,6 @@ type ConditionalSchema<
 
 type ContractSchemas<TContract extends Contracts[keyof Contracts]> = {
   dto?: SchemaValidator<TContract["dto"]>;
-  error?: SchemaValidator<TContract["error"]>;
 } & ConditionalSchema<TContract, "payload"> &
   ConditionalSchema<TContract, "pathParams"> &
   ConditionalSchema<TContract, "searchParams">;
