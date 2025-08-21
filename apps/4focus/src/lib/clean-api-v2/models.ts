@@ -71,6 +71,22 @@ type KeysWith<
   [K in keyof TContracts]: TProp extends keyof TContracts[K] ? K : never;
 }[keyof TContracts];
 
+type SchemaValidator<T> = (data: T) => void;
+
+type ConditionalSchema<
+  TContract extends Contracts[keyof Contracts],
+  TKey extends "payload" | "pathParams" | "searchParams",
+> = TKey extends keyof TContract
+  ? { [K in TKey]?: SchemaValidator<TContract[K]> }
+  : unknown;
+
+type ContractSchemas<TContract extends Contracts[keyof Contracts]> = {
+  dto?: SchemaValidator<TContract["dto"]>;
+  error?: SchemaValidator<TContract["error"]>;
+} & ConditionalSchema<TContract, "payload"> &
+  ConditionalSchema<TContract, "pathParams"> &
+  ConditionalSchema<TContract, "searchParams">;
+
 type CleanApi<TContracts extends Contracts> = {
   call: <TKey extends keyof TContracts>(
     key: TKey,
@@ -91,6 +107,10 @@ type CleanApi<TContracts extends Contracts> = {
     _key: TKey,
     dto: TContracts[TKey]["dto"],
   ) => TContracts[TKey]["dto"];
+  safeDto: <TKey extends keyof TContracts>(
+    _key: TKey,
+    dto: TContracts[TKey]["dto"],
+  ) => [true, TContracts[TKey]["dto"]] | [false, ValidationError];
   pathParams: <TKey extends KeysWith<TContracts, "pathParams">>(
     _key: TKey,
     pathParams: TContracts[TKey]["pathParams"],
@@ -158,5 +178,6 @@ export type {
   ConfigurationIssueError,
   UnsupportedServerResponseError,
   ValidationError,
+  ContractSchemas,
 };
 export { ValidationException };

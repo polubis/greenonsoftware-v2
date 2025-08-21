@@ -208,9 +208,22 @@ export const GET: APIRoute = async (context) => {
       });
     }
 
-    const dto = focus4API.dto("getTasks", {
+    const [success, dto] = focus4API.safeDto("getTasks", {
       tasks: data,
     });
+
+    if (!success) {
+      const apiError = focus4API.error("getTasks", {
+        type: "bad_request",
+        status: 400,
+        message: "Invalid input",
+      });
+
+      return new Response(JSON.stringify(apiError), {
+        status: 400,
+        headers: { "content-type": "application/json" },
+      });
+    }
 
     return new Response(JSON.stringify(dto), {
       status: 200,
