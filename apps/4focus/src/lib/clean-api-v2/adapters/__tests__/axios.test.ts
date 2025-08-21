@@ -23,11 +23,18 @@ describe("axios adapter error parsing works when", () => {
       dto: { id: number };
       error: ErrorVariant<"not_found", 404, { resource: string }>;
     };
+    get_no_meta: {
+      dto: { id: number };
+      error: ErrorVariant<"bad_request", 400>;
+    };
   };
 
   const contract = init();
   const api = contract<APIContracts>()({
     get: {
+      resolver: () => Promise.resolve({ id: 1 }),
+    },
+    get_no_meta: {
       resolver: () => Promise.resolve({ id: 1 }),
     },
   });
@@ -65,6 +72,36 @@ describe("axios adapter error parsing works when", () => {
     }
   });
 
+  it("handles standard server error response without meta", () => {
+    const mockError = {
+      isAxiosError: true,
+      response: {
+        status: 400,
+        statusText: "bad_request",
+        data: {
+          type: "bad_request",
+          status: 400,
+          message: "Bad request.",
+        },
+      },
+    };
+    vi.mocked(axios.isAxiosError).mockReturnValue(true);
+
+    const parsed = parser("get_no_meta", mockError);
+
+    expect(parsed.status).toBe(400);
+    expect(parsed.type).toBe("bad_request");
+    expect(parsed.message).toBe("Bad request.");
+    if (parsed.type === "bad_request") {
+      expect("meta" in parsed).toBe(false);
+      expectTypeOf(parsed).toEqualTypeOf<
+        ErrorVariant<"bad_request", 400> & {
+          rawError: unknown;
+        }
+      >();
+    }
+  });
+
   it("handles unsupported server error response", () => {
     const mockError = {
       isAxiosError: true,
@@ -79,6 +116,34 @@ describe("axios adapter error parsing works when", () => {
     if (parsed.type === "unsupported_server_response") {
       expect(parsed.type).toBe("unsupported_server_response");
       expect(parsed.status).toBe(-5);
+      expectTypeOf(parsed).toEqualTypeOf<
+        UnsupportedServerResponseError & { rawError: unknown }
+      >();
+    }
+  });
+
+  it("handles unsupported server error response with partial data", () => {
+    const mockError = {
+      isAxiosError: true,
+      response: {
+        status: 500,
+        data: {
+          type: "server_error",
+          message: "Something went wrong",
+        },
+      },
+    };
+    vi.mocked(axios.isAxiosError).mockReturnValue(true);
+
+    const parsed = parser("get", mockError);
+    if (parsed.type === "unsupported_server_response") {
+      expect(parsed.type).toBe("unsupported_server_response");
+      expect(parsed.status).toBe(-5);
+      expect(parsed.meta.originalStatus).toBe(500);
+      expect(parsed.meta.originalResponse).toEqual({
+        type: "server_error",
+        message: "Something went wrong",
+      });
       expectTypeOf(parsed).toEqualTypeOf<
         UnsupportedServerResponseError & { rawError: unknown }
       >();

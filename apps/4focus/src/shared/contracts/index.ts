@@ -1,7 +1,7 @@
 import { ValidationException, type ErrorVariant } from "@/lib/clean-api-v2";
 import type { Database } from "../db/database.types";
 import { APIRouter } from "../routing/api-router";
-import { init } from "@/lib/clean-api-v2/core";
+import { init } from "@/lib/clean-api-v2";
 import { errorParser } from "@/lib/clean-api-v2/adapters/axios";
 import z from "zod";
 
