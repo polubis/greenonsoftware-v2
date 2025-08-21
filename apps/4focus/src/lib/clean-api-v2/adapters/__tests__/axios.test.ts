@@ -2,15 +2,17 @@ import { describe, it, expect, vi, expectTypeOf } from "vitest";
 import axios from "axios";
 import { errorParser } from "../axios";
 import { init } from "../../core";
-import type {
-  CleanApi,
-  ErrorVariant,
-  UnsupportedServerResponseError,
-  NoServerResponseError,
-  NoInternetError,
-  ConfigurationIssueError,
-  AbortedError,
-  ClientExceptionError,
+import {
+  type CleanApi,
+  type ErrorVariant,
+  type UnsupportedServerResponseError,
+  type NoServerResponseError,
+  type NoInternetError,
+  type ConfigurationIssueError,
+  type AbortedError,
+  type ClientExceptionError,
+  ValidationException,
+  type ValidationError,
 } from "../../models";
 
 vi.mock("axios");
@@ -169,6 +171,27 @@ describe("axios adapter error parsing works when", () => {
       expect(parsed.rawError).toBe(mockError);
       expectTypeOf(parsed).toEqualTypeOf<
         ClientExceptionError & { rawError: unknown }
+      >();
+    }
+  });
+
+  it("handles custom validation error", () => {
+    const mockError = new ValidationException([
+      { path: ["id"], message: "Something broke" },
+    ]);
+    vi.mocked(axios.isAxiosError).mockReturnValue(false);
+    vi.mocked(axios.isCancel).mockReturnValue(false);
+
+    const parsed = parser("get", mockError);
+    if (parsed.type === "validation_error") {
+      expect(parsed.type).toBe("validation_error");
+      expect(parsed.status).toBe(-1);
+      expect(parsed.meta.issues).toEqual([
+        { path: ["id"], message: "Something broke" },
+      ]);
+      expect(parsed.rawError).toBe(mockError);
+      expectTypeOf(parsed).toEqualTypeOf<
+        ValidationError & { rawError: unknown }
       >();
     }
   });

@@ -23,6 +23,7 @@ type Contracts = Record<
     payload?: unknown;
     pathParams?: Record<string, unknown>;
     searchParams?: Record<string, unknown>;
+    extra?: unknown;
   }
 >;
 
@@ -104,6 +105,12 @@ type CleanApi<TContracts extends Contracts> = {
   ) => TContracts[TKey]["payload"];
 };
 
+class ValidationException extends Error {
+  constructor(public issues: { path: (string | number)[]; message: string }[]) {
+    super("Validation exception");
+  }
+}
+
 type AbortedError = ErrorVariant<"aborted", 0>;
 type ClientExceptionError = ErrorVariant<"client_exception", -1>;
 type NoInternetError = ErrorVariant<"no_internet", -2>;
@@ -114,6 +121,11 @@ type UnsupportedServerResponseError = ErrorVariant<
   -5,
   { originalStatus: number; originalResponse: unknown }
 >;
+type ValidationError = ErrorVariant<
+  "validation_error",
+  -6,
+  { issues: { path: (string | number)[]; message: string }[] }
+>;
 
 type BrowserError =
   | AbortedError
@@ -121,7 +133,8 @@ type BrowserError =
   | NoInternetError
   | NoServerResponseError
   | ConfigurationIssueError
-  | UnsupportedServerResponseError;
+  | UnsupportedServerResponseError
+  | ValidationError;
 
 type ParsedError<
   TContracts extends Contracts,
@@ -144,4 +157,6 @@ export type {
   NoServerResponseError,
   ConfigurationIssueError,
   UnsupportedServerResponseError,
+  ValidationError,
 };
+export { ValidationException };
