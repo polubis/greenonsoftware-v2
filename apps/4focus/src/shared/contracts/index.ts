@@ -15,6 +15,23 @@ type BadRequest = ErrorVariant<
 type UnauthorizedError = ErrorVariant<"unauthorized", 401>;
 type InternalServerError = ErrorVariant<"internal_server_error", 500>;
 
+const check =
+  <T extends z.ZodTypeAny>(schema: T) =>
+  (data: unknown): z.infer<T> => {
+    const parsed = schema.safeParse(data);
+
+    if (!parsed.success) {
+      throw new ValidationException(
+        parsed.error.issues.map((issue) => ({
+          path: issue.path.map((p) => String(p)),
+          message: issue.message,
+        })),
+      );
+    }
+
+    return parsed.data;
+  };
+
 type Focus4Contracts = {
   getTasks: {
     extra: {
@@ -31,30 +48,19 @@ const create = contract<Focus4Contracts>();
 const focus4API = create({
   getTasks: {
     schemas: {
-      dto: (data) => {
-        const parsed = z
-          .object({
-            tasks: z.array(
-              z.object({
-                id: z.number().int().positive(),
-                title: z.string().min(1).max(255),
-                description: z.string().min(1).max(255),
-                created_at: z.string().datetime(),
-                updated_at: z.string().datetime(),
-              }),
-            ),
-          })
-          .safeParse(data);
-
-        if (!parsed.success) {
-          throw new ValidationException(
-            parsed.error.issues.map((issue) => ({
-              path: issue.path.map((p) => String(p)),
-              message: issue.message,
-            })),
-          );
-        }
-      },
+      dto: check(
+        z.object({
+          tasks: z.array(
+            z.object({
+              id: z.number().int().positive(),
+              title: z.string().min(1).max(255),
+              description: z.string().min(1).max(255),
+              created_at: z.string().datetime(),
+              updated_at: z.string().datetime(),
+            }),
+          ),
+        }),
+      ),
     },
     resolver: async ({ extra: { signal } }) => {
       return fetch(APIRouter.getPath("tasks"), {
