@@ -91,8 +91,10 @@ describe("search params construction works when", () => {
       get: {
         resolver: () => Promise.resolve(null),
         schemas: {
+          // @ts-expect-error - type must reflect the dto contract
           searchParams: (data) => {
-            expectTypeOf(data).toEqualTypeOf<{ q: string }>();
+            expectTypeOf(data).toEqualTypeOf<unknown>();
+            return data;
           },
         },
       },

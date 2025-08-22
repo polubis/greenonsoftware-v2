@@ -36,6 +36,6 @@ describe("Zod adapter works when", () => {
   it("validation returns the parsed data on success", () => {
     const data = { name: "Jane", age: 25, extra: "field" };
     const result = check(schema)(data);
-    expect(result).toEqual({ name: "Jane", age: 25 }); // extra field should be stripped
+    expect(result).toEqual({ name: "Jane", age: 25 });
   });
 });

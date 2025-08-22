@@ -71,7 +71,7 @@ type KeysWith<
   [K in keyof TContracts]: TProp extends keyof TContracts[K] ? K : never;
 }[keyof TContracts];
 
-type SchemaValidator<T> = (data: T) => void;
+type SchemaValidator<T> = (data: unknown) => T;
 
 type ConditionalSchema<
   TContract extends Contracts[keyof Contracts],

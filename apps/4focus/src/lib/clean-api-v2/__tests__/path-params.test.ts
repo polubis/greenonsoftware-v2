@@ -82,8 +82,10 @@ describe("path params construction works when", () => {
       "get-user": {
         resolver: () => Promise.resolve(null),
         schemas: {
+          // @ts-expect-error - type must reflect the dto contract
           pathParams: (data) => {
-            expectTypeOf(data).toEqualTypeOf<{ id: number }>();
+            expectTypeOf(data).toEqualTypeOf<unknown>();
+            return data;
           },
         },
       },

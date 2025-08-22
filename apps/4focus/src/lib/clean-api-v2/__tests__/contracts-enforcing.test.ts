@@ -427,22 +427,30 @@ describe("contracts enforcing works when", () => {
       get: {
         resolver: () => Promise.resolve({ id: 1 }),
         schemas: {
+          // @ts-expect-error - type must reflect the dto contract
           dto: (data) => {
-            expectTypeOf(data).toEqualTypeOf<{ id: number }>();
+            expectTypeOf(data).toEqualTypeOf<unknown>();
+            return data;
           },
         },
       },
       post: {
         resolver: () => Promise.resolve({ success: true }),
         schemas: {
+          // @ts-expect-error - type must reflect the dto contract
           dto: (data) => {
-            expectTypeOf(data).toEqualTypeOf<{ success: boolean }>();
+            expectTypeOf(data).toEqualTypeOf<unknown>();
+            return data;
           },
+          // @ts-expect-error - type must reflect the dto contract
           payload: (data) => {
-            expectTypeOf(data).toEqualTypeOf<{ name: string }>();
+            expectTypeOf(data).toEqualTypeOf<unknown>();
+            return data;
           },
+          // @ts-expect-error - type must reflect the dto contract
           searchParams: (data) => {
-            expectTypeOf(data).toEqualTypeOf<{ q: string }>();
+            expectTypeOf(data).toEqualTypeOf<unknown>();
+            return data;
           },
         },
       },
@@ -460,8 +468,10 @@ describe("contracts enforcing works when", () => {
       post: {
         resolver: () => Promise.resolve({ success: true }),
         schemas: {
+          // @ts-expect-error - type must reflect the dto contract
           dto: (data) => {
-            expectTypeOf(data).toEqualTypeOf<{ success: boolean }>();
+            expectTypeOf(data).toEqualTypeOf<unknown>();
+            return data;
           },
         },
       },
@@ -471,8 +481,10 @@ describe("contracts enforcing works when", () => {
       get: {
         resolver: () => Promise.resolve({ id: 1 }),
         schemas: {
+          // @ts-expect-error - type must reflect the dto contract
           dto: (data) => {
-            expectTypeOf(data).toEqualTypeOf<{ id: number }>();
+            expectTypeOf(data).toEqualTypeOf<unknown>();
+            return data;
           },
         },
       },
@@ -483,6 +495,30 @@ describe("contracts enforcing works when", () => {
           dto: (data: { success: string }) => {
             console.log(data);
           },
+        },
+      },
+    });
+  });
+
+  it("should fail if schema validator returns a different type than the contract", () => {
+    type APIContracts = {
+      get: {
+        dto: { id: number }; // Contract expects { id: number }
+        error: null;
+      };
+    };
+    const create = init()<APIContracts>();
+
+    // This validator incorrectly returns a string for the id
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const validatorWithWrongType = (data: unknown) => ({ id: "123" });
+
+    create({
+      get: {
+        resolver: () => Promise.resolve({ id: 1 }),
+        schemas: {
+          // @ts-expect-error - The validator returns { id: string } which is not assignable to the contract's dto type { id: number }
+          dto: validatorWithWrongType,
         },
       },
     });

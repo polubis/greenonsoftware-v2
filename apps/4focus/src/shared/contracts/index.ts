@@ -36,11 +36,15 @@ const focus4API = create({
         z.object({
           tasks: z.array(
             z.object({
-              id: z.number().int().positive(),
-              title: z.string().min(1).max(255),
-              description: z.string().min(1).max(255),
-              created_at: z.string().datetime(),
-              updated_at: z.string().datetime(),
+              id: z.number(),
+              user_id: z.string(),
+              title: z.string(),
+              description: z.string().nullable(),
+              status: z.string(),
+              priority: z.string(),
+              creation_date: z.string(),
+              update_date: z.string(),
+              estimated_duration_minutes: z.number(),
             }),
           ),
         }),

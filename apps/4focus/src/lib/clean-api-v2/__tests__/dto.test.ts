@@ -57,10 +57,11 @@ describe("dto construction works when", () => {
         get: {
           resolver: () => Promise.resolve({ id: 1 }),
           schemas: {
+            // @ts-expect-error - type must reflect the dto contract
             dto: (data) => {
-              expectTypeOf(data).toEqualTypeOf<{ id: number }>();
+              expectTypeOf(data).toEqualTypeOf<unknown>();
+              return data;
             },
-            payload: () => {},
           },
         },
       });

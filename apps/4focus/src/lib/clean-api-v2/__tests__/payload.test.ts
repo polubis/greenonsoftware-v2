@@ -114,7 +114,8 @@ describe("payload construction works when", () => {
         resolver: () => Promise.resolve(null),
         schemas: {
           payload: (data) => {
-            expectTypeOf(data).toEqualTypeOf<{ name: string }>();
+            expectTypeOf(data).toEqualTypeOf<unknown>();
+            return data as { name: string };
           },
         },
       },
