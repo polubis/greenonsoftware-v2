@@ -1,5 +1,6 @@
-import { describe, expect, expectTypeOf, it } from "vitest";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { init } from "../core";
+import { ValidationException } from "../models";
 
 describe("search params construction works when", () => {
   it("creation is based on contract", () => {
@@ -7,70 +8,147 @@ describe("search params construction works when", () => {
       get: {
         dto: null;
         error: null;
-        searchParams: { version: number };
+        searchParams: { q: string };
       };
       post: {
-        dto: null;
-        error: null;
-        searchParams: { version: number; optional?: string };
-      };
-      put: {
         dto: null;
         error: null;
       };
     };
 
-    const contract = init({ url: "https://api.example.com" });
+    const contract = init();
     const create = contract<APIContracts>();
     const api = create({
       get: {
-        resolver: () => {
-          return Promise.resolve(null);
-        },
+        resolver: () => Promise.resolve(null),
       },
       post: {
-        resolver: () => {
-          return Promise.resolve(null);
-        },
-      },
-      put: {
-        resolver: () => {
-          return Promise.resolve(null);
-        },
+        resolver: () => Promise.resolve(null),
       },
     });
 
-    const searchParams = api.searchParams("get", { version: 1 });
+    const getSearchParams = api.searchParams("get", { q: "test" });
 
-    expect(searchParams).toEqual({ version: 1 });
-    // @ts-expect-error - missing search params
-    expect(api.searchParams("get", {})).toEqual({});
-    // @ts-expect-error - missing search params
-    expect(api.searchParams("get")).toEqual(undefined);
-    expectTypeOf(searchParams).toEqualTypeOf<{ version: number }>();
+    expect(getSearchParams).toEqual({ q: "test" });
 
-    const postSearchParams1 = api.searchParams("post", { version: 2 });
-    const postSearchParams2 = api.searchParams("post", {
-      version: 2,
-      optional: "test",
+    // @ts-expect-error - wrong searchParams structure
+    api.searchParams("get", { q: 123 });
+    // @ts-expect-error - key 'post' does not have searchParams
+    api.searchParams("post", {});
+    // @ts-expect-error - wrong key
+    api.searchParams("nonexistent", {});
+
+    expectTypeOf(getSearchParams).toEqualTypeOf<{ q: string }>();
+  });
+
+  it("optional properties are handled correctly", () => {
+    type APIContracts = {
+      get: {
+        dto: null;
+        error: null;
+        searchParams: { required: string; optional?: number };
+      };
+    };
+
+    const contract = init();
+    const create = contract<APIContracts>();
+    const api = create({
+      get: {
+        resolver: () => Promise.resolve(null),
+      },
     });
-    const postSearchParams3 = api.searchParams("post", {
-      version: 2,
-      optional: undefined,
-    });
 
-    expect(postSearchParams1).toEqual({ version: 2 });
-    expect(postSearchParams2).toEqual({ version: 2, optional: "test" });
-    expect(postSearchParams3).toEqual({ version: 2, optional: undefined });
-    expectTypeOf(postSearchParams1).toEqualTypeOf<{
-      version: number;
-      optional?: string;
+    const params1 = api.searchParams("get", { required: "test" });
+    expect(params1).toEqual({ required: "test" });
+    expectTypeOf(params1).toEqualTypeOf<{
+      required: string;
+      optional?: number;
     }>();
 
-    // @ts-expect-error - wrong property type
-    api.searchParams("post", { version: 2, optional: 123 });
+    const params2 = api.searchParams("get", {
+      required: "test",
+      optional: 123,
+    });
+    expect(params2).toEqual({ required: "test", optional: 123 });
 
-    // @ts-expect-error - endpoint does not have searchParams
-    api.searchParams("put", {});
+    // @ts-expect-error - missing required property
+    api.searchParams("get", { optional: 123 });
+  });
+
+  it("schema validator is correctly typed", () => {
+    type APIContracts = {
+      get: {
+        dto: null;
+        error: null;
+        searchParams: { q: string };
+      };
+    };
+
+    const contract = init();
+    const create = contract<APIContracts>();
+
+    const api = create({
+      get: {
+        resolver: () => Promise.resolve(null),
+        schemas: {
+          searchParams: (data) => {
+            expectTypeOf(data).toEqualTypeOf<{ q: string }>();
+          },
+        },
+      },
+    });
+
+    const getSearchParams = api.searchParams("get", { q: "test" });
+    expectTypeOf(getSearchParams).toEqualTypeOf<{ q: string }>();
+  });
+
+  it("validation passes for valid search parameters", () => {
+    const validator = vi.fn();
+    type APIContracts = {
+      get: { dto: null; error: null; searchParams: { q: string } };
+    };
+    const create = init()<APIContracts>();
+    const api = create({
+      get: {
+        resolver: () => Promise.resolve(null),
+        schemas: { searchParams: validator },
+      },
+    });
+    const params = { q: "test" };
+    expect(() => api.searchParams("get", params)).not.toThrow();
+    expect(validator).toHaveBeenCalledWith(params);
+  });
+
+  it("validation throws for invalid search parameters", () => {
+    const validator = vi.fn().mockImplementation(() => {
+      throw new ValidationException([{ path: ["q"], message: "is wrong" }]);
+    });
+    type APIContracts = {
+      get: { dto: null; error: null; searchParams: { q: string } };
+    };
+    const create = init()<APIContracts>();
+    const api = create({
+      get: {
+        resolver: () => Promise.resolve(null),
+        schemas: { searchParams: validator },
+      },
+    });
+    const params = { q: "test" };
+    expect(() => api.searchParams("get", params)).toThrow(ValidationException);
+    expect(validator).toHaveBeenCalledWith(params);
+  });
+
+  it("no schema is provided for validation", () => {
+    type APIContracts = {
+      get: { dto: null; error: null; searchParams: { q: string } };
+    };
+    const create = init()<APIContracts>();
+    const api = create({
+      get: {
+        resolver: () => Promise.resolve(null),
+      },
+    });
+    const params = { q: "test" };
+    expect(() => api.searchParams("get", params)).not.toThrow();
   });
 });

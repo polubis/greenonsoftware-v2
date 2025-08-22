@@ -1,9 +1,10 @@
-import { ValidationException, type ErrorVariant } from "@/lib/clean-api-v2";
+import { type ErrorVariant } from "@/lib/clean-api-v2";
 import type { Database } from "../db/database.types";
 import { APIRouter } from "../routing/api-router";
 import { init } from "@/lib/clean-api-v2";
 import { errorParser } from "@/lib/clean-api-v2/adapters/axios";
 import z from "zod";
+import { check } from "@/lib/clean-api-v2/adapters/zod";
 
 type TaskRow = Database["public"]["Tables"]["tasks"]["Row"];
 
@@ -14,23 +15,6 @@ type BadRequest = ErrorVariant<
 >;
 type UnauthorizedError = ErrorVariant<"unauthorized", 401>;
 type InternalServerError = ErrorVariant<"internal_server_error", 500>;
-
-const check =
-  <T extends z.ZodTypeAny>(schema: T) =>
-  (data: unknown): z.infer<T> => {
-    const parsed = schema.safeParse(data);
-
-    if (!parsed.success) {
-      throw new ValidationException(
-        parsed.error.issues.map((issue) => ({
-          path: issue.path.map((p) => String(p)),
-          message: issue.message,
-        })),
-      );
-    }
-
-    return parsed.data;
-  };
 
 type Focus4Contracts = {
   getTasks: {

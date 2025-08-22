@@ -64,22 +64,62 @@ const init =
       }
     };
 
-    const pathParams: CleanApi<TContracts>["pathParams"] = (_key, pathParams) =>
-      pathParams;
+    const pathParams: CleanApi<TContracts>["pathParams"] = (
+      key,
+      pathParams,
+    ) => {
+      const schemas = contracts[key]?.schemas;
+
+      if (
+        schemas &&
+        "pathParams" in schemas &&
+        typeof schemas.pathParams === "function"
+      ) {
+        schemas.pathParams(pathParams);
+      }
+
+      return pathParams;
+    };
 
     const searchParams: CleanApi<TContracts>["searchParams"] = (
-      _key,
+      key,
       searchParams,
-    ) => searchParams;
+    ) => {
+      const schemas = contracts[key]?.schemas;
 
-    const payload: CleanApi<TContracts>["payload"] = (_key, payload) => payload;
+      if (
+        schemas &&
+        "searchParams" in schemas &&
+        typeof schemas.searchParams === "function"
+      ) {
+        schemas.searchParams(searchParams);
+      }
+
+      return searchParams;
+    };
+
+    const payload: CleanApi<TContracts>["payload"] = (key, payload) => {
+      const schemas = contracts[key]?.schemas;
+
+      if (
+        schemas &&
+        "payload" in schemas &&
+        typeof schemas.payload === "function"
+      ) {
+        schemas.payload(payload);
+      }
+
+      return payload;
+    };
 
     const error: CleanApi<TContracts>["error"] = (_key, error) => error;
 
     const dto: CleanApi<TContracts>["dto"] = (key, dto) => {
-      const schema = contracts[key]?.schemas?.dto;
+      const schemas = contracts[key]?.schemas;
 
-      schema?.(dto);
+      if (schemas && "dto" in schemas && typeof schemas.dto === "function") {
+        schemas.dto(dto);
+      }
 
       return dto;
     };
