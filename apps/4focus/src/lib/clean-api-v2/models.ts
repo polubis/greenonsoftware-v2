@@ -66,7 +66,7 @@ type CallArgs<
 
 type KeysWith<
   TContracts extends Contracts,
-  TProp extends "pathParams" | "searchParams" | "payload",
+  TProp extends "pathParams" | "searchParams" | "payload" | "extra",
 > = {
   [K in keyof TContracts]: TProp extends keyof TContracts[K] ? K : never;
 }[keyof TContracts];
@@ -75,16 +75,18 @@ type SchemaValidator<T> = (data: unknown) => T;
 
 type ConditionalSchema<
   TContract extends Contracts[keyof Contracts],
-  TKey extends "payload" | "pathParams" | "searchParams",
+  TKey extends "payload" | "pathParams" | "searchParams" | "extra",
 > = TKey extends keyof TContract
   ? { [K in TKey]?: SchemaValidator<TContract[K]> }
   : unknown;
 
 type ContractSchemas<TContract extends Contracts[keyof Contracts]> = {
   dto?: SchemaValidator<TContract["dto"]>;
+  error?: SchemaValidator<TContract["error"]>;
 } & ConditionalSchema<TContract, "payload"> &
   ConditionalSchema<TContract, "pathParams"> &
-  ConditionalSchema<TContract, "searchParams">;
+  ConditionalSchema<TContract, "searchParams"> &
+  ConditionalSchema<TContract, "extra">;
 
 type CleanApi<TContracts extends Contracts> = {
   call: <TKey extends keyof TContracts>(
@@ -118,6 +120,10 @@ type CleanApi<TContracts extends Contracts> = {
     key: TKey,
     payload: TContracts[TKey]["payload"],
   ) => TContracts[TKey]["payload"];
+  extra: <TKey extends KeysWith<TContracts, "extra">>(
+    key: TKey,
+    extra: TContracts[TKey]["extra"],
+  ) => TContracts[TKey]["extra"];
 };
 
 class ValidationException extends Error {

@@ -21,49 +21,6 @@ const init =
   >(
     contracts: TContractsSignature,
   ): CleanApi<TContracts> => {
-    const call: CleanApi<TContracts>["call"] = async (key, ...args) => {
-      const resolver = contracts[key].resolver;
-      const input = (args[0] ?? {}) as {
-        pathParams?: Record<string, unknown>;
-        searchParams?: Record<string, unknown>;
-        payload?: unknown;
-        extra?: unknown;
-      };
-      const keys = [
-        "pathParams",
-        "searchParams",
-        "payload",
-        "extra",
-      ] as (keyof typeof input)[];
-
-      const finalInput = {} as typeof input & {
-        config?: TConfiguration;
-      };
-
-      for (const key of keys) {
-        if (key in input) {
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          finalInput[key] = input[key] as any;
-        }
-      }
-
-      if (typeof config === "object" && !!config) {
-        finalInput.config = config;
-      }
-
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      return await resolver(finalInput as any);
-    };
-
-    const safeCall: CleanApi<TContracts>["safeCall"] = async (key, ...args) => {
-      try {
-        const result = await call(key, ...args);
-        return [true, result];
-      } catch (error) {
-        return [false, error];
-      }
-    };
-
     const pathParams: CleanApi<TContracts>["pathParams"] = (
       key,
       pathParams,
@@ -112,7 +69,33 @@ const init =
       return payload;
     };
 
-    const error: CleanApi<TContracts>["error"] = (_key, error) => error;
+    const extra: CleanApi<TContracts>["extra"] = (key, extra) => {
+      const schemas = contracts[key]?.schemas;
+
+      if (
+        schemas &&
+        "extra" in schemas &&
+        typeof schemas.extra === "function"
+      ) {
+        schemas.extra(extra);
+      }
+
+      return extra;
+    };
+
+    const error: CleanApi<TContracts>["error"] = (key, error) => {
+      const schemas = contracts[key]?.schemas;
+
+      if (
+        schemas &&
+        "error" in schemas &&
+        typeof schemas.error === "function"
+      ) {
+        schemas.error(error);
+      }
+
+      return error;
+    };
 
     const dto: CleanApi<TContracts>["dto"] = (key, dto) => {
       const schemas = contracts[key]?.schemas;
@@ -124,6 +107,49 @@ const init =
       return dto;
     };
 
+    const call: CleanApi<TContracts>["call"] = async (key, ...args) => {
+      const resolver = contracts[key].resolver;
+      const input = (args[0] ?? {}) as {
+        pathParams?: Record<string, unknown>;
+        searchParams?: Record<string, unknown>;
+        payload?: unknown;
+        extra?: unknown;
+      };
+      const keys = [
+        "pathParams",
+        "searchParams",
+        "payload",
+        "extra",
+      ] as (keyof typeof input)[];
+
+      const finalInput = {} as typeof input & {
+        config?: TConfiguration;
+      };
+
+      for (const key of keys) {
+        if (key in input) {
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          finalInput[key] = input[key] as any;
+        }
+      }
+
+      if (typeof config === "object" && !!config) {
+        finalInput.config = config;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return await resolver(finalInput as any);
+    };
+
+    const safeCall: CleanApi<TContracts>["safeCall"] = async (key, ...args) => {
+      try {
+        const result = await call(key, ...args);
+        return [true, result];
+      } catch (error) {
+        return [false, error];
+      }
+    };
+
     return {
       call,
       safeCall,
@@ -132,6 +158,7 @@ const init =
       pathParams,
       searchParams,
       payload,
+      extra,
     };
   };
 
