@@ -3,7 +3,6 @@ import axios from "axios";
 import { errorParser } from "../axios";
 import { init } from "../../core";
 import {
-  type CleanApi,
   type ErrorVariant,
   type UnsupportedServerResponseError,
   type NoServerResponseError,
@@ -39,7 +38,7 @@ describe("axios adapter error parsing works when", () => {
     },
   });
 
-  const parser = errorParser(api as CleanApi<APIContracts>);
+  const parser = errorParser(api);
 
   it("handles standard server error response", () => {
     const mockError = {
