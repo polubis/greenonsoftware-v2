@@ -88,7 +88,16 @@ type ContractSchemas<TContract extends Contracts[keyof Contracts]> = {
   ConditionalSchema<TContract, "searchParams"> &
   ConditionalSchema<TContract, "extra">;
 
-type CleanApi<TContracts extends Contracts> = {
+type CleanApi<
+  TContracts extends Contracts,
+  TConfiguration extends Configuration | undefined,
+> = {
+  onCall: <TKey extends keyof TContracts>(
+    key: TKey,
+    callback: (
+      ...args: CallArgs<TConfiguration, TContracts, TKey>
+    ) => void | Promise<void>,
+  ) => () => void;
   call: <TKey extends keyof TContracts>(
     key: TKey,
     ...args: CallArgs<undefined, TContracts, TKey>

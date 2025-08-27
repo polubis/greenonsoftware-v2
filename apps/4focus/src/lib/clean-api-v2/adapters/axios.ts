@@ -11,14 +11,16 @@ import {
   type CleanApi,
   ValidationException,
   type ValidationError,
+  type Configuration,
 } from "../models";
 
-const errorParser = <TCleanApi extends CleanApi<Contracts>>(
+const errorParser = <
+  TContracts extends Contracts,
+  TConfiguration extends Configuration | undefined,
+>(
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  _api: TCleanApi,
+  _api: CleanApi<TContracts, TConfiguration>,
 ) => {
-  type TContracts = TCleanApi extends CleanApi<infer T> ? T : never;
-
   return <TKey extends keyof TContracts>(
     _key: TKey,
     error: unknown,

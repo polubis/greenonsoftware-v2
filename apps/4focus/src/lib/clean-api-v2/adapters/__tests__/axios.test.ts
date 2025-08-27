@@ -40,6 +40,48 @@ describe("axios adapter error parsing works when", () => {
 
   const parser = errorParser(api);
 
+  it("handles parsing with base configuration", () => {
+    vi.mocked(axios.isAxiosError).mockReturnValue(true);
+
+    const mockError = {
+      isAxiosError: true,
+      response: {
+        status: 404,
+        statusText: "not_found",
+        data: {
+          type: "not_found",
+          status: 404,
+          message: "Resource could not be found.",
+          meta: { resource: "item" },
+        },
+      },
+    };
+    const contract = init({ url: "test" as const });
+    const api = contract<APIContracts>()({
+      get: {
+        resolver: () => Promise.resolve({ id: 1 }),
+      },
+      get_no_meta: {
+        resolver: () => Promise.resolve({ id: 1 }),
+      },
+    });
+
+    const parser = errorParser(api);
+    const parsed = parser("get", mockError);
+
+    expect(parsed.status).toBe(404);
+    expect(parsed.type).toBe("not_found");
+    expect(parsed.message).toBe("Resource could not be found.");
+    if (parsed.type === "not_found") {
+      expect(parsed.meta).toEqual({ resource: "item" });
+      expectTypeOf(parsed).toEqualTypeOf<
+        ErrorVariant<"not_found", 404, { resource: string }> & {
+          rawError: unknown;
+        }
+      >();
+    }
+  });
+
   it("handles standard server error response", () => {
     const mockError = {
       isAxiosError: true,
