@@ -8,8 +8,8 @@ type Task = {
   description: string | null;
   priority: string;
   status: string;
-  creation_date: string;
-  update_date: string;
+  creationDate: string;
+  updateDate: string;
 };
 
 type TasksLoadState =
@@ -49,15 +49,7 @@ const useTasksLoad = () => {
       if (success) {
         setState({
           status: "success",
-          data: data.tasks.map<Task>((task) => ({
-            id: task.id,
-            title: task.title,
-            description: task.description,
-            priority: task.priority,
-            status: task.status,
-            creation_date: task.creation_date,
-            update_date: task.update_date,
-          })),
+          data: data.tasks,
         });
       } else {
         const parsed = parseFocus4APIError("getTasks", data);

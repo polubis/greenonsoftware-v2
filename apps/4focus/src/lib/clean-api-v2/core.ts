@@ -41,103 +41,72 @@ const init =
       subs.get(key)?.set(callId, callback);
 
       return () => {
-        subs.get(key)?.delete(callId);
+        const endpointSubs = subs.get(key);
+
+        if (endpointSubs) {
+          endpointSubs.delete(callId);
+
+          if (endpointSubs.size === 0) {
+            subs.delete(key);
+          }
+        }
       };
+    };
+
+    const validateSchema = <TData>(
+      key: keyof TContracts,
+      schemaKey: keyof Contracts[keyof Contracts],
+      data: TData,
+    ): TData => {
+      const schemas = contracts[key]?.schemas;
+
+      if (schemas && schemaKey in schemas) {
+        const validator = (schemas as Record<string, unknown>)[schemaKey];
+        if (typeof validator === "function") {
+          validator(data);
+        }
+      }
+
+      return data;
     };
 
     const pathParams: CleanApi<TContracts, TConfiguration>["pathParams"] = (
       key,
       pathParams,
     ) => {
-      const schemas = contracts[key]?.schemas;
-
-      if (
-        schemas &&
-        "pathParams" in schemas &&
-        typeof schemas.pathParams === "function"
-      ) {
-        schemas.pathParams(pathParams);
-      }
-
-      return pathParams;
+      return validateSchema(key, "pathParams", pathParams);
     };
 
     const searchParams: CleanApi<TContracts, TConfiguration>["searchParams"] = (
       key,
       searchParams,
     ) => {
-      const schemas = contracts[key]?.schemas;
-
-      if (
-        schemas &&
-        "searchParams" in schemas &&
-        typeof schemas.searchParams === "function"
-      ) {
-        schemas.searchParams(searchParams);
-      }
-
-      return searchParams;
+      return validateSchema(key, "searchParams", searchParams);
     };
 
     const payload: CleanApi<TContracts, TConfiguration>["payload"] = (
       key,
       payload,
     ) => {
-      const schemas = contracts[key]?.schemas;
-
-      if (
-        schemas &&
-        "payload" in schemas &&
-        typeof schemas.payload === "function"
-      ) {
-        schemas.payload(payload);
-      }
-
-      return payload;
+      return validateSchema(key, "payload", payload);
     };
 
     const extra: CleanApi<TContracts, TConfiguration>["extra"] = (
       key,
       extra,
     ) => {
-      const schemas = contracts[key]?.schemas;
-
-      if (
-        schemas &&
-        "extra" in schemas &&
-        typeof schemas.extra === "function"
-      ) {
-        schemas.extra(extra);
-      }
-
-      return extra;
+      return validateSchema(key, "extra", extra);
     };
 
     const error: CleanApi<TContracts, TConfiguration>["error"] = (
       key,
       error,
     ) => {
-      const schemas = contracts[key]?.schemas;
-
-      if (
-        schemas &&
-        "error" in schemas &&
-        typeof schemas.error === "function"
-      ) {
-        schemas.error(error);
-      }
-
-      return error;
+      return validateSchema(key, "error", error);
     };
 
     const dto: CleanApi<TContracts, TConfiguration>["dto"] = (key, dto) => {
-      const schemas = contracts[key]?.schemas;
-
-      if (schemas && "dto" in schemas && typeof schemas.dto === "function") {
-        schemas.dto(dto);
-      }
-
-      return dto;
+      return validateSchema(key, "dto", dto);
     };
 
     const call: CleanApi<TContracts, TConfiguration>["call"] = async (
@@ -162,10 +131,14 @@ const init =
         config?: TConfiguration;
       };
 
-      for (const key of keys) {
-        if (key in input) {
+      // Runtime validation: validate each parameter if schema exists
+      // Validate in order and fail fast
+      for (const paramKey of keys) {
+        if (paramKey in input) {
+          // Validate the parameter if schema exists
+          validateSchema(key, paramKey, input[paramKey]);
           // eslint-disable-next-line @typescript-eslint/no-explicit-any
-          finalInput[key] = input[key] as any;
+          finalInput[paramKey] = input[paramKey] as any;
         }
       }
 

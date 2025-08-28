@@ -139,6 +139,10 @@ class ValidationException extends Error {
   constructor(public issues: { path: (string | number)[]; message: string }[]) {
     super("Validation exception");
   }
+
+  static is = (error: unknown): error is ValidationException => {
+    return error instanceof ValidationException;
+  };
 }
 
 type AbortedError = ErrorVariant<"aborted", 0>;

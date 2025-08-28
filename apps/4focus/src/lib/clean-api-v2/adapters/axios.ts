@@ -26,7 +26,7 @@ const errorParser = <
     error: unknown,
   ): ParsedError<TContracts, TKey> => {
     // Case 0: Validation failed on client side
-    if (error instanceof ValidationException) {
+    if (ValidationException.is(error)) {
       const result: ValidationError & { rawError: unknown } = {
         status: -6,
         type: "validation_error",

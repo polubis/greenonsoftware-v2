@@ -70,7 +70,8 @@ const TasksView = () => {
         }
         const data = (await res.json()) as Focus4Contracts["getTasks"]["dto"];
         console.log(data);
-        if (mounted) setTasks(data.tasks);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        if (mounted) setTasks(data.tasks as any);
       } catch (e) {
         if (mounted) setLoadError((e as Error).message);
       } finally {

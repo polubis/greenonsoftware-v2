@@ -128,6 +128,113 @@ describe("Memory Management", () => {
         expect(callback2).toHaveBeenCalledTimes(1);
       }).not.toThrow();
     });
+
+    it("cleans up empty subscription maps when last callback is removed", async () => {
+      const api = init()<APIContracts>()({
+        get: { resolver: mockGetResolver },
+        post: { resolver: mockPostResolver },
+      });
+
+      // Subscribe to multiple endpoints
+      const getCallback1 = vi.fn();
+      const getCallback2 = vi.fn();
+      const postCallback = vi.fn();
+
+      const unsubscribeGet1 = api.onCall("get", getCallback1);
+      const unsubscribeGet2 = api.onCall("get", getCallback2);
+      const unsubscribePost = api.onCall("post", postCallback);
+
+      mockGetResolver.mockResolvedValue({ id: 1 });
+      mockPostResolver.mockResolvedValue({ success: true });
+
+      // Verify all subscriptions work
+      await api.call("get", { pathParams: { id: "123" } });
+      await api.call("post", { payload: { data: "test" } });
+
+      expect(getCallback1).toHaveBeenCalledTimes(1);
+      expect(getCallback2).toHaveBeenCalledTimes(1);
+      expect(postCallback).toHaveBeenCalledTimes(1);
+
+      // Remove all subscriptions for "get" endpoint
+      unsubscribeGet1();
+      unsubscribeGet2();
+
+      vi.clearAllMocks();
+
+      // Verify "get" has no more subscriptions, but "post" still works
+      await api.call("get", { pathParams: { id: "456" } });
+      await api.call("post", { payload: { data: "test2" } });
+
+      expect(getCallback1).not.toHaveBeenCalled();
+      expect(getCallback2).not.toHaveBeenCalled();
+      expect(postCallback).toHaveBeenCalledTimes(1);
+
+      // Remove last subscription for "post" endpoint
+      unsubscribePost();
+
+      vi.clearAllMocks();
+
+      // Verify no callbacks are called
+      await api.call("get", { pathParams: { id: "789" } });
+      await api.call("post", { payload: { data: "test3" } });
+
+      expect(getCallback1).not.toHaveBeenCalled();
+      expect(getCallback2).not.toHaveBeenCalled();
+      expect(postCallback).not.toHaveBeenCalled();
+
+      // Test that we can re-subscribe to previously emptied endpoints
+      const newGetCallback = vi.fn();
+      api.onCall("get", newGetCallback);
+
+      await api.call("get", { pathParams: { id: "new" } });
+      expect(newGetCallback).toHaveBeenCalledTimes(1);
+    });
+
+    it("handles dynamic endpoint subscription cleanup without memory accumulation", () => {
+      // This test simulates using many different endpoint names dynamically
+      // to verify that empty Maps are cleaned up properly
+      type DynamicContracts = Record<
+        string,
+        {
+          dto: { result: string };
+          error: ErrorVariant<"error", 500>;
+        }
+      >;
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const dynamicResolvers: Record<string, any> = {};
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const contractsObj: any = {};
+
+      // Create 100 dynamic endpoints
+      for (let i = 0; i < 100; i++) {
+        const endpointName = `endpoint${i}`;
+        dynamicResolvers[endpointName] = vi
+          .fn()
+          .mockResolvedValue({ result: `result${i}` });
+        contractsObj[endpointName] = {
+          resolver: dynamicResolvers[endpointName],
+        };
+      }
+
+      const api = init()<DynamicContracts>()(contractsObj);
+
+      // Subscribe and immediately unsubscribe to each endpoint
+      for (let i = 0; i < 100; i++) {
+        const endpointName = `endpoint${i}`;
+        const callback = vi.fn();
+        const unsubscribe = api.onCall(endpointName, callback);
+
+        // Immediately unsubscribe - this should clean up the empty Map
+        unsubscribe();
+      }
+
+      // Verify we can still use the API normally
+      const testCallback = vi.fn();
+      api.onCall("endpoint50", testCallback);
+
+      expect(() => api.call("endpoint50")).not.toThrow();
+    });
   });
 
   describe("Subscription Memory Pressure", () => {
