@@ -4,6 +4,16 @@ import type { TablesInsert, TablesUpdate } from "@/shared/db/database.types";
 import { AppRouter } from "@/shared/routing/app-router";
 import { z } from "zod";
 import { focus4API } from "@/shared/contracts";
+import { ValidationException } from "@/lib/clean-api-v2";
+import { ErrorResponse } from "@/shared/server/error-response";
+import type {
+  date,
+  taskEstimatedDurationMinutes,
+  taskId,
+  taskPriority,
+  taskStatus,
+  userId,
+} from "@/shared/contracts/schemas-atoms";
 
 const parseBody = async (
   request: Request,
@@ -180,15 +190,13 @@ export const GET: APIRoute = async (context) => {
     } = await supabase.auth.getUser();
 
     if (userError || !user) {
-      const apiError = focus4API.error("getTasks", {
-        type: "unauthorized",
-        status: 401,
-        message: "Unauthorized",
-      });
-      return new Response(JSON.stringify(apiError), {
-        status: apiError.status,
-        headers: { "content-type": "application/json" },
-      });
+      return ErrorResponse(
+        focus4API.error("getTasks", {
+          type: "unauthorized",
+          status: 401,
+          message: "Unauthorized",
+        }),
+      );
     }
 
     const { data, error } = await supabase
@@ -197,35 +205,59 @@ export const GET: APIRoute = async (context) => {
       .order("creation_date", { ascending: false });
 
     if (error) {
-      const apiError = focus4API.error("getTasks", {
-        type: "internal_server_error",
-        status: 500,
-        message: "Failed to fetch tasks",
-      });
-      return new Response(JSON.stringify(apiError), {
-        status: apiError.status,
-        headers: { "content-type": "application/json" },
-      });
+      return ErrorResponse(
+        focus4API.error("getTasks", {
+          type: "internal_server_error",
+          status: 500,
+          message: "Failed to fetch tasks",
+        }),
+      );
     }
 
     const dto = focus4API.dto("getTasks", {
-      tasks: data,
+      tasks: data.map((task) => ({
+        id: task.id as z.infer<typeof taskId>,
+        title: task.title,
+        description: task.description,
+        priority: task.priority as z.infer<typeof taskPriority>,
+        status: task.status as z.infer<typeof taskStatus>,
+        creationDate: task.creation_date as z.infer<typeof date>,
+        updateDate: task.update_date as z.infer<typeof date>,
+        estimatedDurationMinutes: task.estimated_duration_minutes as z.infer<
+          typeof taskEstimatedDurationMinutes
+        >,
+        userId: task.user_id as z.infer<typeof userId>,
+      })),
     });
 
     return new Response(JSON.stringify(dto), {
       status: 200,
       headers: { "content-type": "application/json" },
     });
-  } catch {
-    const apiError = focus4API.error("getTasks", {
-      type: "internal_server_error",
-      status: 500,
-      message: "Something went wrong during the request for tasks",
-    });
-    return new Response(JSON.stringify(apiError), {
-      status: apiError.status,
-      headers: { "content-type": "application/json" },
-    });
+  } catch (error) {
+    if (ValidationException.is(error)) {
+      return ErrorResponse(
+        focus4API.error("getTasks", {
+          type: "bad_request",
+          status: 400,
+          message: "Invalid input",
+          meta: {
+            issues: error.issues.map((issue) => ({
+              path: issue.path.map((p) => String(p)),
+              message: issue.message,
+            })),
+          },
+        }),
+      );
+    }
+
+    return ErrorResponse(
+      focus4API.error("getTasks", {
+        type: "internal_server_error",
+        status: 500,
+        message: "Something went wrong during the request for tasks",
+      }),
+    );
   }
 };
 

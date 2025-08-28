@@ -34,6 +34,7 @@ module.exports = {
         "ui",
         "eslint-config",
         "typescript-config",
+        "all",
       ],
     ],
   },
