@@ -175,6 +175,27 @@ type ParsedError<
   TKey extends keyof TContracts,
 > = (TContracts[TKey]["error"] | BrowserError) & { rawError: unknown };
 
+// Utility types for inferring types from CleanApi instances
+
+/**
+ * Extract the contracts type from a CleanApi instance
+ */
+type InferContracts<TApi> =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  TApi extends CleanApi<infer TContracts, any> ? TContracts : never;
+
+type InferDto<
+  TApi,
+  TEndpoint extends keyof InferContracts<TApi>,
+> = InferContracts<TApi>[TEndpoint]["dto"];
+
+type InferAllDtos<TApi> = {
+  [K in keyof InferContracts<TApi>]: InferContracts<TApi>[K]["dto"];
+};
+
+// Alias for better naming consistency
+type InferAllDto<TApi> = InferAllDtos<TApi>;
+
 export type {
   Contracts,
   ErrorVariant,
@@ -193,5 +214,9 @@ export type {
   UnsupportedServerResponseError,
   ValidationError,
   ContractSchemas,
+  InferContracts,
+  InferDto,
+  InferAllDtos,
+  InferAllDto,
 };
 export { ValidationException };

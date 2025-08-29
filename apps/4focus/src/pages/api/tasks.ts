@@ -4,16 +4,8 @@ import type { TablesInsert, TablesUpdate } from "@/shared/db/database.types";
 import { AppRouter } from "@/shared/routing/app-router";
 import { z } from "zod";
 import { focus4API } from "@/shared/contracts";
-import { ValidationException } from "@/lib/clean-api-v2";
+import { ValidationException, type InferDto } from "@/lib/clean-api-v2";
 import { ErrorResponse, OkResponse } from "@/shared/server/response";
-import type {
-  date,
-  taskEstimatedDurationMinutes,
-  taskId,
-  taskPriority,
-  taskStatus,
-  userId,
-} from "@/shared/contracts/schemas-atoms";
 
 const parseBody = async (
   request: Request,
@@ -214,19 +206,21 @@ export const GET: APIRoute = async (context) => {
       );
     }
 
+    type Dto = InferDto<typeof focus4API, "getTasks">;
+    type Task = Dto["tasks"][number];
+
     const dto = focus4API.dto("getTasks", {
       tasks: data.map((task) => ({
-        id: task.id as z.infer<typeof taskId>,
+        id: task.id as Task["id"],
         title: task.title,
         description: task.description,
-        priority: task.priority as z.infer<typeof taskPriority>,
-        status: task.status as z.infer<typeof taskStatus>,
-        creationDate: task.creation_date as z.infer<typeof date>,
-        updateDate: task.update_date as z.infer<typeof date>,
-        estimatedDurationMinutes: task.estimated_duration_minutes as z.infer<
-          typeof taskEstimatedDurationMinutes
-        >,
-        userId: task.user_id as z.infer<typeof userId>,
+        priority: task.priority as Task["priority"],
+        status: task.status as Task["status"],
+        creationDate: task.creation_date as Task["creationDate"],
+        updateDate: task.update_date as Task["updateDate"],
+        estimatedDurationMinutes:
+          task.estimated_duration_minutes as Task["estimatedDurationMinutes"],
+        userId: task.user_id as Task["userId"],
       })),
     });
 
