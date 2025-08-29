@@ -9,4 +9,11 @@ const ErrorResponse = <TError extends ErrorVariant<string, number>>(
   });
 };
 
-export { ErrorResponse };
+const OkResponse = <TData>(data: TData, status: number) => {
+  return new Response(JSON.stringify(data), {
+    status,
+    headers: { "content-type": "application/json" },
+  });
+};
+
+export { ErrorResponse, OkResponse };

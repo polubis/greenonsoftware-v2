@@ -6,6 +6,28 @@ import type {
   ContractSchemas,
 } from "./models";
 
+/**
+ * Creates a synchronous validator function that validates data and returns it if valid.
+ * @param validator - Function that validates the data and throws ValidationException if invalid
+ * @returns A function that validates data synchronously
+ */
+const check = <T>(validator: (data: unknown) => T) => {
+  return (data: unknown): T => {
+    return validator(data);
+  };
+};
+
+/**
+ * Creates an asynchronous validator function that validates data and returns it if valid.
+ * @param validator - Function that validates the data and throws ValidationException if invalid
+ * @returns A function that validates data asynchronously
+ */
+const checkAsync = <T>(validator: (data: unknown) => Promise<T>) => {
+  return async (data: unknown): Promise<T> => {
+    return await validator(data);
+  };
+};
+
 const init =
   <TConfiguration extends Configuration | undefined>(config?: TConfiguration) =>
   <TContracts extends Contracts>() =>
@@ -190,4 +212,4 @@ const init =
     };
   };
 
-export { init };
+export { init, check, checkAsync };

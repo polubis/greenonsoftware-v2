@@ -5,7 +5,7 @@ import { AppRouter } from "@/shared/routing/app-router";
 import { z } from "zod";
 import { focus4API } from "@/shared/contracts";
 import { ValidationException } from "@/lib/clean-api-v2";
-import { ErrorResponse } from "@/shared/server/error-response";
+import { ErrorResponse, OkResponse } from "@/shared/server/response";
 import type {
   date,
   taskEstimatedDurationMinutes,
@@ -230,10 +230,7 @@ export const GET: APIRoute = async (context) => {
       })),
     });
 
-    return new Response(JSON.stringify(dto), {
-      status: 200,
-      headers: { "content-type": "application/json" },
-    });
+    return OkResponse(dto, 200);
   } catch (error) {
     if (ValidationException.is(error)) {
       return ErrorResponse(

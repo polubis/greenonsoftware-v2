@@ -2,7 +2,7 @@ import { APIRouter } from "../routing/api-router";
 import { init } from "@/lib/clean-api-v2";
 import { errorParser } from "@/lib/clean-api-v2/adapters/axios";
 import z from "zod";
-import { check } from "@/lib/clean-api-v2/adapters/zod";
+import { zodCheck } from "@/lib/clean-api-v2/adapters/zod";
 import { getTasksSchema } from "./schemas";
 
 type Focus4Contracts = {
@@ -21,8 +21,8 @@ const create = contract<Focus4Contracts>();
 const focus4API = create({
   getTasks: {
     schemas: {
-      dto: check(getTasksSchema.dto),
-      error: check(getTasksSchema.error),
+      dto: zodCheck(getTasksSchema.dto),
+      error: zodCheck(getTasksSchema.error),
     },
     resolver: async ({ extra }) => {
       return fetch(APIRouter.getPath("tasks"), {
