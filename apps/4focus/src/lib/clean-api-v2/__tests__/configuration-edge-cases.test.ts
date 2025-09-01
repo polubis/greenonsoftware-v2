@@ -55,7 +55,6 @@ describe("Configuration Edge Cases", () => {
     });
 
     it("handles configuration with missing required properties", async () => {
-      // @ts-expect-error - missing url property
       const api = init({})<APIContracts>()({
         get: { resolver: mockGetResolver },
         post: { resolver: mockPostResolver },
@@ -75,12 +74,10 @@ describe("Configuration Edge Cases", () => {
         url: "https://api.example.com",
         extraProp: "should be ignored",
         timeout: 5000,
-      } as { url: string; extraProp: string; timeout: number })<APIContracts>()(
-        {
-          get: { resolver: mockGetResolver },
-          post: { resolver: mockPostResolver },
-        },
-      );
+      } as const)<APIContracts>()({
+        get: { resolver: mockGetResolver },
+        post: { resolver: mockPostResolver },
+      });
 
       mockGetResolver.mockResolvedValue({ id: 1 });
       await api.call("get", { pathParams: { id: "123" } });

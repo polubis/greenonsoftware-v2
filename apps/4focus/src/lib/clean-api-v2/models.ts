@@ -27,9 +27,7 @@ type Contracts = Record<
   }
 >;
 
-type Configuration = {
-  url: string;
-};
+type Configuration = Record<string, unknown>;
 
 type InferInput<
   TContracts extends Contracts,
