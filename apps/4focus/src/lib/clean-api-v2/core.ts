@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import type {
   CallArgs,
   CleanApi,
@@ -9,23 +10,45 @@ import type {
 /**
  * Creates a synchronous validator function that validates data and returns it if valid.
  * @param validator - Function that validates the data and throws ValidationException if invalid
- * @returns A function that validates data synchronously
+ * @param rawSchema - Optional raw schema object (e.g., Zod schema) for client-side usage
+ * @returns A function that validates data synchronously with optional raw schema attached
  */
-const check = <T>(validator: (data: unknown) => T) => {
-  return (data: unknown): T => {
+const check = <T, TRawSchema = unknown>(
+  validator: (data: unknown) => T,
+  rawSchema?: TRawSchema,
+) => {
+  const validatorFn = (data: unknown): T => {
     return validator(data);
   };
+
+  // Attach raw schema as a property if provided
+  if (rawSchema !== undefined) {
+    (validatorFn as any).__rawSchema = rawSchema;
+  }
+
+  return validatorFn;
 };
 
 /**
  * Creates an asynchronous validator function that validates data and returns it if valid.
  * @param validator - Function that validates the data and throws ValidationException if invalid
- * @returns A function that validates data asynchronously
+ * @param rawSchema - Optional raw schema object (e.g., Zod schema) for client-side usage
+ * @returns A function that validates data asynchronously with optional raw schema attached
  */
-const checkAsync = <T>(validator: (data: unknown) => Promise<T>) => {
-  return async (data: unknown): Promise<T> => {
+const checkAsync = <T, TRawSchema = unknown>(
+  validator: (data: unknown) => Promise<T>,
+  rawSchema?: TRawSchema,
+) => {
+  const validatorFn = async (data: unknown): Promise<T> => {
     return await validator(data);
   };
+
+  // Attach raw schema as a property if provided
+  if (rawSchema !== undefined) {
+    (validatorFn as any).__rawSchema = rawSchema;
+  }
+
+  return validatorFn;
 };
 
 const init =
@@ -45,7 +68,6 @@ const init =
   ): CleanApi<TContracts, TConfiguration, TContractsSignature> => {
     const subs = new Map<
       keyof TContracts,
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Map<symbol, (...args: any[]) => void | Promise<void>>
     >();
 
@@ -170,7 +192,6 @@ const init =
         if (paramKey in input) {
           // Validate the parameter if schema exists
           validateSchema(key, paramKey, input[paramKey]);
-          // eslint-disable-next-line @typescript-eslint/no-explicit-any
           finalInput[paramKey] = input[paramKey] as any;
         }
       }
@@ -194,7 +215,6 @@ const init =
         }
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return await resolver(finalInput as any);
     };
 
@@ -238,8 +258,41 @@ const init =
         return undefined as unknown;
       }
 
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       return providedSchemas as any;
+    };
+
+    const getRawSchema: CleanApi<
+      TContracts,
+      TConfiguration,
+      TContractsSignature
+    >["getRawSchema"] = (contractKey) => {
+      const contract = contracts[contractKey];
+      const schemas = contract?.schemas;
+
+      if (!schemas) {
+        // Return unknown if no schemas are defined
+        return undefined as unknown;
+      }
+
+      // Extract raw schemas from validators
+      const rawSchemas: Record<string, unknown> = {};
+
+      for (const [key, schema] of Object.entries(schemas)) {
+        if (
+          schema !== undefined &&
+          typeof schema === "function" &&
+          "__rawSchema" in schema
+        ) {
+          rawSchemas[key] = (schema as any).__rawSchema;
+        }
+      }
+
+      // If no raw schemas were found, return unknown
+      if (Object.keys(rawSchemas).length === 0) {
+        return undefined as unknown;
+      }
+
+      return rawSchemas as any;
     };
 
     return {
@@ -253,6 +306,7 @@ const init =
       payload,
       extra,
       getSchema,
+      getRawSchema,
     };
   };
 

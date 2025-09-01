@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 type ErrorVariant<
   T extends string,
   TStatus extends number,
@@ -69,7 +70,9 @@ type KeysWith<
   [K in keyof TContracts]: TProp extends keyof TContracts[K] ? K : never;
 }[keyof TContracts];
 
-type SchemaValidator<T> = (data: unknown) => T;
+type SchemaValidator<T, TRawSchema = unknown> = ((data: unknown) => T) & {
+  __rawSchema?: TRawSchema;
+};
 
 type ConditionalSchema<
   TContract extends Contracts[keyof Contracts],
@@ -110,6 +113,31 @@ type GetSchemaReturn<
       : FilterUndefinedSchemas<
           ExtractProvidedSchemas<TContractsSignature[TKey]>
         >;
+
+// Type to extract raw schema from a SchemaValidator
+type ExtractRawSchema<T> =
+  T extends SchemaValidator<any, infer TRawSchema> ? TRawSchema : never;
+
+// Type for getRawSchema return based on actual contract signature
+type GetRawSchemaReturn<
+  TContractsSignature,
+  TKey extends keyof TContractsSignature,
+> =
+  ExtractProvidedSchemas<TContractsSignature[TKey]> extends undefined
+    ? unknown
+    : FilterUndefinedSchemas<
+          ExtractProvidedSchemas<TContractsSignature[TKey]>
+        > extends Record<string, never>
+      ? unknown
+      : {
+          [K in keyof FilterUndefinedSchemas<
+            ExtractProvidedSchemas<TContractsSignature[TKey]>
+          >]: ExtractRawSchema<
+            FilterUndefinedSchemas<
+              ExtractProvidedSchemas<TContractsSignature[TKey]>
+            >[K]
+          >;
+        };
 
 type CleanApi<
   TContracts extends Contracts,
@@ -163,6 +191,9 @@ type CleanApi<
   getSchema: <TKey extends keyof TContracts & keyof TContractsSignature>(
     contractKey: TKey,
   ) => GetSchemaReturn<TContractsSignature, TKey>;
+  getRawSchema: <TKey extends keyof TContracts & keyof TContractsSignature>(
+    contractKey: TKey,
+  ) => GetRawSchemaReturn<TContractsSignature, TKey>;
 };
 
 class ValidationException extends Error {
@@ -211,7 +242,6 @@ type ParsedError<
  * Extract the contracts type from a CleanApi instance
  */
 type InferContracts<TApi> =
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   TApi extends CleanApi<infer TContracts, any> ? TContracts : never;
 
 type InferDto<

@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@astrojs/react": "^4.3.0",
+    "@hookform/resolvers": "^5.2.1",
     "@nanostores/react": "^1.0.0",
     "@supabase/ssr": "^0.6.1",
     "@supabase/supabase-js": "^2.53.0",
@@ -33,6 +34,7 @@
     "nanostores": "^1.0.1",
     "react": "^19.1.1",
     "react-dom": "^19.1.1",
+    "react-hook-form": "^7.62.0",
     "rxjs": "^7.8.2",
     "zod": "^4.0.17"
   },

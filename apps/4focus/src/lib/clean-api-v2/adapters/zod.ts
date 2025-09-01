@@ -4,6 +4,7 @@ import { check, checkAsync } from "../core";
 
 /**
  * Creates a synchronous Zod validator using the check function factory
+ * The raw Zod schema is attached and can be extracted using getRawSchema()
  */
 const zodCheck = <T extends z.ZodTypeAny>(schema: T) => {
   return check((data: unknown): z.infer<T> => {
@@ -19,11 +20,12 @@ const zodCheck = <T extends z.ZodTypeAny>(schema: T) => {
     }
 
     return parsed.data;
-  });
+  }, schema); // Pass the raw Zod schema as second parameter
 };
 
 /**
  * Creates an asynchronous Zod validator using the checkAsync function factory
+ * The raw Zod schema is attached and can be extracted using getRawSchema()
  */
 const zodCheckAsync = <T extends z.ZodTypeAny>(schema: T) => {
   return checkAsync(async (data: unknown): Promise<z.infer<T>> => {
@@ -39,7 +41,7 @@ const zodCheckAsync = <T extends z.ZodTypeAny>(schema: T) => {
     }
 
     return parsed.data;
-  });
+  }, schema); // Pass the raw Zod schema as second parameter
 };
 
 export { zodCheck, zodCheckAsync };
