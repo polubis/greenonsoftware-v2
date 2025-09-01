@@ -215,7 +215,11 @@ const init =
         }
       }
 
-      return await resolver(finalInput as any);
+      // Execute resolver and get result
+      const result = await resolver(finalInput as any);
+
+      // Validate result against dto schema if it exists
+      return validateSchema(key, "dto", result);
     };
 
     const safeCall: CleanApi<
