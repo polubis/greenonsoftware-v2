@@ -86,9 +86,38 @@ type ContractSchemas<TContract extends Contracts[keyof Contracts]> = {
   ConditionalSchema<TContract, "searchParams"> &
   ConditionalSchema<TContract, "extra">;
 
+// Type to extract the actual schemas from contract signature
+type ExtractProvidedSchemas<T> = T extends { schemas?: infer S }
+  ? S
+  : undefined;
+
+// Type to filter out undefined values from schemas object
+type FilterUndefinedSchemas<T> = {
+  [K in keyof T as T[K] extends undefined ? never : K]: T[K];
+};
+
+// Type for getSchema return based on actual contract signature
+type GetSchemaReturn<
+  TContractsSignature,
+  TKey extends keyof TContractsSignature,
+> =
+  ExtractProvidedSchemas<TContractsSignature[TKey]> extends undefined
+    ? unknown
+    : FilterUndefinedSchemas<
+          ExtractProvidedSchemas<TContractsSignature[TKey]>
+        > extends Record<string, never>
+      ? unknown
+      : FilterUndefinedSchemas<
+          ExtractProvidedSchemas<TContractsSignature[TKey]>
+        >;
+
 type CleanApi<
   TContracts extends Contracts,
   TConfiguration extends Configuration | undefined,
+  TContractsSignature = Record<
+    keyof TContracts,
+    { resolver: unknown; schemas?: unknown }
+  >,
 > = {
   onCall: <TKey extends keyof TContracts>(
     key: TKey,
@@ -131,6 +160,9 @@ type CleanApi<
     key: TKey,
     extra: TContracts[TKey]["extra"],
   ) => TContracts[TKey]["extra"];
+  getSchema: <TKey extends keyof TContracts & keyof TContractsSignature>(
+    contractKey: TKey,
+  ) => GetSchemaReturn<TContractsSignature, TKey>;
 };
 
 class ValidationException extends Error {

@@ -42,17 +42,18 @@ const init =
     },
   >(
     contracts: TContractsSignature,
-  ): CleanApi<TContracts, TConfiguration> => {
+  ): CleanApi<TContracts, TConfiguration, TContractsSignature> => {
     const subs = new Map<
       keyof TContracts,
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       Map<symbol, (...args: any[]) => void | Promise<void>>
     >();
 
-    const onCall: CleanApi<TContracts, TConfiguration>["onCall"] = (
-      key,
-      callback,
-    ) => {
+    const onCall: CleanApi<
+      TContracts,
+      TConfiguration,
+      TContractsSignature
+    >["onCall"] = (key, callback) => {
       const callId = Symbol(`onCall:${key.toString()}`);
 
       // Create a Map for this endpoint if it doesn't exist
@@ -92,49 +93,59 @@ const init =
       return data;
     };
 
-    const pathParams: CleanApi<TContracts, TConfiguration>["pathParams"] = (
-      key,
-      pathParams,
-    ) => {
+    const pathParams: CleanApi<
+      TContracts,
+      TConfiguration,
+      TContractsSignature
+    >["pathParams"] = (key, pathParams) => {
       return validateSchema(key, "pathParams", pathParams);
     };
 
-    const searchParams: CleanApi<TContracts, TConfiguration>["searchParams"] = (
-      key,
-      searchParams,
-    ) => {
+    const searchParams: CleanApi<
+      TContracts,
+      TConfiguration,
+      TContractsSignature
+    >["searchParams"] = (key, searchParams) => {
       return validateSchema(key, "searchParams", searchParams);
     };
 
-    const payload: CleanApi<TContracts, TConfiguration>["payload"] = (
-      key,
-      payload,
-    ) => {
+    const payload: CleanApi<
+      TContracts,
+      TConfiguration,
+      TContractsSignature
+    >["payload"] = (key, payload) => {
       return validateSchema(key, "payload", payload);
     };
 
-    const extra: CleanApi<TContracts, TConfiguration>["extra"] = (
-      key,
-      extra,
-    ) => {
+    const extra: CleanApi<
+      TContracts,
+      TConfiguration,
+      TContractsSignature
+    >["extra"] = (key, extra) => {
       return validateSchema(key, "extra", extra);
     };
 
-    const error: CleanApi<TContracts, TConfiguration>["error"] = (
-      key,
-      error,
-    ) => {
+    const error: CleanApi<
+      TContracts,
+      TConfiguration,
+      TContractsSignature
+    >["error"] = (key, error) => {
       return validateSchema(key, "error", error);
     };
 
-    const dto: CleanApi<TContracts, TConfiguration>["dto"] = (key, dto) => {
+    const dto: CleanApi<
+      TContracts,
+      TConfiguration,
+      TContractsSignature
+    >["dto"] = (key, dto) => {
       return validateSchema(key, "dto", dto);
     };
 
-    const call: CleanApi<TContracts, TConfiguration>["call"] = async (
-      key,
-      ...args
-    ) => {
+    const call: CleanApi<
+      TContracts,
+      TConfiguration,
+      TContractsSignature
+    >["call"] = async (key, ...args) => {
       const resolver = contracts[key].resolver;
       const input = (args[0] ?? {}) as {
         pathParams?: Record<string, unknown>;
@@ -187,16 +198,48 @@ const init =
       return await resolver(finalInput as any);
     };
 
-    const safeCall: CleanApi<TContracts, TConfiguration>["safeCall"] = async (
-      key,
-      ...args
-    ) => {
+    const safeCall: CleanApi<
+      TContracts,
+      TConfiguration,
+      TContractsSignature
+    >["safeCall"] = async (key, ...args) => {
       try {
         const result = await call(key, ...args);
         return [true, result];
       } catch (error) {
         return [false, error];
       }
+    };
+
+    const getSchema: CleanApi<
+      TContracts,
+      TConfiguration,
+      TContractsSignature
+    >["getSchema"] = (contractKey) => {
+      const contract = contracts[contractKey];
+      const schemas = contract?.schemas;
+
+      if (!schemas) {
+        // Return unknown if no schemas are defined
+        return undefined as unknown;
+      }
+
+      // Filter out undefined schemas and return only the provided ones
+      const providedSchemas: Record<string, unknown> = {};
+
+      for (const [key, schema] of Object.entries(schemas)) {
+        if (schema !== undefined) {
+          providedSchemas[key] = schema;
+        }
+      }
+
+      // If no schemas were actually provided, return unknown
+      if (Object.keys(providedSchemas).length === 0) {
+        return undefined as unknown;
+      }
+
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      return providedSchemas as any;
     };
 
     return {
@@ -209,6 +252,7 @@ const init =
       searchParams,
       payload,
       extra,
+      getSchema,
     };
   };
 
