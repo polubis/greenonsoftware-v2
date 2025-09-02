@@ -256,6 +256,73 @@ type InferAllDtos<TApi> = {
 // Alias for better naming consistency
 type InferAllDto<TApi> = InferAllDtos<TApi>;
 
+// Utility types for inferring individual contract properties
+
+type InferError<
+  TApi,
+  TEndpoint extends keyof InferContracts<TApi>,
+> = InferContracts<TApi>[TEndpoint]["error"];
+
+type InferPayload<
+  TApi,
+  TEndpoint extends keyof InferContracts<TApi>,
+> = InferContracts<TApi>[TEndpoint] extends { payload: infer P } ? P : never;
+
+type InferPathParams<
+  TApi,
+  TEndpoint extends keyof InferContracts<TApi>,
+> = InferContracts<TApi>[TEndpoint] extends { pathParams: infer P } ? P : never;
+
+type InferSearchParams<
+  TApi,
+  TEndpoint extends keyof InferContracts<TApi>,
+> = InferContracts<TApi>[TEndpoint] extends { searchParams: infer P }
+  ? P
+  : never;
+
+type InferExtra<
+  TApi,
+  TEndpoint extends keyof InferContracts<TApi>,
+> = InferContracts<TApi>[TEndpoint] extends { extra: infer E } ? E : never;
+
+// Utility types for inferring all contract properties
+
+type InferAllErrors<TApi> = {
+  [K in keyof InferContracts<TApi>]: InferContracts<TApi>[K]["error"];
+};
+
+type InferAllPayloads<TApi> = {
+  [K in keyof InferContracts<TApi>]: InferContracts<TApi>[K] extends {
+    payload: infer P;
+  }
+    ? P
+    : never;
+};
+
+type InferAllPathParams<TApi> = {
+  [K in keyof InferContracts<TApi>]: InferContracts<TApi>[K] extends {
+    pathParams: infer P;
+  }
+    ? P
+    : never;
+};
+
+type InferAllSearchParams<TApi> = {
+  [K in keyof InferContracts<TApi>]: InferContracts<TApi>[K] extends {
+    searchParams: infer P;
+  }
+    ? P
+    : never;
+};
+
+type InferAllExtras<TApi> = {
+  [K in keyof InferContracts<TApi>]: InferContracts<TApi>[K] extends {
+    extra: infer E;
+  }
+    ? E
+    : never;
+};
+
 export type {
   Contracts,
   ErrorVariant,
@@ -278,5 +345,15 @@ export type {
   InferDto,
   InferAllDtos,
   InferAllDto,
+  InferError,
+  InferPayload,
+  InferPathParams,
+  InferSearchParams,
+  InferExtra,
+  InferAllErrors,
+  InferAllPayloads,
+  InferAllPathParams,
+  InferAllSearchParams,
+  InferAllExtras,
 };
 export { ValidationException };
