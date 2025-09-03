@@ -19,11 +19,11 @@ class EventSubscriptionManager<TContracts extends Contracts> {
   /**
    * Subscribe to an event for a specific endpoint
    */
-  subscribe<TKey extends keyof TContracts>(
+  subscribe = <TKey extends keyof TContracts>(
     key: TKey,
     callback: (...args: any[]) => void | Promise<void>,
     eventType: string,
-  ): () => void {
+  ): (() => void) => {
     const callId = Symbol(`${eventType}:${key.toString()}`);
 
     // Create a Map for this endpoint if it doesn't exist
@@ -44,16 +44,16 @@ class EventSubscriptionManager<TContracts extends Contracts> {
         }
       }
     };
-  }
+  };
 
   /**
    * Emit an event to all subscribers of a specific endpoint
    */
-  emit<TKey extends keyof TContracts>(
+  emit = <TKey extends keyof TContracts>(
     key: TKey,
     data: any,
     eventType: string,
-  ): void {
+  ): void => {
     const subs = this.subscriptions.get(key);
     if (subs) {
       for (const [, callback] of subs) {
@@ -67,21 +67,7 @@ class EventSubscriptionManager<TContracts extends Contracts> {
         }
       }
     }
-  }
-
-  /**
-   * Get all subscribers for a specific endpoint
-   */
-  getSubscribers<TKey extends keyof TContracts>(key: TKey) {
-    return this.subscriptions.get(key);
-  }
-
-  /**
-   * Clear all subscriptions
-   */
-  clear(): void {
-    this.subscriptions.clear();
-  }
+  };
 }
 
 /**
