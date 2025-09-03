@@ -8,6 +8,83 @@ import type {
 } from "./models";
 
 /**
+ * Generic event subscription manager for handling API event callbacks
+ */
+class EventSubscriptionManager<TContracts extends Contracts> {
+  private subscriptions = new Map<
+    keyof TContracts,
+    Map<symbol, (...args: any[]) => void | Promise<void>>
+  >();
+
+  /**
+   * Subscribe to an event for a specific endpoint
+   */
+  subscribe<TKey extends keyof TContracts>(
+    key: TKey,
+    callback: (...args: any[]) => void | Promise<void>,
+    eventType: string,
+  ): () => void {
+    const callId = Symbol(`${eventType}:${key.toString()}`);
+
+    // Create a Map for this endpoint if it doesn't exist
+    if (!this.subscriptions.has(key)) {
+      this.subscriptions.set(key, new Map());
+    }
+
+    this.subscriptions.get(key)?.set(callId, callback);
+
+    return () => {
+      const endpointSubs = this.subscriptions.get(key);
+
+      if (endpointSubs) {
+        endpointSubs.delete(callId);
+
+        if (endpointSubs.size === 0) {
+          this.subscriptions.delete(key);
+        }
+      }
+    };
+  }
+
+  /**
+   * Emit an event to all subscribers of a specific endpoint
+   */
+  emit<TKey extends keyof TContracts>(
+    key: TKey,
+    data: any,
+    eventType: string,
+  ): void {
+    const subs = this.subscriptions.get(key);
+    if (subs) {
+      for (const [, callback] of subs) {
+        try {
+          callback(data);
+        } catch (error) {
+          console.error(
+            `${eventType} callback error for endpoint '${key.toString()}':`,
+            error,
+          );
+        }
+      }
+    }
+  }
+
+  /**
+   * Get all subscribers for a specific endpoint
+   */
+  getSubscribers<TKey extends keyof TContracts>(key: TKey) {
+    return this.subscriptions.get(key);
+  }
+
+  /**
+   * Clear all subscriptions
+   */
+  clear(): void {
+    this.subscriptions.clear();
+  }
+}
+
+/**
  * Creates a synchronous validator function that validates data and returns it if valid.
  * @param validator - Function that validates the data and throws ValidationException if invalid
  * @param rawSchema - Optional raw schema object (e.g., Zod schema) for client-side usage
@@ -66,46 +143,17 @@ const init =
   >(
     contracts: TContractsSignature,
   ): CleanApi<TContracts, TConfiguration, TContractsSignature> => {
-    const onCallSubs = new Map<
-      keyof TContracts,
-      Map<symbol, (...args: any[]) => void | Promise<void>>
-    >();
-
-    const onOkSubs = new Map<
-      keyof TContracts,
-      Map<symbol, (...args: any[]) => void | Promise<void>>
-    >();
-
-    const onFailSubs = new Map<
-      keyof TContracts,
-      Map<symbol, (...args: any[]) => void | Promise<void>>
-    >();
+    // Create event managers for different event types
+    const onCallManager = new EventSubscriptionManager<TContracts>();
+    const onOkManager = new EventSubscriptionManager<TContracts>();
+    const onFailManager = new EventSubscriptionManager<TContracts>();
 
     const onCall: CleanApi<
       TContracts,
       TConfiguration,
       TContractsSignature
     >["onCall"] = (key, callback) => {
-      const callId = Symbol(`onCall:${key.toString()}`);
-
-      // Create a Map for this endpoint if it doesn't exist
-      if (!onCallSubs.has(key)) {
-        onCallSubs.set(key, new Map());
-      }
-
-      onCallSubs.get(key)?.set(callId, callback);
-
-      return () => {
-        const endpointSubs = onCallSubs.get(key);
-
-        if (endpointSubs) {
-          endpointSubs.delete(callId);
-
-          if (endpointSubs.size === 0) {
-            onCallSubs.delete(key);
-          }
-        }
-      };
+      return onCallManager.subscribe(key, callback, "onCall");
     };
 
     const onOk: CleanApi<
@@ -113,26 +161,7 @@ const init =
       TConfiguration,
       TContractsSignature
     >["onOk"] = (key, callback) => {
-      const callId = Symbol(`onOk:${key.toString()}`);
-
-      // Create a Map for this endpoint if it doesn't exist
-      if (!onOkSubs.has(key)) {
-        onOkSubs.set(key, new Map());
-      }
-
-      onOkSubs.get(key)?.set(callId, callback);
-
-      return () => {
-        const endpointSubs = onOkSubs.get(key);
-
-        if (endpointSubs) {
-          endpointSubs.delete(callId);
-
-          if (endpointSubs.size === 0) {
-            onOkSubs.delete(key);
-          }
-        }
-      };
+      return onOkManager.subscribe(key, callback, "onOk");
     };
 
     const onFail: CleanApi<
@@ -140,26 +169,7 @@ const init =
       TConfiguration,
       TContractsSignature
     >["onFail"] = (key, callback) => {
-      const callId = Symbol(`onFail:${key.toString()}`);
-
-      // Create a Map for this endpoint if it doesn't exist
-      if (!onFailSubs.has(key)) {
-        onFailSubs.set(key, new Map());
-      }
-
-      onFailSubs.get(key)?.set(callId, callback);
-
-      return () => {
-        const endpointSubs = onFailSubs.get(key);
-
-        if (endpointSubs) {
-          endpointSubs.delete(callId);
-
-          if (endpointSubs.size === 0) {
-            onFailSubs.delete(key);
-          }
-        }
-      };
+      return onFailManager.subscribe(key, callback, "onFail");
     };
 
     const validateSchema = <TData>(
@@ -282,19 +292,7 @@ const init =
         }
 
         // Execute onCall callbacks
-        const subs = onCallSubs.get(key);
-        if (subs) {
-          for (const [, callback] of subs) {
-            try {
-              callback(finalInput);
-            } catch (error) {
-              console.error(
-                `onCall callback error for endpoint '${key.toString()}':`,
-                error,
-              );
-            }
-          }
-        }
+        onCallManager.emit(key, finalInput, "onCall");
 
         // Execute resolver and get result
         const result = await resolver(finalInput as any);
@@ -303,38 +301,14 @@ const init =
         const validatedResult = validateSchema(key, "dto", result);
 
         // Call onOk subscribers after successful execution
-        const onOkSubscribers = onOkSubs.get(key);
-        if (onOkSubscribers) {
-          for (const [, callback] of onOkSubscribers) {
-            try {
-              callback({ ...finalInput, dto: validatedResult });
-            } catch (error) {
-              console.error(
-                `onOk callback error for endpoint '${key.toString()}':`,
-                error,
-              );
-            }
-          }
-        }
+        onOkManager.emit(key, { ...finalInput, dto: validatedResult }, "onOk");
 
         return validatedResult;
       } catch (callError) {
         // Call onFail subscribers for ANY error during the call process
         // This includes: resolver access, input processing, config handling,
         // validation errors, resolver execution, DTO validation, etc.
-        const onFailSubscribers = onFailSubs.get(key);
-        if (onFailSubscribers) {
-          for (const [, callback] of onFailSubscribers) {
-            try {
-              callback({ ...finalInput, error: callError });
-            } catch (error) {
-              console.error(
-                `onFail callback error for endpoint '${key.toString()}':`,
-                error,
-              );
-            }
-          }
-        }
+        onFailManager.emit(key, { ...finalInput, error: callError }, "onFail");
 
         // Re-throw the original error to maintain normal error flow
         throw callError;

@@ -6,3 +6,5 @@
 8. Home page that ilustrates how it work
 9. Create a lib
 10. Lib release
+11. Real middleware
+12. Check functions should always require schema to be passed
