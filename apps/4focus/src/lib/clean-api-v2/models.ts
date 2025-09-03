@@ -153,6 +153,14 @@ type CleanApi<
       ...args: CallArgs<TConfiguration, TContracts, TKey>
     ) => void | Promise<void>,
   ) => () => void;
+  onOk: <TKey extends keyof TContracts>(
+    key: TKey,
+    callback: (
+      input: CallArgs<TConfiguration, TContracts, TKey>[0] & {
+        dto: TContracts[TKey]["dto"];
+      },
+    ) => void | Promise<void>,
+  ) => () => void;
   call: <TKey extends keyof TContracts>(
     key: TKey,
     ...args: CallArgs<undefined, TContracts, TKey>

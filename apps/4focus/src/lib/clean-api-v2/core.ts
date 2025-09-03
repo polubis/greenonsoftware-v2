@@ -66,7 +66,12 @@ const init =
   >(
     contracts: TContractsSignature,
   ): CleanApi<TContracts, TConfiguration, TContractsSignature> => {
-    const subs = new Map<
+    const onCallSubs = new Map<
+      keyof TContracts,
+      Map<symbol, (...args: any[]) => void | Promise<void>>
+    >();
+
+    const onOkSubs = new Map<
       keyof TContracts,
       Map<symbol, (...args: any[]) => void | Promise<void>>
     >();
@@ -79,20 +84,47 @@ const init =
       const callId = Symbol(`onCall:${key.toString()}`);
 
       // Create a Map for this endpoint if it doesn't exist
-      if (!subs.has(key)) {
-        subs.set(key, new Map());
+      if (!onCallSubs.has(key)) {
+        onCallSubs.set(key, new Map());
       }
 
-      subs.get(key)?.set(callId, callback);
+      onCallSubs.get(key)?.set(callId, callback);
 
       return () => {
-        const endpointSubs = subs.get(key);
+        const endpointSubs = onCallSubs.get(key);
 
         if (endpointSubs) {
           endpointSubs.delete(callId);
 
           if (endpointSubs.size === 0) {
-            subs.delete(key);
+            onCallSubs.delete(key);
+          }
+        }
+      };
+    };
+
+    const onOk: CleanApi<
+      TContracts,
+      TConfiguration,
+      TContractsSignature
+    >["onOk"] = (key, callback) => {
+      const callId = Symbol(`onOk:${key.toString()}`);
+
+      // Create a Map for this endpoint if it doesn't exist
+      if (!onOkSubs.has(key)) {
+        onOkSubs.set(key, new Map());
+      }
+
+      onOkSubs.get(key)?.set(callId, callback);
+
+      return () => {
+        const endpointSubs = onOkSubs.get(key);
+
+        if (endpointSubs) {
+          endpointSubs.delete(callId);
+
+          if (endpointSubs.size === 0) {
+            onOkSubs.delete(key);
           }
         }
       };
@@ -200,10 +232,10 @@ const init =
         finalInput.config = config;
       }
 
-      const onCallSubs = subs.get(key);
+      const subs = onCallSubs.get(key);
 
-      if (onCallSubs) {
-        for (const [, callback] of onCallSubs) {
+      if (subs) {
+        for (const [, callback] of subs) {
           try {
             callback(finalInput);
           } catch (error) {
@@ -219,7 +251,24 @@ const init =
       const result = await resolver(finalInput as any);
 
       // Validate result against dto schema if it exists
-      return validateSchema(key, "dto", result);
+      const validatedResult = validateSchema(key, "dto", result);
+
+      // Call onOk subscribers after successful execution
+      const onOkSubscribers = onOkSubs.get(key);
+      if (onOkSubscribers) {
+        for (const [, callback] of onOkSubscribers) {
+          try {
+            callback({ ...finalInput, dto: validatedResult });
+          } catch (error) {
+            console.error(
+              `onOk callback error for endpoint '${key.toString()}':`,
+              error,
+            );
+          }
+        }
+      }
+
+      return validatedResult;
     };
 
     const safeCall: CleanApi<
@@ -302,6 +351,7 @@ const init =
     return {
       call,
       onCall,
+      onOk,
       safeCall,
       error,
       dto,
