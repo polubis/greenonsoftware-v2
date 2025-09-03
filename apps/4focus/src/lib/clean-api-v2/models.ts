@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type ErrorVariant<
-  T extends string,
+  TType extends string,
   TStatus extends number,
   TMeta = undefined,
 > = TMeta extends undefined
   ? {
-      type: T;
+      type: TType;
       status: TStatus;
       message: string;
     }
   : {
-      type: T;
+      type: TType;
       status: TStatus;
       message: string;
       meta: TMeta;
@@ -74,6 +74,11 @@ type SchemaValidator<T, TRawSchema = unknown> = ((data: unknown) => T) & {
   __rawSchema?: TRawSchema;
 };
 
+// More specific type for validators with attached raw schemas
+type SchemaValidatorWithRaw<T, TRawSchema> = ((data: unknown) => T) & {
+  __rawSchema: TRawSchema;
+};
+
 type ConditionalSchema<
   TContract extends Contracts[keyof Contracts],
   TKey extends "payload" | "pathParams" | "searchParams" | "extra",
@@ -116,7 +121,13 @@ type GetSchemaReturn<
 
 // Type to extract raw schema from a SchemaValidator
 type ExtractRawSchema<T> =
-  T extends SchemaValidator<any, infer TRawSchema> ? TRawSchema : never;
+  T extends SchemaValidatorWithRaw<any, infer TRawSchema>
+    ? TRawSchema
+    : T extends SchemaValidator<any, infer TRawSchema>
+      ? TRawSchema extends unknown
+        ? never // Don't include if it's the default unknown type
+        : TRawSchema
+      : never;
 
 // Type for getRawSchema return based on actual contract signature
 type GetRawSchemaReturn<

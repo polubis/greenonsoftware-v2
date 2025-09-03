@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, it, vi } from "vitest";
 import { init } from "../core";
 import { zodCheck } from "../adapters/zod";
@@ -46,7 +45,7 @@ describe("getRawSchema - Working Demo", () => {
     console.log("API schemas available:", Object.keys(apiSchemas));
 
     // 2. Get raw schemas for client-side validation
-    const rawSchemas = api.getRawSchema("createUser") as any;
+    const rawSchemas = api.getRawSchema("createUser");
     console.log("Raw schemas available:", Object.keys(rawSchemas));
 
     // 3. Verify we get the original Zod schemas
@@ -92,7 +91,7 @@ describe("getRawSchema - Working Demo", () => {
       },
     });
 
-    const rawSchemas = api.getRawSchema("mixed") as any;
+    const rawSchemas = api.getRawSchema("mixed");
 
     // Should have the Zod schema for payload
     expect(rawSchemas.payload).toBeInstanceOf(z.ZodString);
@@ -150,7 +149,7 @@ describe("getRawSchema - Working Demo", () => {
     // This is the pattern developers would use:
 
     // 1. Get raw schema for client-side form validation
-    const rawSchemas = api.getRawSchema("register") as any;
+    const rawSchemas = api.getRawSchema("register");
     const formSchema = rawSchemas.payload;
 
     // 2. Verify it's the original Zod schema

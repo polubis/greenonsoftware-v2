@@ -76,10 +76,17 @@ class EventSubscriptionManager<TContracts extends Contracts> {
  * @param rawSchema - Optional raw schema object (e.g., Zod schema) for client-side usage
  * @returns A function that validates data synchronously with optional raw schema attached
  */
-const check = <T, TRawSchema = unknown>(
+function check<T>(
+  validator: (data: unknown) => T,
+): ((data: unknown) => T) & { __rawSchema?: undefined };
+function check<T, TRawSchema>(
+  validator: (data: unknown) => T,
+  rawSchema: TRawSchema,
+): ((data: unknown) => T) & { __rawSchema: TRawSchema };
+function check<T, TRawSchema = unknown>(
   validator: (data: unknown) => T,
   rawSchema?: TRawSchema,
-) => {
+) {
   const validatorFn = (data: unknown): T => {
     return validator(data);
   };
@@ -90,7 +97,7 @@ const check = <T, TRawSchema = unknown>(
   }
 
   return validatorFn;
-};
+}
 
 /**
  * Creates an asynchronous validator function that validates data and returns it if valid.
@@ -98,10 +105,17 @@ const check = <T, TRawSchema = unknown>(
  * @param rawSchema - Optional raw schema object (e.g., Zod schema) for client-side usage
  * @returns A function that validates data asynchronously with optional raw schema attached
  */
-const checkAsync = <T, TRawSchema = unknown>(
+function checkAsync<T>(
+  validator: (data: unknown) => Promise<T>,
+): ((data: unknown) => Promise<T>) & { __rawSchema?: undefined };
+function checkAsync<T, TRawSchema>(
+  validator: (data: unknown) => Promise<T>,
+  rawSchema: TRawSchema,
+): ((data: unknown) => Promise<T>) & { __rawSchema: TRawSchema };
+function checkAsync<T, TRawSchema = unknown>(
   validator: (data: unknown) => Promise<T>,
   rawSchema?: TRawSchema,
-) => {
+) {
   const validatorFn = async (data: unknown): Promise<T> => {
     return await validator(data);
   };
@@ -112,7 +126,7 @@ const checkAsync = <T, TRawSchema = unknown>(
   }
 
   return validatorFn;
-};
+}
 
 const init =
   <TConfiguration extends Configuration | undefined>(config?: TConfiguration) =>

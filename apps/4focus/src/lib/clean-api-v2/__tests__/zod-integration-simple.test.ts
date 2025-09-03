@@ -44,7 +44,7 @@ describe("Zod Integration with getRawSchema", () => {
     });
 
     // 2. Extract raw schemas for client-side validation
-    const rawSchemas = api.getRawSchema("createUser") as any;
+    const rawSchemas = api.getRawSchema("createUser");
 
     // Verify we get the original Zod schemas
     expect(rawSchemas.payload).toBe(userSchema);
@@ -104,7 +104,7 @@ describe("Zod Integration with getRawSchema", () => {
 
     // Get both server and client validators
     const apiSchemas = api.getSchema("createUser");
-    const rawSchemas = api.getRawSchema("createUser") as any;
+    const rawSchemas = api.getRawSchema("createUser");
 
     const testData = {
       username: "testuser",
@@ -154,7 +154,7 @@ describe("Zod Integration with getRawSchema", () => {
     // Developer usage pattern:
 
     // Step 1: Get raw schema for client-side validation
-    const rawSchemas = api.getRawSchema("register") as any;
+    const rawSchemas = api.getRawSchema("register");
     const formSchema = rawSchemas.payload;
 
     // Step 2: Create react-hook-form resolver
@@ -223,7 +223,7 @@ describe("Zod Integration with getRawSchema", () => {
       },
     });
 
-    const rawSchemas = api.getRawSchema("mixed") as any;
+    const rawSchemas = api.getRawSchema("mixed");
 
     // Should have raw schema for payload (Zod)
     expect(rawSchemas.payload).toBeInstanceOf(z.ZodString);
@@ -264,7 +264,7 @@ describe("Zod Integration with getRawSchema", () => {
     });
 
     const schemas = api.getSchema("createUser");
-    const rawSchemas = api.getRawSchema("createUser") as any;
+    const rawSchemas = api.getRawSchema("createUser");
 
     // Should have payload and dto (provided)
     expect(typeof schemas.payload).toBe("function");
