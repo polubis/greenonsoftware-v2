@@ -76,6 +76,11 @@ const init =
       Map<symbol, (...args: any[]) => void | Promise<void>>
     >();
 
+    const onFailSubs = new Map<
+      keyof TContracts,
+      Map<symbol, (...args: any[]) => void | Promise<void>>
+    >();
+
     const onCall: CleanApi<
       TContracts,
       TConfiguration,
@@ -125,6 +130,33 @@ const init =
 
           if (endpointSubs.size === 0) {
             onOkSubs.delete(key);
+          }
+        }
+      };
+    };
+
+    const onFail: CleanApi<
+      TContracts,
+      TConfiguration,
+      TContractsSignature
+    >["onFail"] = (key, callback) => {
+      const callId = Symbol(`onFail:${key.toString()}`);
+
+      // Create a Map for this endpoint if it doesn't exist
+      if (!onFailSubs.has(key)) {
+        onFailSubs.set(key, new Map());
+      }
+
+      onFailSubs.get(key)?.set(callId, callback);
+
+      return () => {
+        const endpointSubs = onFailSubs.get(key);
+
+        if (endpointSubs) {
+          endpointSubs.delete(callId);
+
+          if (endpointSubs.size === 0) {
+            onFailSubs.delete(key);
           }
         }
       };
@@ -200,75 +232,113 @@ const init =
       TConfiguration,
       TContractsSignature
     >["call"] = async (key, ...args) => {
-      const resolver = contracts[key].resolver;
-      const input = (args[0] ?? {}) as {
+      // Initialize variables to ensure they're available for onFail callbacks
+      const finalInput = {} as {
         pathParams?: Record<string, unknown>;
         searchParams?: Record<string, unknown>;
         payload?: unknown;
         extra?: unknown;
-      };
-      const keys = [
-        "pathParams",
-        "searchParams",
-        "payload",
-        "extra",
-      ] as (keyof typeof input)[];
-
-      const finalInput = {} as typeof input & {
         config?: TConfiguration;
       };
 
-      // Runtime validation: validate each parameter if schema exists
-      // Validate in order and fail fast
-      for (const paramKey of keys) {
-        if (paramKey in input) {
-          // Validate the parameter if schema exists
-          validateSchema(key, paramKey, input[paramKey]);
-          finalInput[paramKey] = input[paramKey] as any;
-        }
-      }
+      try {
+        // Get resolver - this could throw if contracts[key] doesn't exist
+        const resolver = contracts[key].resolver;
 
-      if (typeof config === "object" && !!config) {
-        finalInput.config = config;
-      }
+        // Process input - this could throw during type casting or property access
+        const input = (args[0] ?? {}) as {
+          pathParams?: Record<string, unknown>;
+          searchParams?: Record<string, unknown>;
+          payload?: unknown;
+          extra?: unknown;
+        };
 
-      const subs = onCallSubs.get(key);
+        const keys = [
+          "pathParams",
+          "searchParams",
+          "payload",
+          "extra",
+        ] as (keyof typeof input)[];
 
-      if (subs) {
-        for (const [, callback] of subs) {
-          try {
-            callback(finalInput);
-          } catch (error) {
-            console.error(
-              `onCall callback error for endpoint '${key.toString()}':`,
-              error,
-            );
+        // Build finalInput first (without validation) to ensure it's available for onFail
+        for (const paramKey of keys) {
+          if (paramKey in input) {
+            finalInput[paramKey] = input[paramKey] as any;
           }
         }
-      }
 
-      // Execute resolver and get result
-      const result = await resolver(finalInput as any);
+        // Add config if available - this could throw during config access/processing
+        if (typeof config === "object" && !!config) {
+          finalInput.config = config;
+        }
 
-      // Validate result against dto schema if it exists
-      const validatedResult = validateSchema(key, "dto", result);
-
-      // Call onOk subscribers after successful execution
-      const onOkSubscribers = onOkSubs.get(key);
-      if (onOkSubscribers) {
-        for (const [, callback] of onOkSubscribers) {
-          try {
-            callback({ ...finalInput, dto: validatedResult });
-          } catch (error) {
-            console.error(
-              `onOk callback error for endpoint '${key.toString()}':`,
-              error,
-            );
+        // Runtime validation: validate each parameter if schema exists
+        // Validate in order and fail fast
+        for (const paramKey of keys) {
+          if (paramKey in input) {
+            // Validate the parameter if schema exists
+            validateSchema(key, paramKey, input[paramKey]);
           }
         }
-      }
 
-      return validatedResult;
+        // Execute onCall callbacks
+        const subs = onCallSubs.get(key);
+        if (subs) {
+          for (const [, callback] of subs) {
+            try {
+              callback(finalInput);
+            } catch (error) {
+              console.error(
+                `onCall callback error for endpoint '${key.toString()}':`,
+                error,
+              );
+            }
+          }
+        }
+
+        // Execute resolver and get result
+        const result = await resolver(finalInput as any);
+
+        // Validate result against dto schema if it exists
+        const validatedResult = validateSchema(key, "dto", result);
+
+        // Call onOk subscribers after successful execution
+        const onOkSubscribers = onOkSubs.get(key);
+        if (onOkSubscribers) {
+          for (const [, callback] of onOkSubscribers) {
+            try {
+              callback({ ...finalInput, dto: validatedResult });
+            } catch (error) {
+              console.error(
+                `onOk callback error for endpoint '${key.toString()}':`,
+                error,
+              );
+            }
+          }
+        }
+
+        return validatedResult;
+      } catch (callError) {
+        // Call onFail subscribers for ANY error during the call process
+        // This includes: resolver access, input processing, config handling,
+        // validation errors, resolver execution, DTO validation, etc.
+        const onFailSubscribers = onFailSubs.get(key);
+        if (onFailSubscribers) {
+          for (const [, callback] of onFailSubscribers) {
+            try {
+              callback({ ...finalInput, error: callError });
+            } catch (error) {
+              console.error(
+                `onFail callback error for endpoint '${key.toString()}':`,
+                error,
+              );
+            }
+          }
+        }
+
+        // Re-throw the original error to maintain normal error flow
+        throw callError;
+      }
     };
 
     const safeCall: CleanApi<
@@ -352,6 +422,7 @@ const init =
       call,
       onCall,
       onOk,
+      onFail,
       safeCall,
       error,
       dto,

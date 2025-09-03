@@ -161,6 +161,14 @@ type CleanApi<
       },
     ) => void | Promise<void>,
   ) => () => void;
+  onFail: <TKey extends keyof TContracts>(
+    key: TKey,
+    callback: (
+      input: CallArgs<TConfiguration, TContracts, TKey>[0] & {
+        error: unknown;
+      },
+    ) => void | Promise<void>,
+  ) => () => void;
   call: <TKey extends keyof TContracts>(
     key: TKey,
     ...args: CallArgs<undefined, TContracts, TKey>
