@@ -1,3 +1,34 @@
+import { Button } from "@/components/ui/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import {
+  Timeline,
+  TimelineItem,
+  TimelineIndicator,
+  TimelineContent,
+  TimelineHeader,
+  TimelineTime,
+  TimelineTitle,
+  TimelineDescription,
+  TimelineConnector,
+} from "@/components/ui/timeline";
+import { Clock, Trash2 } from "lucide-react";
 import { AppRouter } from "../../shared/routing/app-router";
 import { NavBar } from "../../shared/components/nav-bar";
 import { useClientAuth } from "../../shared/client-auth/use-client-auth";
@@ -204,17 +235,23 @@ const TasksView = () => {
 
   if (auth.status === "idle") {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <p className="text-center">Verifying session...</p>
+      <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <p className="text-center text-foreground">Verifying session...</p>
       </div>
     );
   }
 
   if (auth.status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <p className="text-center">
-          Session lost <a href={AppRouter.getPath("login")}>Login</a>
+      <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+        <p className="text-center text-foreground">
+          Session lost{" "}
+          <a
+            href={AppRouter.getPath("login")}
+            className="text-primary hover:text-primary/80"
+          >
+            Login
+          </a>
         </p>
       </div>
     );
@@ -222,148 +259,115 @@ const TasksView = () => {
 
   if (auth.status === "authenticated") {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+      <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
-          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
-            Create a Task
-          </h2>
-
-          <div className="mt-8 bg-white py-8 px-4 shadow sm:rounded-lg sm:px-10">
-            <form
-              className="space-y-6"
-              action={APIRouter.getPath("tasks")}
-              method="POST"
-              data-astro-reload
-            >
-              <div>
-                <label
-                  htmlFor="title"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Title
-                </label>
-                <div className="mt-1">
-                  <input
+          <Card>
+            <CardHeader className="text-center">
+              <CardTitle className="text-3xl font-bold">
+                Create a Task
+              </CardTitle>
+              <CardDescription>Add a new task to your list</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form
+                className="space-y-6"
+                action={APIRouter.getPath("tasks")}
+                method="POST"
+                data-astro-reload
+              >
+                <div className="space-y-2">
+                  <Label htmlFor="title">Title</Label>
+                  <Input
                     id="title"
                     name="title"
                     type="text"
                     required
                     minLength={3}
                     maxLength={280}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="Enter task title"
                   />
                 </div>
-              </div>
 
-              <div>
-                <label
-                  htmlFor="estimatedDurationMinutes"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Estimated Duration (minutes)
-                </label>
-                <div className="mt-1">
-                  <input
+                <div className="space-y-2">
+                  <Label htmlFor="estimatedDurationMinutes">
+                    Estimated Duration (minutes)
+                  </Label>
+                  <Input
                     id="estimatedDurationMinutes"
                     name="estimatedDurationMinutes"
                     type="number"
                     required
                     min={1}
                     max={1000}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                    placeholder="Enter duration in minutes"
                   />
                 </div>
-              </div>
 
-              <div>
-                <label
-                  htmlFor="description"
-                  className="block text-sm font-medium text-gray-700"
-                >
-                  Description
-                </label>
-                <div className="mt-1">
-                  <textarea
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
                     id="description"
                     name="description"
                     rows={4}
-                    placeholder="Optional"
+                    placeholder="Optional description"
                     minLength={10}
                     maxLength={500}
-                    className="appearance-none block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Leave empty or use 10–500 characters.
+                  </p>
                 </div>
-                <p className="mt-1 text-xs text-gray-500">
-                  Leave empty or use 10–500 characters.
-                </p>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label
-                    htmlFor="priority"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Priority
-                  </label>
-                  <div className="mt-1">
-                    <select
-                      id="priority"
-                      name="priority"
-                      defaultValue="normal"
-                      className="block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    >
-                      <option value="urgent">Urgent</option>
-                      <option value="high">High</option>
-                      <option value="normal">Normal</option>
-                      <option value="low">Low</option>
-                    </select>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="priority">Priority</Label>
+                    <Select name="priority" defaultValue="normal">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="urgent">Urgent</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="normal">Normal</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="status">Status</Label>
+                    <Select name="status" defaultValue="todo">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="todo">To do</SelectItem>
+                        <SelectItem value="pending">Pending</SelectItem>
+                        <SelectItem value="done">Done</SelectItem>
+                      </SelectContent>
+                    </Select>
                   </div>
                 </div>
 
-                <div>
-                  <label
-                    htmlFor="status"
-                    className="block text-sm font-medium text-gray-700"
-                  >
-                    Status
-                  </label>
-                  <div className="mt-1">
-                    <select
-                      id="status"
-                      name="status"
-                      defaultValue="todo"
-                      className="block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                    >
-                      <option value="todo">To do</option>
-                      <option value="pending">Pending</option>
-                      <option value="done">Done</option>
-                    </select>
-                  </div>
-                </div>
-              </div>
-
-              <div>
-                <button
-                  type="submit"
-                  className="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                >
+                <Button type="submit" className="w-full">
                   Create Task
-                </button>
-              </div>
-            </form>
-          </div>
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
 
           <div className="mt-10">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+            <h3 className="text-lg font-semibold text-foreground mb-4">
               Your Tasks
             </h3>
             {loading ? (
-              <div className="text-sm text-gray-600">Loading tasks...</div>
+              <div className="text-sm text-muted-foreground">
+                Loading tasks...
+              </div>
             ) : loadError ? (
-              <div className="text-sm text-red-600">{loadError}</div>
+              <div className="text-sm text-destructive">{loadError}</div>
             ) : tasks.length === 0 ? (
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-muted-foreground">
                 No tasks yet. Create your first task above.
               </div>
             ) : (
@@ -373,156 +377,147 @@ const TasksView = () => {
                   return (
                     <li
                       key={t.id}
-                      className="border rounded-md p-4 bg-white shadow-sm cursor-pointer"
+                      className="border border-border rounded-md p-4 bg-card shadow-sm cursor-pointer"
                       onClick={() => !isEditing && startEditing(t)}
                     >
                       {!isEditing ? (
                         <>
                           <div className="flex items-start justify-between">
                             <div>
-                              <h4 className="text-base font-medium text-gray-900">
+                              <h4 className="text-base font-medium text-foreground">
                                 {t.title}
                               </h4>
                               {t.description ? (
-                                <p className="mt-1 text-sm text-gray-700 whitespace-pre-wrap">
+                                <p className="mt-1 text-sm text-muted-foreground whitespace-pre-wrap">
                                   {t.description}
                                 </p>
                               ) : null}
                             </div>
                             <div className="ml-4 flex-shrink-0 flex items-center gap-2">
-                              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-gray-100 text-gray-800">
-                                {t.status}
-                              </span>
-                              <span className="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium bg-indigo-100 text-indigo-800">
-                                {t.priority}
-                              </span>
-                              <button
+                              <Badge variant="secondary">{t.status}</Badge>
+                              <Badge variant="default">{t.priority}</Badge>
+                              <Button
                                 type="button"
+                                variant="outline"
+                                size="sm"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   void toggleHistory(t.id);
                                 }}
-                                className="ml-2 inline-flex items-center px-2 py-1 border border-gray-300 text-gray-700 bg-white rounded hover:bg-gray-50"
                                 aria-label="Show history"
                                 title="History"
                               >
-                                <svg
-                                  xmlns="http://www.w3.org/2000/svg"
-                                  viewBox="0 0 24 24"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  strokeWidth="1.5"
-                                  className="h-4 w-4"
-                                  aria-hidden="true"
-                                >
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 6v6l4 2"
-                                  />
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M12 3c4.97 0 9 4.03 9 9s-4.03 9-9 9-9-4.03-9-9"
-                                  />
-                                  <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="M3 4v4h4"
-                                  />
-                                </svg>
-                              </button>
+                                <Clock className="h-4 w-4" />
+                              </Button>
                             </div>
                           </div>
-                          <div className="mt-2 flex items-center justify-between text-xs text-gray-500">
+                          <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
                             <div>
                               Created{" "}
                               {new Date(t.creation_date).toLocaleString()} ·
                               Updated {new Date(t.update_date).toLocaleString()}
                             </div>
-                            <button
+                            <Button
                               type="button"
+                              variant="destructive"
+                              size="sm"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 void deleteTask(t.id);
                               }}
                               disabled={deletingId === t.id}
-                              className="ml-3 inline-flex items-center px-2 py-1 border border-red-300 text-red-700 bg-white rounded hover:bg-red-50 disabled:opacity-50"
                               aria-label="Delete task"
                               title="Delete"
                             >
+                              <Trash2 className="h-4 w-4 mr-1" />
                               {deletingId === t.id ? "Deleting..." : "Delete"}
-                            </button>
+                            </Button>
                           </div>
                           {expandedTaskId === t.id ? (
-                            <div className="mt-3 border-t pt-3">
+                            <div className="mt-3 border-t border-border pt-3">
                               {historyLoadingId === t.id ? (
-                                <div className="text-xs text-gray-500">
+                                <div className="text-xs text-muted-foreground">
                                   Loading history...
                                 </div>
                               ) : historyErrorByTaskId[t.id] ? (
-                                <div className="text-xs text-red-600">
+                                <div className="text-xs text-destructive">
                                   {historyErrorByTaskId[t.id]}
                                 </div>
                               ) : (
-                                <ol className="relative border-s border-gray-200 ms-3">
-                                  {(historyByTaskId[t.id] ?? []).map((h) => (
-                                    <li key={h.id} className="mb-4 ms-4">
-                                      <div className="absolute w-2 h-2 bg-indigo-400 rounded-full mt-1.5 -start-1.5 border border-white" />
-                                      <time className="mb-1 text-xs font-normal leading-none text-gray-400">
-                                        {new Date(
-                                          h.changed_at,
-                                        ).toLocaleString()}{" "}
-                                        —{" "}
-                                        {h.operation === "I"
-                                          ? "Created"
-                                          : h.operation === "U"
-                                            ? "Updated"
-                                            : "Deleted"}
-                                      </time>
-                                      <div className="text-sm text-gray-700">
-                                        {h.title ? (
-                                          <div>
-                                            <span className="font-medium">
-                                              Title:
-                                            </span>{" "}
-                                            {h.title}
-                                          </div>
-                                        ) : null}
-                                        {h.description ? (
-                                          <div>
-                                            <span className="font-medium">
-                                              Description:
-                                            </span>{" "}
-                                            {h.description}
-                                          </div>
-                                        ) : null}
-                                        {h.priority ? (
-                                          <div>
-                                            <span className="font-medium">
-                                              Priority:
-                                            </span>{" "}
-                                            {h.priority}
-                                          </div>
-                                        ) : null}
-                                        {h.status ? (
-                                          <div>
-                                            <span className="font-medium">
-                                              Status:
-                                            </span>{" "}
-                                            {h.status}
-                                          </div>
-                                        ) : null}
-                                      </div>
-                                    </li>
-                                  ))}
+                                <Timeline className="mt-4">
+                                  {(historyByTaskId[t.id] ?? []).map(
+                                    (h, index) => (
+                                      <TimelineItem key={h.id}>
+                                        <TimelineIndicator>
+                                          {h.operation === "I"
+                                            ? "C"
+                                            : h.operation === "U"
+                                              ? "U"
+                                              : "D"}
+                                        </TimelineIndicator>
+                                        <TimelineContent>
+                                          <TimelineHeader>
+                                            <TimelineTime>
+                                              {new Date(
+                                                h.changed_at,
+                                              ).toLocaleString()}
+                                            </TimelineTime>
+                                            <TimelineTitle>
+                                              {h.operation === "I"
+                                                ? "Task Created"
+                                                : h.operation === "U"
+                                                  ? "Task Updated"
+                                                  : "Task Deleted"}
+                                            </TimelineTitle>
+                                          </TimelineHeader>
+                                          <TimelineDescription>
+                                            {h.title && (
+                                              <div className="mb-1">
+                                                <span className="font-medium">
+                                                  Title:
+                                                </span>{" "}
+                                                {h.title}
+                                              </div>
+                                            )}
+                                            {h.description && (
+                                              <div className="mb-1">
+                                                <span className="font-medium">
+                                                  Description:
+                                                </span>{" "}
+                                                {h.description}
+                                              </div>
+                                            )}
+                                            {h.priority && (
+                                              <div className="mb-1">
+                                                <span className="font-medium">
+                                                  Priority:
+                                                </span>{" "}
+                                                {h.priority}
+                                              </div>
+                                            )}
+                                            {h.status && (
+                                              <div>
+                                                <span className="font-medium">
+                                                  Status:
+                                                </span>{" "}
+                                                {h.status}
+                                              </div>
+                                            )}
+                                          </TimelineDescription>
+                                        </TimelineContent>
+                                        {index <
+                                          (historyByTaskId[t.id] ?? []).length -
+                                            1 && <TimelineConnector />}
+                                      </TimelineItem>
+                                    ),
+                                  )}
                                   {(historyByTaskId[t.id] ?? []).length ===
-                                  0 ? (
-                                    <li className="ms-4 text-xs text-gray-500">
+                                    0 && (
+                                    <div className="text-xs text-muted-foreground pl-10">
                                       No history yet.
-                                    </li>
-                                  ) : null}
-                                </ol>
+                                    </div>
+                                  )}
+                                </Timeline>
                               )}
                             </div>
                           ) : null}
@@ -530,24 +525,19 @@ const TasksView = () => {
                       ) : (
                         <div onClick={(e) => e.stopPropagation()}>
                           <div className="space-y-3">
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700">
-                                Title
-                              </label>
-                              <input
+                            <div className="space-y-2">
+                              <Label>Title</Label>
+                              <Input
                                 value={editTitle}
                                 onChange={(e) => setEditTitle(e.target.value)}
                                 minLength={3}
                                 maxLength={280}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                               />
                             </div>
 
-                            <div>
-                              <label className="block text-sm font-medium text-gray-700">
-                                Description
-                              </label>
-                              <textarea
+                            <div className="space-y-2">
+                              <Label>Description</Label>
+                              <Textarea
                                 value={editDescription ?? ""}
                                 onChange={(e) =>
                                   setEditDescription(
@@ -559,62 +549,67 @@ const TasksView = () => {
                                 rows={3}
                                 minLength={editDescription ? 10 : undefined}
                                 maxLength={500}
-                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
                               />
-                              <p className="mt-1 text-xs text-gray-500">
+                              <p className="text-xs text-muted-foreground">
                                 Leave empty or use 10–500 characters.
                               </p>
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700">
-                                  Priority
-                                </label>
-                                <select
+                              <div className="space-y-2">
+                                <Label>Priority</Label>
+                                <Select
                                   value={editPriority}
-                                  onChange={(e) =>
-                                    setEditPriority(e.target.value)
-                                  }
-                                  className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                  onValueChange={setEditPriority}
                                 >
-                                  <option value="urgent">Urgent</option>
-                                  <option value="high">High</option>
-                                  <option value="normal">Normal</option>
-                                  <option value="low">Low</option>
-                                </select>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select priority" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="urgent">
+                                      Urgent
+                                    </SelectItem>
+                                    <SelectItem value="high">High</SelectItem>
+                                    <SelectItem value="normal">
+                                      Normal
+                                    </SelectItem>
+                                    <SelectItem value="low">Low</SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </div>
-                              <div>
-                                <label className="block text-sm font-medium text-gray-700">
-                                  Status
-                                </label>
-                                <select
+                              <div className="space-y-2">
+                                <Label>Status</Label>
+                                <Select
                                   value={editStatus}
-                                  onChange={(e) =>
-                                    setEditStatus(e.target.value)
-                                  }
-                                  className="mt-1 block w-full px-3 py-2 border border-gray-300 bg-white rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                  onValueChange={setEditStatus}
                                 >
-                                  <option value="todo">To do</option>
-                                  <option value="pending">Pending</option>
-                                  <option value="done">Done</option>
-                                </select>
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Select status" />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="todo">To do</SelectItem>
+                                    <SelectItem value="pending">
+                                      Pending
+                                    </SelectItem>
+                                    <SelectItem value="done">Done</SelectItem>
+                                  </SelectContent>
+                                </Select>
                               </div>
                             </div>
 
                             {saveError ? (
-                              <div className="text-sm text-red-600">
+                              <div className="text-sm text-destructive">
                                 {saveError}
                               </div>
                             ) : null}
                             {deleteError ? (
-                              <div className="text-sm text-red-600">
+                              <div className="text-sm text-destructive">
                                 {deleteError}
                               </div>
                             ) : null}
 
                             <div className="flex items-center gap-2">
-                              <button
+                              <Button
                                 type="button"
                                 onClick={saveEdits}
                                 disabled={
@@ -622,21 +617,20 @@ const TasksView = () => {
                                   editTitle.trim().length < 3 ||
                                   editTitle.trim().length > 280
                                 }
-                                className="inline-flex justify-center py-1.5 px-3 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
                               >
                                 {saving ? "Saving..." : "Save"}
-                              </button>
-                              <button
+                              </Button>
+                              <Button
                                 type="button"
+                                variant="outline"
                                 onClick={cancelEditing}
                                 disabled={saving}
-                                className="inline-flex justify-center py-1.5 px-3 border rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 disabled:opacity-50"
                               >
                                 Cancel
-                              </button>
+                              </Button>
                             </div>
                           </div>
-                          <div className="mt-2 text-xs text-gray-500">
+                          <div className="mt-2 text-xs text-muted-foreground">
                             Created {new Date(t.creation_date).toLocaleString()}{" "}
                             · Updated {new Date(t.update_date).toLocaleString()}
                           </div>

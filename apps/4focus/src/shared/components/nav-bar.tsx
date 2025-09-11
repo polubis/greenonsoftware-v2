@@ -1,3 +1,6 @@
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Menu } from "lucide-react";
 import { AppRouter } from "../routing/app-router";
 import { useClientAuth } from "../client-auth/use-client-auth";
 import { useState } from "react";
@@ -31,11 +34,11 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
   return (
     <>
       {/* Rearrange the navbar for mobile - move the menu button to the far right */}
-      <nav className="flex items-center p-4 bg-gray-50 border-b border-gray-200">
+      <nav className="flex items-center p-4 bg-background border-b border-border">
         {/* Left - Logo */}
         <div className="flex-1 lg:w-1/4 flex items-center justify-start">
           <a href={AppRouter.getPath("home")} className="flex items-center">
-            <div className="text-indigo-600 font-bold text-xl">4Focus</div>
+            <div className="text-primary font-bold text-xl">4Focus</div>
           </a>
         </div>
 
@@ -46,8 +49,8 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
             href={AppRouter.getPath("home")}
             className={`mx-6 text-lg font-medium no-underline transition-colors duration-300 ${
               isActive(AppRouter.getPath("home"))
-                ? "text-blue-600"
-                : "text-gray-600 hover:text-gray-800"
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
             }`}
           >
             Home
@@ -58,8 +61,8 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
                 href={AppRouter.getPath("dashboard")}
                 className={`mx-6 text-lg font-medium no-underline transition-colors duration-300 ${
                   isActive(AppRouter.getPath("dashboard"))
-                    ? "text-blue-600"
-                    : "text-gray-600 hover:text-gray-800"
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 Dashboard
@@ -68,8 +71,8 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
                 href={AppRouter.getPath("tasks")}
                 className={`mx-6 text-lg font-medium no-underline transition-colors duration-300 ${
                   isActive(AppRouter.getPath("tasks"))
-                    ? "text-blue-600"
-                    : "text-gray-600 hover:text-gray-800"
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 Tasks
@@ -78,8 +81,8 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
                 href={AppRouter.getPath("account")}
                 className={`mx-6 text-lg font-medium no-underline transition-colors duration-300 ${
                   isActive(AppRouter.getPath("account"))
-                    ? "text-blue-600"
-                    : "text-gray-600 hover:text-gray-800"
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 Account
@@ -95,10 +98,12 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
             <div className="flex items-center">
               {/* User Avatar */}
               <div className="flex items-center mr-4">
-                <div className="flex items-center justify-center w-10 h-10 rounded-full bg-indigo-600 text-white font-medium mr-3">
-                  {getAvatarDisplay()}
-                </div>
-                <span className="text-gray-700 hidden md:inline-block">
+                <Avatar className="mr-3 w-10 h-10">
+                  <AvatarFallback className="bg-primary text-primary-foreground font-medium">
+                    {getAvatarDisplay()}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-foreground hidden md:inline-block">
                   {auth.user.email || "User"}
                 </span>
               </div>
@@ -109,9 +114,7 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
                 method="POST"
                 className="hidden sm:block"
               >
-                <button className="bg-indigo-600 text-white px-6 py-2.5 rounded-md hover:bg-indigo-700 transition-colors duration-300">
-                  Log out
-                </button>
+                <Button>Log out</Button>
               </form>
             </div>
           )}
@@ -121,55 +124,41 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
                 href={AppRouter.getPath("login")}
                 className={`mx-4 text-lg font-medium no-underline hidden sm:inline-block transition-colors duration-300 ${
                   isActive(AppRouter.getPath("login"))
-                    ? "text-blue-600"
-                    : "text-gray-600 hover:text-gray-800"
+                    ? "text-primary"
+                    : "text-muted-foreground hover:text-foreground"
                 }`}
               >
                 Login
               </a>
-              <a
-                href={AppRouter.getPath("register")}
-                className={`ml-4 hidden sm:inline-flex bg-indigo-600 text-white px-6 py-2.5 rounded-md hover:bg-indigo-700 transition-colors duration-300 no-underline`}
-              >
-                Register
-              </a>
+              <Button asChild className="ml-4 hidden sm:inline-flex">
+                <a href={AppRouter.getPath("register")}>Register</a>
+              </Button>
             </>
           )}
 
           {/* Mobile menu button - last item on smaller screens */}
-          <button
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={toggleMobileMenu}
-            className="lg:hidden p-2 ml-3 rounded-md hover:bg-gray-200 focus:outline-none"
+            className="lg:hidden ml-3"
           >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth={2}
-                d="M4 6h16M4 12h16m-7 6h7"
-              />
-            </svg>
-          </button>
+            <Menu className="h-6 w-6" />
+          </Button>
         </div>
       </nav>
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="lg:hidden absolute top-16 left-0 right-0 z-50 bg-white border-b border-gray-200 shadow-lg">
+        <div className="lg:hidden absolute top-16 left-0 right-0 z-50 bg-background border-b border-border shadow-lg">
           {/* Fix the padding for mobile menu items to ensure even spacing */}
           <div className="px-4 py-2">
             <a
               href={AppRouter.getPath("home")}
               className={`block py-3 text-lg font-medium no-underline transition-colors duration-300 ${
                 isActive(AppRouter.getPath("home"))
-                  ? "text-blue-600 bg-gray-50 px-4 mx-[-1rem] rounded-md"
-                  : "text-gray-600 hover:text-gray-800"
+                  ? "text-primary bg-accent px-4 mx-[-1rem] rounded-md"
+                  : "text-muted-foreground hover:text-foreground"
               }`}
             >
               Home
@@ -180,8 +169,8 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
                   href={AppRouter.getPath("dashboard")}
                   className={`block py-3 text-lg font-medium no-underline transition-colors duration-300 ${
                     isActive(AppRouter.getPath("dashboard"))
-                      ? "text-blue-600 bg-gray-50 px-4 mx-[-1rem] rounded-md"
-                      : "text-gray-600 hover:text-gray-800"
+                      ? "text-primary bg-accent px-4 mx-[-1rem] rounded-md"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Dashboard
@@ -190,8 +179,8 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
                   href={AppRouter.getPath("tasks")}
                   className={`block py-3 text-lg font-medium no-underline transition-colors duration-300 ${
                     isActive(AppRouter.getPath("tasks"))
-                      ? "text-blue-600 bg-gray-50 px-4 mx-[-1rem] rounded-md"
-                      : "text-gray-600 hover:text-gray-800"
+                      ? "text-primary bg-accent px-4 mx-[-1rem] rounded-md"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Tasks
@@ -200,8 +189,8 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
                   href={AppRouter.getPath("account")}
                   className={`block py-3 text-lg font-medium no-underline transition-colors duration-300 ${
                     isActive(AppRouter.getPath("account"))
-                      ? "text-blue-600 bg-gray-50 px-4 mx-[-1rem] rounded-md"
-                      : "text-gray-600 hover:text-gray-800"
+                      ? "text-primary bg-accent px-4 mx-[-1rem] rounded-md"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Account
@@ -214,26 +203,21 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
                   href={AppRouter.getPath("login")}
                   className={`py-3 text-lg font-medium no-underline transition-colors duration-300 ${
                     isActive(AppRouter.getPath("login"))
-                      ? "text-blue-600 bg-gray-50 px-4 mx-[-1rem] rounded-md"
-                      : "text-gray-600 hover:text-gray-800"
+                      ? "text-primary bg-accent px-4 mx-[-1rem] rounded-md"
+                      : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Login
                 </a>
-                <a
-                  href={AppRouter.getPath("register")}
-                  className={`bg-indigo-600 text-white px-4 py-2.5 rounded-md hover:bg-indigo-700 transition-colors duration-300 no-underline text-center`}
-                >
-                  Register
-                </a>
+                <Button asChild className="text-center">
+                  <a href={AppRouter.getPath("register")}>Register</a>
+                </Button>
               </div>
             )}
             {auth.status === "authenticated" && (
               <div className="sm:hidden mt-4 pb-2">
                 <form action={APIRouter.getPath("logout")} method="POST">
-                  <button className="w-full bg-indigo-600 text-white px-4 py-2.5 rounded-md hover:bg-indigo-700 transition-colors duration-300">
-                    Log out
-                  </button>
+                  <Button className="w-full">Log out</Button>
                 </form>
               </div>
             )}

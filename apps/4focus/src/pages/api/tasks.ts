@@ -233,7 +233,6 @@ export const GET: APIRoute = async (context) => {
     return OkResponse(dto, 200);
   } catch (error) {
     if (ValidationException.is(error)) {
-      console.log(error);
       return ErrorResponse(
         focus4API.error("getTasks", {
           type: "bad_request",
