@@ -36,23 +36,23 @@ const useTasksLoad = () => {
     const abortController = new AbortController();
 
     (async () => {
-      if (authState.status !== "authenticated") {
-        return;
-      }
+      try {
+        if (authState.status !== "authenticated") {
+          return;
+        }
 
-      setState({ status: "busy" });
+        setState({ status: "busy" });
 
-      const [success, data] = await focus4API.safeCall("getTasks", {
-        extra: { signal: abortController.signal },
-      });
+        const data = await focus4API.call("getTasks", {
+          extra: { signal: abortController.signal },
+        });
 
-      if (success) {
         setState({
           status: "success",
           data: data.tasks,
         });
-      } else {
-        const parsed = parseFocus4APIError("getTasks", data);
+      } catch (e) {
+        const parsed = parseFocus4APIError("getTasks", e);
 
         if (parsed.type === "aborted") {
           return;

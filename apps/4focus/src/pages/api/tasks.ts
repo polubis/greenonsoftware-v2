@@ -210,23 +210,30 @@ export const GET: APIRoute = async (context) => {
     type Task = Dto["tasks"][number];
 
     const dto = focus4API.dto("getTasks", {
-      tasks: data.map((task) => ({
-        id: task.id as Task["id"],
-        title: task.title,
-        description: task.description,
-        priority: task.priority as Task["priority"],
-        status: task.status as Task["status"],
-        creationDate: task.creation_date as Task["creationDate"],
-        updateDate: task.update_date as Task["updateDate"],
-        estimatedDurationMinutes:
-          task.estimated_duration_minutes as Task["estimatedDurationMinutes"],
-        userId: task.user_id as Task["userId"],
-      })),
+      tasks: data.map((task) => {
+        return {
+          id: task.id as Task["id"],
+          title: task.title,
+          description: task.description,
+          priority: task.priority as Task["priority"],
+          status: task.status as Task["status"],
+          creationDate: new Date(
+            task.creation_date,
+          ).toISOString() as Task["creationDate"],
+          updateDate: new Date(
+            task.update_date,
+          ).toISOString() as Task["updateDate"],
+          estimatedDurationMinutes:
+            task.estimated_duration_minutes as Task["estimatedDurationMinutes"],
+          userId: task.user_id as Task["userId"],
+        };
+      }),
     });
 
     return OkResponse(dto, 200);
   } catch (error) {
     if (ValidationException.is(error)) {
+      console.log(error);
       return ErrorResponse(
         focus4API.error("getTasks", {
           type: "bad_request",
