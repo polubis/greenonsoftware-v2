@@ -1,16 +1,16 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 type ErrorVariant<
-  T extends string,
+  TType extends string,
   TStatus extends number,
   TMeta = undefined,
 > = TMeta extends undefined
   ? {
-      type: T;
+      type: TType;
       status: TStatus;
       message: string;
     }
   : {
-      type: T;
+      type: TType;
       status: TStatus;
       message: string;
       meta: TMeta;
