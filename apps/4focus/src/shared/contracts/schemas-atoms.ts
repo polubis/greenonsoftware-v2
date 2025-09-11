@@ -1,6 +1,7 @@
 import z from "zod";
 
 const taskId = z.number().int().positive().brand("taskId");
+const focusSessionId = z.number().int().positive().brand("focusSessionId");
 const userId = z.string().brand("userId");
 
 const taskStatus = z.enum(["todo", "pending", "done"]);
@@ -41,6 +42,7 @@ export {
   taskId,
   userId,
   date,
+  focusSessionId,
   taskStatus,
   taskPriority,
   taskEstimatedDurationMinutes,

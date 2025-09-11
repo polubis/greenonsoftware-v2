@@ -2,6 +2,7 @@ import z from "zod";
 import {
   date,
   error,
+  focusSessionId,
   taskEstimatedDurationMinutes,
   taskId,
   taskPriority,
@@ -28,4 +29,27 @@ const getTasksSchema = {
   error,
 };
 
-export { taskSchema, getTasksSchema };
+const focusSessionSchema = z.object({
+  id: focusSessionId,
+  taskId: taskId,
+  startedAt: date,
+  endedAt: date.nullable(),
+  status: z.enum(["active", "completed", "abandoned"]),
+  totalInterruptions: z.number().int().min(0),
+  task: taskSchema.nullable(),
+});
+
+const getActiveFocusSessionSchema = {
+  dto: z.object({
+    hasActiveSession: z.boolean(),
+    session: focusSessionSchema.nullable(),
+  }),
+  error,
+};
+
+export {
+  taskSchema,
+  getTasksSchema,
+  focusSessionSchema,
+  getActiveFocusSessionSchema,
+};

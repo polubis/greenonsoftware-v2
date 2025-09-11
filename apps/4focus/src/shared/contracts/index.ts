@@ -3,7 +3,7 @@ import { init } from "@/lib/clean-api-v2";
 import { errorParser } from "@/lib/clean-api-v2/adapters/axios";
 import z from "zod";
 import { zodCheck } from "@/lib/clean-api-v2/adapters/zod";
-import { getTasksSchema } from "./schemas";
+import { getTasksSchema, getActiveFocusSessionSchema } from "./schemas";
 
 type Focus4Contracts = {
   getTasks: {
@@ -12,6 +12,13 @@ type Focus4Contracts = {
     };
     dto: z.infer<typeof getTasksSchema.dto>;
     error: z.infer<typeof getTasksSchema.error>;
+  };
+  getActiveFocusSession: {
+    extra: {
+      signal: AbortSignal;
+    };
+    dto: z.infer<typeof getActiveFocusSessionSchema.dto>;
+    error: z.infer<typeof getActiveFocusSessionSchema.error>;
   };
 };
 
@@ -26,6 +33,17 @@ const focus4API = create({
     },
     resolver: async ({ extra }) => {
       return fetch(APIRouter.getPath("tasks"), {
+        signal: extra.signal,
+      }).then((res) => res.json());
+    },
+  },
+  getActiveFocusSession: {
+    schemas: {
+      dto: zodCheck(getActiveFocusSessionSchema.dto),
+      error: zodCheck(getActiveFocusSessionSchema.error),
+    },
+    resolver: async ({ extra }) => {
+      return fetch(APIRouter.getPath("focus-sessions"), {
         signal: extra.signal,
       }).then((res) => res.json());
     },

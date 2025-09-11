@@ -11,7 +11,8 @@ const appRoutes = [
   createRoute("login", "/api/auth/login"),
   createRoute("logout", "/api/auth/logout"),
   createRoute("tasks", "/api/tasks"),
-  createRoute("taskHistory", "/api/task-history"),
+  createRoute("tasks-history", "/api/tasks-history"),
+  createRoute("focus-sessions", "/api/focus-sessions"),
 ] as const;
 
 type APIRoute = (typeof appRoutes)[number];

@@ -8,3 +8,4 @@
 10. Lib release
 11. Real middleware
 12. Check functions should always require schema to be passed
+13. Skipable runtime cecks plus remove contracts

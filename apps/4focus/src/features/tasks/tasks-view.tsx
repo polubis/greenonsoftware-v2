@@ -37,10 +37,13 @@ import { useEffect, useState } from "react";
 import { APIRouter } from "../../shared/routing/api-router";
 import type { Focus4Contracts } from "@/shared/contracts";
 import { useTasksLoad } from "./use-tasks-load";
+import { FocusSessionView } from "@/shared/focus-session/focus-session-view";
+import { useFocusSessionLoad } from "@/shared/focus-session/use-focus-session-load";
 
 const TasksView = () => {
   useTasksLoad();
   const auth = useClientAuth();
+  const [focusSessionState] = useFocusSessionLoad();
   const [tasks, setTasks] = useState<
     Array<{
       id: number;
@@ -200,7 +203,7 @@ const TasksView = () => {
       setHistoryErrorByTaskId((p) => ({ ...p, [taskId]: null }));
       try {
         const res = await fetch(
-          `${APIRouter.getPath("taskHistory")}?id=${taskId}`,
+          `${APIRouter.getPath("tasks-history")}?id=${taskId}`,
           {
             headers: { accept: "application/json" },
           },
@@ -258,6 +261,21 @@ const TasksView = () => {
   }
 
   if (auth.status === "authenticated") {
+    // Check if there's an active focus session
+    if (
+      focusSessionState.status === "success" &&
+      focusSessionState.data.hasActiveSession
+    ) {
+      return (
+        <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+          <div className="sm:mx-auto sm:w-full sm:max-w-md">
+            <FocusSessionView />
+          </div>
+        </div>
+      );
+    }
+
+    // Show tasks view if no active focus session
     return (
       <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
         <div className="sm:mx-auto sm:w-full sm:max-w-md">
