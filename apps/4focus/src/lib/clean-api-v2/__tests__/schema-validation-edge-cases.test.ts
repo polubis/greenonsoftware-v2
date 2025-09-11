@@ -38,6 +38,7 @@ describe("Schema Validation Edge Cases", () => {
         get: {
           resolver: mockGetResolver,
           schemas: {
+            // @ts-expect-error - no raw schema attached with metadata property
             pathParams: () => {
               throw new Error("Regular error in validation");
             },
@@ -68,6 +69,7 @@ describe("Schema Validation Edge Cases", () => {
         post: {
           resolver: mockPostResolver,
           schemas: {
+            // @ts-expect-error - no raw schema attached with metadata property
             payload: () => {
               throw new CustomValidationError(
                 "data",
@@ -91,6 +93,7 @@ describe("Schema Validation Edge Cases", () => {
         complex: {
           resolver: mockComplexResolver,
           schemas: {
+            // @ts-expect-error - no raw schema attached with metadata property
             dto: () => {
               throw "String error";
             },
@@ -110,6 +113,7 @@ describe("Schema Validation Edge Cases", () => {
         complex: {
           resolver: mockComplexResolver,
           schemas: {
+            // @ts-expect-error - no raw schema attached with metadata property
             searchParams: () => {
               throw null;
             },
@@ -133,6 +137,7 @@ describe("Schema Validation Edge Cases", () => {
         get: {
           resolver: mockGetResolver,
           schemas: {
+            // @ts-expect-error - no raw schema attached with metadata property
             pathParams: undefinedValidator,
           },
         },
@@ -161,6 +166,7 @@ describe("Schema Validation Edge Cases", () => {
         post: {
           resolver: mockPostResolver,
           schemas: {
+            // @ts-expect-error - no raw schema attached with metadata property
             payload: nullValidator,
           },
         },
@@ -187,6 +193,7 @@ describe("Schema Validation Edge Cases", () => {
         get: {
           resolver: mockGetResolver,
           schemas: {
+            // @ts-expect-error - no raw schema attached with metadata property
             dto: wrongTypeValidator,
           },
         },
@@ -220,6 +227,7 @@ describe("Schema Validation Edge Cases", () => {
         complex: {
           resolver: mockComplexResolver,
           schemas: {
+            // @ts-expect-error - no raw schema attached with metadata property
             extra: differentStructureValidator,
           },
         },
@@ -498,6 +506,7 @@ describe("Schema Validation Edge Cases", () => {
         post: {
           resolver: mockPostResolver,
           schemas: {
+            // @ts-expect-error - no raw schema attached with metadata property
             payload: failingPayloadValidator,
             dto: passingDtoValidator as any,
           },

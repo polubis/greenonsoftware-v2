@@ -632,6 +632,7 @@ describe("onFail works when", () => {
       get: {
         resolver: mockGetResolver,
         schemas: {
+          // @ts-expect-error - no raw schema attached with metadata property
           pathParams: (data: unknown): { id: string } => {
             if (!data || typeof data !== "object" || !("id" in data)) {
               throw new Error("Invalid pathParams: id is required");
@@ -681,6 +682,7 @@ describe("onFail works when", () => {
       get: {
         resolver: mockGetResolver,
         schemas: {
+          // @ts-expect-error - no raw schema attached with metadata property
           dto: (data: unknown): { id: number } => {
             if (!data || typeof data !== "object" || !("id" in data)) {
               throw new Error("Invalid DTO: id is required");
@@ -734,12 +736,14 @@ describe("onFail works when", () => {
       get: {
         resolver: mockGetResolver,
         schemas: {
+          // @ts-expect-error - no raw schema attached with metadata property
           pathParams: (data: unknown): { id: string } => {
             if (testCase === "input-validation") {
               throw new Error("Input validation failed");
             }
             return data as { id: string };
           },
+          // @ts-expect-error - no raw schema attached with metadata property
           dto: (data: unknown): { id: number } => {
             if (testCase === "dto-validation") {
               throw new Error("DTO validation failed");
@@ -843,6 +847,7 @@ describe("onFail works when", () => {
           get: {
             resolver: mockGetResolver,
             schemas: {
+              // @ts-expect-error - no raw schema attached with metadata property
               pathParams: () => {
                 throw new Error("Validation failed");
               },

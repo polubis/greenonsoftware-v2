@@ -113,6 +113,7 @@ describe("search params construction works when", () => {
     const api = create({
       get: {
         resolver: () => Promise.resolve(null),
+        // @ts-expect-error - no raw schema attached with metadata property
         schemas: { searchParams: validator },
       },
     });
@@ -132,6 +133,7 @@ describe("search params construction works when", () => {
     const api = create({
       get: {
         resolver: () => Promise.resolve(null),
+        // @ts-expect-error - no raw schema attached with metadata property
         schemas: { searchParams: validator },
       },
     });

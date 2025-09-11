@@ -113,6 +113,7 @@ describe("extra construction works when", () => {
       post: {
         resolver: () => Promise.resolve(null),
         schemas: {
+          // @ts-expect-error - no raw schema attached with metadata property
           extra: (data) => {
             expectTypeOf(data).toEqualTypeOf<unknown>();
             return data as { traceId: string };
@@ -134,6 +135,7 @@ describe("extra construction works when", () => {
     const api = create({
       post: {
         resolver: () => Promise.resolve(null),
+        // @ts-expect-error - no raw schema attached with metadata property
         schemas: { extra: validator },
       },
     });
@@ -155,6 +157,7 @@ describe("extra construction works when", () => {
     const api = create({
       post: {
         resolver: () => Promise.resolve(null),
+        // @ts-expect-error - no raw schema attached with metadata property
         schemas: { extra: validator },
       },
     });

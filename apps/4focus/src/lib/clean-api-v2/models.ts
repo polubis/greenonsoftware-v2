@@ -70,8 +70,10 @@ type KeysWith<
   [K in keyof TContracts]: TProp extends keyof TContracts[K] ? K : never;
 }[keyof TContracts];
 
-type SchemaValidator<T, TRawSchema = unknown> = ((data: unknown) => T) & {
-  __rawSchema?: TRawSchema;
+type SchemaValidator<TData, TRawSchema = unknown> = ((
+  data: unknown,
+) => TData) & {
+  __rawSchema: TRawSchema;
 };
 
 type ConditionalSchema<
@@ -353,6 +355,7 @@ export type {
   ClientExceptionError,
   NoInternetError,
   NoServerResponseError,
+  SchemaValidator,
   ConfigurationIssueError,
   UnsupportedServerResponseError,
   ValidationError,

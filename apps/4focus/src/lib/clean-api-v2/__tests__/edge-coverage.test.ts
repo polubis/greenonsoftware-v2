@@ -171,6 +171,7 @@ describe("API Edge Cases and Callback Management", () => {
         test: {
           resolver: mockResolver,
           schemas: {
+            // @ts-expect-error - no raw schema attached with metadata property
             dto: functionValidator,
           },
         },

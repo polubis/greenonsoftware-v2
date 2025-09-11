@@ -116,6 +116,7 @@ describe("schema validation", () => {
       post: {
         resolver: () => Promise.resolve(null),
         schemas: {
+          // @ts-expect-error - no raw schema attached with metadata property
           error: validator,
         },
       },
@@ -140,6 +141,7 @@ describe("schema validation", () => {
       post: {
         resolver: () => Promise.resolve(null),
         schemas: {
+          // @ts-expect-error - no raw schema attached with metadata property
           error: validator,
         },
       },

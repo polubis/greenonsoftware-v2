@@ -215,6 +215,7 @@ describe("Zod Integration with getRawSchema", () => {
           // Zod validator (has raw schema)
           payload: zodCheck(z.string().min(1)),
           // Custom validator (no raw schema)
+          // @ts-expect-error - no raw schema attached with metadata property
           dto: (data: unknown) => {
             if (typeof data === "string") return data;
             throw new Error("Not a string");

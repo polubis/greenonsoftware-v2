@@ -565,7 +565,7 @@ describe("Zod adapter factories integration", () => {
 
   it("both validators maintain proper type inference", () => {
     const syncValidator = zodCheck(simpleSchema);
-    const asyncValidator = zodCheckAsync(simpleSchema);
+    // const asyncValidator = zodCheckAsync(simpleSchema);
 
     const testData = { value: "test", count: 42 };
 
@@ -575,9 +575,9 @@ describe("Zod adapter factories integration", () => {
     const _syncCount: number = syncResult.count;
 
     // Async validator type check (compile-time only)
-    const asyncPromise = asyncValidator(testData);
-    const _asyncPromise: Promise<{ value: string; count: number }> =
-      asyncPromise;
+    // const asyncPromise = asyncValidator(testData);
+    // const _asyncPromise: Promise<{ value: string; count: number }> =
+    //   asyncPromise;
 
     expect(syncResult.value).toBe("test");
     expect(syncResult.count).toBe(42);

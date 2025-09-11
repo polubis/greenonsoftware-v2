@@ -6,8 +6,8 @@ import { check, checkAsync } from "../core";
  * Creates a synchronous Zod validator using the check function factory
  * The raw Zod schema is attached and can be extracted using getRawSchema()
  */
-const zodCheck = <T extends z.ZodTypeAny>(schema: T) => {
-  return check((data: unknown): z.infer<T> => {
+const zodCheck = <TSchema extends z.ZodTypeAny>(schema: TSchema) => {
+  return check((data: unknown): z.infer<TSchema> => {
     const parsed = schema.safeParse(data);
 
     if (!parsed.success) {
@@ -27,8 +27,8 @@ const zodCheck = <T extends z.ZodTypeAny>(schema: T) => {
  * Creates an asynchronous Zod validator using the checkAsync function factory
  * The raw Zod schema is attached and can be extracted using getRawSchema()
  */
-const zodCheckAsync = <T extends z.ZodTypeAny>(schema: T) => {
-  return checkAsync(async (data: unknown): Promise<z.infer<T>> => {
+const zodCheckAsync = <TSchema extends z.ZodTypeAny>(schema: TSchema) => {
+  return checkAsync(async (data: unknown): Promise<z.infer<TSchema>> => {
     const parsed = await schema.safeParseAsync(data);
 
     if (!parsed.success) {

@@ -464,6 +464,7 @@ describe("Call Runtime Validation", () => {
         getUserById: {
           resolver: mockGetUserResolver,
           schemas: {
+            // @ts-expect-error - no raw schema attached with metadata property
             pathParams: throwingValidator,
           },
         },
@@ -494,6 +495,7 @@ describe("Call Runtime Validation", () => {
         getUserById: {
           resolver: mockGetUserResolver,
           schemas: {
+            // @ts-expect-error - no raw schema attached with metadata property
             pathParams: transformingValidator,
           },
         },

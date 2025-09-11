@@ -104,6 +104,7 @@ describe("path params construction works when", () => {
     const api = create({
       "get-user": {
         resolver: () => Promise.resolve(null),
+        // @ts-expect-error - no raw schema attached with metadata property
         schemas: { pathParams: validator },
       },
     });
@@ -123,6 +124,7 @@ describe("path params construction works when", () => {
     const api = create({
       "get-user": {
         resolver: () => Promise.resolve(null),
+        // @ts-expect-error - no raw schema attached with metadata property
         schemas: { pathParams: validator },
       },
     });

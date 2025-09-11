@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { init } from "../core";
 import { zodCheck } from "../adapters/zod";
 import z from "zod";
@@ -43,12 +43,15 @@ describe("getRawSchema - Working Demo", () => {
 
     // 1. Get API validators for server-side validation
     const apiSchemas = api.getSchema("createUser");
+
     console.log("API schemas available:", Object.keys(apiSchemas));
 
     // 2. Get raw schemas for client-side validation
-    const rawSchemas = api.getRawSchema("createUser") as any;
+    const rawSchemas = api.getRawSchema("createUser");
     console.log("Raw schemas available:", Object.keys(rawSchemas));
 
+    expectTypeOf(rawSchemas.payload).toEqualTypeOf<typeof userSchema>();
+    expectTypeOf(rawSchemas.dto).toEqualTypeOf<typeof responseSchema>();
     // 3. Verify we get the original Zod schemas
     expect(rawSchemas.payload).toBe(userSchema);
     expect(rawSchemas.dto).toBe(responseSchema);
@@ -84,6 +87,7 @@ describe("getRawSchema - Working Demo", () => {
           // Some with raw schema (Zod)
           payload: zodCheck(z.string().min(1)),
           // Some without raw schema (custom)
+          // @ts-expect-error - no raw schema attached with metadata property
           dto: (data: unknown) => {
             if (typeof data === "string") return data;
             throw new Error("Not a string");
@@ -92,7 +96,7 @@ describe("getRawSchema - Working Demo", () => {
       },
     });
 
-    const rawSchemas = api.getRawSchema("mixed") as any;
+    const rawSchemas = api.getRawSchema("mixed");
 
     // Should have the Zod schema for payload
     expect(rawSchemas.payload).toBeInstanceOf(z.ZodString);
@@ -123,7 +127,7 @@ describe("getRawSchema - Working Demo", () => {
     const registrationSchema = z
       .object({
         username: z.string().min(3, "Username too short"),
-        email: z.string().email("Invalid email"),
+        email: z.email("Invalid email"),
         password: z.string().min(8, "Password too short"),
         confirmPassword: z.string(),
       })

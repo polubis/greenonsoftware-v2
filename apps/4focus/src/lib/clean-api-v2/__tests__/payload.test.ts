@@ -113,6 +113,7 @@ describe("payload construction works when", () => {
       post: {
         resolver: () => Promise.resolve(null),
         schemas: {
+          // @ts-expect-error - no raw schema attached with metadata property
           payload: (data) => {
             expectTypeOf(data).toEqualTypeOf<unknown>();
             return data as { name: string };
@@ -134,6 +135,7 @@ describe("payload construction works when", () => {
     const api = create({
       post: {
         resolver: () => Promise.resolve(null),
+        // @ts-expect-error - no raw schema attached with metadata property
         schemas: { payload: validator },
       },
     });
@@ -153,6 +155,7 @@ describe("payload construction works when", () => {
     const api = create({
       post: {
         resolver: () => Promise.resolve(null),
+        // @ts-expect-error - no raw schema attached with metadata property
         schemas: { payload: validator },
       },
     });

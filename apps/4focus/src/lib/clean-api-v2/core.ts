@@ -5,6 +5,7 @@ import type {
   Configuration,
   Contracts,
   ContractSchemas,
+  SchemaValidator,
 } from "./models";
 
 /**
@@ -76,20 +77,19 @@ class EventSubscriptionManager<TContracts extends Contracts> {
  * @param rawSchema - Optional raw schema object (e.g., Zod schema) for client-side usage
  * @returns A function that validates data synchronously with optional raw schema attached
  */
-const check = <T, TRawSchema = unknown>(
-  validator: (data: unknown) => T,
+const check = <TData, TRawSchema = unknown>(
+  validator: (data: unknown) => TData,
   rawSchema?: TRawSchema,
-) => {
-  const validatorFn = (data: unknown): T => {
+): SchemaValidator<TData, TRawSchema> => {
+  const validatorFn = (data: unknown): TData => {
     return validator(data);
   };
 
-  // Attach raw schema as a property if provided
   if (rawSchema !== undefined) {
-    (validatorFn as any).__rawSchema = rawSchema;
+    validatorFn["__rawSchema"] = rawSchema;
   }
 
-  return validatorFn;
+  return validatorFn as SchemaValidator<TData, TRawSchema>;
 };
 
 /**
@@ -98,20 +98,19 @@ const check = <T, TRawSchema = unknown>(
  * @param rawSchema - Optional raw schema object (e.g., Zod schema) for client-side usage
  * @returns A function that validates data asynchronously with optional raw schema attached
  */
-const checkAsync = <T, TRawSchema = unknown>(
-  validator: (data: unknown) => Promise<T>,
+const checkAsync = <TData, TRawSchema = unknown>(
+  validator: (data: unknown) => Promise<TData>,
   rawSchema?: TRawSchema,
-) => {
-  const validatorFn = async (data: unknown): Promise<T> => {
+): SchemaValidator<TData, TRawSchema> => {
+  const validatorFn = async (data: unknown): Promise<TData> => {
     return await validator(data);
   };
 
-  // Attach raw schema as a property if provided
   if (rawSchema !== undefined) {
-    (validatorFn as any).__rawSchema = rawSchema;
+    validatorFn["__rawSchema"] = rawSchema;
   }
 
-  return validatorFn;
+  return validatorFn as SchemaValidator<TData, TRawSchema>;
 };
 
 const init =

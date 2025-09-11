@@ -294,7 +294,6 @@ const createErrorResponse = (
 
 describe("User Management API with MSW", () => {
   const mock = serverFixture({ beforeAll, afterEach, afterAll });
-
   describe("getUsers", () => {
     it("should fetch users with default pagination", async () => {
       const mockUsers = createMockUsers();

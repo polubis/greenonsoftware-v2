@@ -76,6 +76,7 @@ describe("dto construction works when", () => {
         get: {
           resolver: () => Promise.resolve({ id: 1 }),
           schemas: {
+            // @ts-expect-error - no raw schema attached with metadata property
             dto: validator,
           },
         },
@@ -94,6 +95,7 @@ describe("dto construction works when", () => {
         get: {
           resolver: () => Promise.resolve({ id: 1 }),
           schemas: {
+            // @ts-expect-error - no raw schema attached with metadata property
             dto: validator,
           },
         },
