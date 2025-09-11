@@ -238,24 +238,28 @@ const TasksView = () => {
 
   if (auth.status === "idle") {
     return (
-      <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <p className="text-center text-foreground">Verifying session...</p>
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-6">
+        <div className="w-full max-w-md text-center">
+          <p className="text-foreground">Verifying session...</p>
+        </div>
       </div>
     );
   }
 
   if (auth.status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <p className="text-center text-foreground">
-          Session lost{" "}
-          <a
-            href={AppRouter.getPath("login")}
-            className="text-primary hover:text-primary/80"
-          >
-            Login
-          </a>
-        </p>
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-6">
+        <div className="w-full max-w-md text-center">
+          <p className="text-foreground">
+            Session lost{" "}
+            <a
+              href={AppRouter.getPath("login")}
+              className="text-primary hover:text-primary/80"
+            >
+              Login
+            </a>
+          </p>
+        </div>
       </div>
     );
   }
@@ -267,8 +271,8 @@ const TasksView = () => {
       focusSessionState.data.hasActiveSession
     ) {
       return (
-        <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-          <div className="sm:mx-auto sm:w-full sm:max-w-md">
+        <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-6">
+          <div className="w-full max-w-md">
             <FocusSessionView />
           </div>
         </div>
@@ -277,8 +281,8 @@ const TasksView = () => {
 
     // Show tasks view if no active focus session
     return (
-      <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-6">
+        <div className="w-full max-w-4xl">
           <Card>
             <CardHeader className="text-center">
               <CardTitle className="text-3xl font-bold">
@@ -674,10 +678,9 @@ const TasksView = () => {
 
 const ConnectedTasksView = ({ activePathname }: { activePathname: string }) => {
   return (
-    <>
-      <NavBar activePathname={activePathname} />
+    <NavBar activePathname={activePathname}>
       <TasksView />
-    </>
+    </NavBar>
   );
 };
 

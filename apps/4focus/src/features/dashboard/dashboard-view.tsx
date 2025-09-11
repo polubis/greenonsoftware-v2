@@ -8,33 +8,46 @@ const DashboardView = () => {
 
   if (auth.status === "idle") {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <p className="text-center">Verifying session...</p>
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-6">
+        <div className="w-full max-w-md text-center">
+          <p className="text-foreground">Verifying session...</p>
+        </div>
       </div>
     );
   }
 
   if (auth.status === "unauthenticated") {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <p className="text-center">
-          Session lost <a href={AppRouter.getPath("login")}>Login</a>
-        </p>
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-6">
+        <div className="w-full max-w-md text-center">
+          <p className="text-foreground">
+            Session lost{" "}
+            <a
+              href={AppRouter.getPath("login")}
+              className="text-primary hover:text-primary/80"
+            >
+              Login
+            </a>
+          </p>
+        </div>
       </div>
     );
   }
 
   if (auth.status === "authenticated") {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md text-center">
-          <h2 className="mt-6 text-3xl font-extrabold text-gray-900">
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-6">
+        <div className="w-full max-w-4xl">
+          <h1 className="text-3xl font-bold text-foreground mb-6 text-center">
             Welcome to your Dashboard
-          </h2>
-          <div className="mt-4 p-4 bg-gray-100 rounded-md text-left">
-            <pre className="overflow-x-auto">
-              {JSON.stringify(auth.user, null, 2)}
-            </pre>
+          </h1>
+          <div className="bg-card p-6 rounded-lg border">
+            <h2 className="text-xl font-semibold mb-4">User Information</h2>
+            <div className="bg-muted p-4 rounded-md">
+              <pre className="text-sm overflow-x-auto">
+                {JSON.stringify(auth.user, null, 2)}
+              </pre>
+            </div>
           </div>
         </div>
       </div>
@@ -54,10 +67,9 @@ const ConnectedDashboardView = ({
   activePathname: string;
 }) => {
   return (
-    <>
-      <NavBar activePathname={activePathname} />
+    <NavBar activePathname={activePathname}>
       <DashboardView />
-    </>
+    </NavBar>
   );
 };
 

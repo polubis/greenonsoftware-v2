@@ -1,14 +1,36 @@
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Menu } from "lucide-react";
+import {
+  Home,
+  BarChart3,
+  CheckSquare,
+  User,
+  LogOut,
+  LogIn,
+  UserPlus,
+} from "lucide-react";
 import { AppRouter } from "../routing/app-router";
 import { useClientAuth } from "../client-auth/use-client-auth";
-import { useState } from "react";
 import { APIRouter } from "../routing/api-router";
+import {
+  Sidebar,
+  SidebarContent,
+  SidebarFooter,
+  SidebarGroup,
+  SidebarGroupContent,
+  SidebarGroupLabel,
+  SidebarHeader,
+  SidebarInset,
+  SidebarMenu,
+  SidebarMenuButton,
+  SidebarMenuItem,
+  SidebarProvider,
+  SidebarTrigger,
+} from "@/components/ui/sidebar";
 
-export const NavBar = ({ activePathname }: { activePathname: string }) => {
+// App Sidebar Component
+const AppSidebar = ({ activePathname }: { activePathname: string }) => {
   const auth = useClientAuth();
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const isActive = (path: string) => activePathname === path;
 
@@ -27,203 +49,188 @@ export const NavBar = ({ activePathname }: { activePathname: string }) => {
     return "?";
   };
 
-  const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
-  };
+  // Navigation items
+  const navItems = [
+    {
+      title: "Home",
+      url: AppRouter.getPath("home"),
+      icon: Home,
+      isActive: isActive(AppRouter.getPath("home")),
+    },
+    ...(auth.status === "authenticated"
+      ? [
+          {
+            title: "Dashboard",
+            url: AppRouter.getPath("dashboard"),
+            icon: BarChart3,
+            isActive: isActive(AppRouter.getPath("dashboard")),
+          },
+          {
+            title: "Tasks",
+            url: AppRouter.getPath("tasks"),
+            icon: CheckSquare,
+            isActive: isActive(AppRouter.getPath("tasks")),
+          },
+          {
+            title: "Account",
+            url: AppRouter.getPath("account"),
+            icon: User,
+            isActive: isActive(AppRouter.getPath("account")),
+          },
+        ]
+      : [
+          {
+            title: "Login",
+            url: AppRouter.getPath("login"),
+            icon: LogIn,
+            isActive: isActive(AppRouter.getPath("login")),
+          },
+          {
+            title: "Register",
+            url: AppRouter.getPath("register"),
+            icon: UserPlus,
+            isActive: isActive(AppRouter.getPath("register")),
+          },
+        ]),
+  ];
 
   return (
-    <>
-      {/* Rearrange the navbar for mobile - move the menu button to the far right */}
-      <nav className="flex items-center p-4 bg-background border-b border-border">
-        {/* Left - Logo */}
-        <div className="flex-1 lg:w-1/4 flex items-center justify-start">
-          <a href={AppRouter.getPath("home")} className="flex items-center">
-            <div className="text-primary font-bold text-xl">4Focus</div>
-          </a>
+    <Sidebar>
+      <SidebarHeader>
+        <div className="flex items-center gap-2 px-2">
+          <div className="text-primary font-bold text-xl">4Focus</div>
         </div>
+      </SidebarHeader>
 
-        {/* Middle section - empty on mobile, nav links on desktop */}
-        <div className="hidden lg:flex lg:w-2/4 lg:justify-center lg:items-center">
-          {/* Navigation links as before */}
-          <a
-            href={AppRouter.getPath("home")}
-            className={`mx-6 text-lg font-medium no-underline transition-colors duration-300 ${
-              isActive(AppRouter.getPath("home"))
-                ? "text-primary"
-                : "text-muted-foreground hover:text-foreground"
-            }`}
-          >
-            Home
-          </a>
-          {auth.status === "authenticated" && (
-            <>
-              <a
-                href={AppRouter.getPath("dashboard")}
-                className={`mx-6 text-lg font-medium no-underline transition-colors duration-300 ${
-                  isActive(AppRouter.getPath("dashboard"))
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Dashboard
-              </a>
-              <a
-                href={AppRouter.getPath("tasks")}
-                className={`mx-6 text-lg font-medium no-underline transition-colors duration-300 ${
-                  isActive(AppRouter.getPath("tasks"))
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Tasks
-              </a>
-              <a
-                href={AppRouter.getPath("account")}
-                className={`mx-6 text-lg font-medium no-underline transition-colors duration-300 ${
-                  isActive(AppRouter.getPath("account"))
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Account
-              </a>
-            </>
-          )}
-        </div>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupLabel>Navigation</SidebarGroupLabel>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              {navItems.map((item) => (
+                <SidebarMenuItem key={item.title}>
+                  <SidebarMenuButton asChild isActive={item.isActive}>
+                    <a href={item.url}>
+                      <item.icon />
+                      <span>{item.title}</span>
+                    </a>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              ))}
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
 
-        {/* Right section - auth + mobile menu */}
-        <div className="flex-1 lg:w-1/4 flex items-center justify-end">
-          {/* Auth content first */}
-          {auth.status === "authenticated" && (
-            <div className="flex items-center">
-              {/* User Avatar */}
-              <div className="flex items-center mr-4">
-                <Avatar className="mr-3 w-10 h-10">
-                  <AvatarFallback className="bg-primary text-primary-foreground font-medium">
-                    {getAvatarDisplay()}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-foreground hidden md:inline-block">
-                  {auth.user.email || "User"}
-                </span>
-              </div>
+      {auth.status === "authenticated" && (
+        <SidebarFooter>
+          <SidebarGroup>
+            <SidebarGroupContent>
+              <SidebarMenu>
+                <SidebarMenuItem>
+                  <div className="flex items-center gap-2 px-2 py-2">
+                    <Avatar className="w-8 h-8">
+                      <AvatarFallback className="bg-primary text-primary-foreground font-medium text-sm">
+                        {getAvatarDisplay()}
+                      </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-medium text-sidebar-foreground truncate">
+                        {auth.user.email || "User"}
+                      </div>
+                    </div>
+                  </div>
+                </SidebarMenuItem>
+                <SidebarMenuItem>
+                  <form action={APIRouter.getPath("logout")} method="POST">
+                    <SidebarMenuButton asChild>
+                      <button type="submit" className="w-full">
+                        <LogOut />
+                        <span>Log out</span>
+                      </button>
+                    </SidebarMenuButton>
+                  </form>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+        </SidebarFooter>
+      )}
+    </Sidebar>
+  );
+};
 
-              {/* Logout Button */}
-              <form
-                action={APIRouter.getPath("logout")}
-                method="POST"
-                className="hidden sm:block"
-              >
-                <Button>Log out</Button>
-              </form>
-            </div>
-          )}
-          {(auth.status === "idle" || auth.status === "unauthenticated") && (
-            <>
-              <a
-                href={AppRouter.getPath("login")}
-                className={`mx-4 text-lg font-medium no-underline hidden sm:inline-block transition-colors duration-300 ${
-                  isActive(AppRouter.getPath("login"))
-                    ? "text-primary"
-                    : "text-muted-foreground hover:text-foreground"
-                }`}
-              >
-                Login
-              </a>
-              <Button asChild className="ml-4 hidden sm:inline-flex">
-                <a href={AppRouter.getPath("register")}>Register</a>
-              </Button>
-            </>
-          )}
+export const NavBar = ({
+  activePathname,
+  children,
+}: {
+  activePathname: string;
+  children?: React.ReactNode;
+}) => {
+  const auth = useClientAuth();
 
-          {/* Mobile menu button - last item on smaller screens */}
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleMobileMenu}
-            className="lg:hidden ml-3"
-          >
-            <Menu className="h-6 w-6" />
-          </Button>
-        </div>
-      </nav>
+  const isActive = (path: string) => activePathname === path;
 
-      {/* Mobile Menu Dropdown */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden absolute top-16 left-0 right-0 z-50 bg-background border-b border-border shadow-lg">
-          {/* Fix the padding for mobile menu items to ensure even spacing */}
-          <div className="px-4 py-2">
-            <a
-              href={AppRouter.getPath("home")}
-              className={`block py-3 text-lg font-medium no-underline transition-colors duration-300 ${
-                isActive(AppRouter.getPath("home"))
-                  ? "text-primary bg-accent px-4 mx-[-1rem] rounded-md"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              Home
+  return (
+    <SidebarProvider>
+      <AppSidebar activePathname={activePathname} />
+
+      <SidebarInset>
+        {/* Top Navigation Bar */}
+        <nav className="flex items-center p-4 bg-background border-b border-border">
+          {/* Left - Sidebar Trigger */}
+          <div className="flex items-center gap-4">
+            <SidebarTrigger />
+            <a href={AppRouter.getPath("home")} className="flex items-center">
+              <div className="text-primary font-bold text-xl">4Focus</div>
             </a>
+          </div>
+
+          {/* Right section - auth content for desktop */}
+          <div className="flex-1 flex items-center justify-end">
             {auth.status === "authenticated" && (
-              <>
-                <a
-                  href={AppRouter.getPath("dashboard")}
-                  className={`block py-3 text-lg font-medium no-underline transition-colors duration-300 ${
-                    isActive(AppRouter.getPath("dashboard"))
-                      ? "text-primary bg-accent px-4 mx-[-1rem] rounded-md"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  Dashboard
-                </a>
-                <a
-                  href={AppRouter.getPath("tasks")}
-                  className={`block py-3 text-lg font-medium no-underline transition-colors duration-300 ${
-                    isActive(AppRouter.getPath("tasks"))
-                      ? "text-primary bg-accent px-4 mx-[-1rem] rounded-md"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  Tasks
-                </a>
-                <a
-                  href={AppRouter.getPath("account")}
-                  className={`block py-3 text-lg font-medium no-underline transition-colors duration-300 ${
-                    isActive(AppRouter.getPath("account"))
-                      ? "text-primary bg-accent px-4 mx-[-1rem] rounded-md"
-                      : "text-muted-foreground hover:text-foreground"
-                  }`}
-                >
-                  Account
-                </a>
-              </>
+              <div className="hidden lg:flex items-center">
+                {/* User Avatar */}
+                <div className="flex items-center mr-4">
+                  <Avatar className="mr-3 w-10 h-10">
+                    <AvatarFallback className="bg-primary text-primary-foreground font-medium">
+                      {auth.user.email?.charAt(0).toUpperCase() || "?"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-foreground">
+                    {auth.user.email || "User"}
+                  </span>
+                </div>
+
+                {/* Logout Button */}
+                <form action={APIRouter.getPath("logout")} method="POST">
+                  <Button>Log out</Button>
+                </form>
+              </div>
             )}
             {(auth.status === "idle" || auth.status === "unauthenticated") && (
-              <div className="sm:hidden flex flex-col space-y-2 mt-4 pb-2">
+              <div className="hidden lg:flex items-center gap-4">
                 <a
                   href={AppRouter.getPath("login")}
-                  className={`py-3 text-lg font-medium no-underline transition-colors duration-300 ${
+                  className={`text-lg font-medium no-underline transition-colors duration-300 ${
                     isActive(AppRouter.getPath("login"))
-                      ? "text-primary bg-accent px-4 mx-[-1rem] rounded-md"
+                      ? "text-primary"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
                   Login
                 </a>
-                <Button asChild className="text-center">
+                <Button asChild>
                   <a href={AppRouter.getPath("register")}>Register</a>
                 </Button>
               </div>
             )}
-            {auth.status === "authenticated" && (
-              <div className="sm:hidden mt-4 pb-2">
-                <form action={APIRouter.getPath("logout")} method="POST">
-                  <Button className="w-full">Log out</Button>
-                </form>
-              </div>
-            )}
           </div>
-        </div>
-      )}
-    </>
+        </nav>
+
+        {/* Main Content Area */}
+        <main className="flex-1">{children}</main>
+      </SidebarInset>
+    </SidebarProvider>
   );
 };

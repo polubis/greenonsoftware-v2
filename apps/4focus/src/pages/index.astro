@@ -1,8 +1,10 @@
 ---
 import Layout from '../layouts/layout.astro';
 import { HomeView } from '../features/home/home-view';
+
+const activePathname = new URL(Astro.request.url).pathname;
 ---
 
 <Layout>
-	<HomeView client:load />
+	<HomeView client:load activePathname={activePathname} />
 </Layout>

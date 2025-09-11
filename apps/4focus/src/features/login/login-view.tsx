@@ -17,10 +17,9 @@ const LoginView = ({ activePathname }: { activePathname: string }) => {
   useAppRedirectionWhenLoggedIn();
 
   return (
-    <>
-      <NavBar activePathname={activePathname} />
-      <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-        <div className="sm:mx-auto sm:w-full sm:max-w-md">
+    <NavBar activePathname={activePathname}>
+      <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-6">
+        <div className="w-full max-w-md">
           <Card>
             <CardHeader className="text-center">
               <CardTitle className="text-3xl font-bold">
@@ -112,7 +111,7 @@ const LoginView = ({ activePathname }: { activePathname: string }) => {
           </Card>
         </div>
       </div>
-    </>
+    </NavBar>
   );
 };
 

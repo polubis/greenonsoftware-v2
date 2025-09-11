@@ -513,7 +513,7 @@ const FocusSessionView = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center items-center p-6 relative overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col justify-center items-center p-6 relative">
       <DustAnimation />
 
       {/* Speech Bubbles */}
