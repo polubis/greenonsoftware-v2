@@ -3,7 +3,12 @@ import { init } from "@/lib/clean-api-v2";
 import { errorParser } from "@/lib/clean-api-v2/adapters/axios";
 import z from "zod";
 import { zodCheck } from "@/lib/clean-api-v2/adapters/zod";
-import { getTasksSchema, getActiveFocusSessionSchema } from "./schemas";
+import {
+  getTasksSchema,
+  getActiveFocusSessionSchema,
+  updateFocusSessionSchema,
+  updateFocusSessionRequestSchema,
+} from "./schemas";
 
 type Focus4Contracts = {
   getTasks: {
@@ -19,6 +24,14 @@ type Focus4Contracts = {
     };
     dto: z.infer<typeof getActiveFocusSessionSchema.dto>;
     error: z.infer<typeof getActiveFocusSessionSchema.error>;
+  };
+  updateFocusSession: {
+    extra: {
+      signal: AbortSignal;
+    };
+    payload: z.infer<typeof updateFocusSessionRequestSchema>;
+    dto: z.infer<typeof updateFocusSessionSchema.dto>;
+    error: z.infer<typeof updateFocusSessionSchema.error>;
   };
 };
 
@@ -44,6 +57,22 @@ const focus4API = create({
     },
     resolver: async ({ extra }) => {
       return fetch(APIRouter.getPath("focus-sessions"), {
+        signal: extra.signal,
+      }).then((res) => res.json());
+    },
+  },
+  updateFocusSession: {
+    schemas: {
+      dto: zodCheck(updateFocusSessionSchema.dto),
+      error: zodCheck(updateFocusSessionSchema.error),
+    },
+    resolver: async ({ extra, payload }) => {
+      return fetch(APIRouter.getPath("focus-sessions"), {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
         signal: extra.signal,
       }).then((res) => res.json());
     },

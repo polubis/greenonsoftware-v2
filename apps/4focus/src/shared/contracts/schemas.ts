@@ -47,9 +47,32 @@ const getActiveFocusSessionSchema = {
   error,
 };
 
+const updateFocusSessionSchema = {
+  dto: z.object({
+    success: z.boolean(),
+    session: focusSessionSchema,
+  }),
+  error,
+};
+
+const updateFocusSessionRequestSchema = z
+  .object({
+    status: z.enum(["completed", "abandoned"]).optional(),
+    incrementInterruptions: z.boolean().optional(),
+  })
+  .refine(
+    (data) =>
+      data.status !== undefined || data.incrementInterruptions !== undefined,
+    {
+      message: "Either status or incrementInterruptions must be provided",
+    },
+  );
+
 export {
   taskSchema,
   getTasksSchema,
   focusSessionSchema,
   getActiveFocusSessionSchema,
+  updateFocusSessionSchema,
+  updateFocusSessionRequestSchema,
 };

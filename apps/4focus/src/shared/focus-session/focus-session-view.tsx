@@ -1,6 +1,7 @@
 import { useFocusSessionLoad } from "./use-focus-session-load";
+import { useFocusSessionUpdate } from "./use-focus-session-update";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Target } from "lucide-react";
+import { CheckCircle, XCircle, Target, AlertTriangle } from "lucide-react";
 import { useEffect, useRef, useState, useMemo } from "react";
 import { animate, createScope, createTimer } from "animejs";
 
@@ -446,6 +447,10 @@ const DustAnimation = () => {
 
 const FocusSessionView = () => {
   const [state] = useFocusSessionLoad();
+  const [
+    updateState,
+    { completeSession, abandonSession, incrementInterruptions },
+  ] = useFocusSessionUpdate();
 
   if (state.status === "idle" || state.status === "busy") {
     return (
@@ -526,13 +531,11 @@ const FocusSessionView = () => {
         </div>
       </div>
 
-      <div className="absolute top-32 left-8 z-10">
-        <div
-          className="bg-secondary/30 text-secondary-foreground px-4 py-2 rounded-full text-sm font-medium"
-          style={{ fontFamily: "cursive" }}
-        >
-          You&apos;re doing great!
-        </div>
+      <div
+        className="bg-secondary/30 text-secondary-foreground px-4 py-2 rounded-full text-sm font-medium mb-4"
+        style={{ fontFamily: "cursive" }}
+      >
+        You&apos;re doing great!
       </div>
 
       <div className="text-center space-y-8 z-10 max-w-lg">
@@ -577,15 +580,62 @@ const FocusSessionView = () => {
             </div>
 
             <div className="flex gap-3 justify-center">
-              <Button size="lg" variant="default" className="px-8">
+              <Button
+                size="lg"
+                variant="default"
+                className="px-8"
+                onClick={completeSession}
+                disabled={updateState.status === "busy"}
+              >
                 <CheckCircle className="h-5 w-5 mr-2" />
-                Complete Session
+                {updateState.status === "busy"
+                  ? "Completing..."
+                  : "Complete Session"}
               </Button>
-              <Button size="lg" variant="destructive" className="px-8">
+              <Button
+                size="lg"
+                variant="destructive"
+                className="px-8"
+                onClick={abandonSession}
+                disabled={updateState.status === "busy"}
+              >
                 <XCircle className="h-5 w-5 mr-2" />
-                Abandon Session
+                {updateState.status === "busy"
+                  ? "Abandoning..."
+                  : "Abandon Session"}
               </Button>
             </div>
+
+            {/* Interruption Tracking */}
+            <div className="flex gap-3 justify-center mt-4">
+              <Button
+                size="sm"
+                variant="outline"
+                className="px-4"
+                onClick={incrementInterruptions}
+                disabled={updateState.status === "busy"}
+              >
+                <AlertTriangle className="h-4 w-4 mr-2" />
+                Track Interruption
+              </Button>
+            </div>
+
+            {/* Update Status Messages */}
+            {updateState.status === "error" && (
+              <div className="mt-4 p-3 bg-destructive/10 border border-destructive/20 rounded-lg">
+                <p className="text-destructive text-sm text-center">
+                  {updateState.message}
+                </p>
+              </div>
+            )}
+
+            {updateState.status === "success" && (
+              <div className="mt-4 p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                <p className="text-green-600 text-sm text-center">
+                  Session updated successfully!
+                </p>
+              </div>
+            )}
           </div>
         )}
       </div>
