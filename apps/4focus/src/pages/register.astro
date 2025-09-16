@@ -1,8 +1,8 @@
 ---
-import { RegisterView } from '../features/register/register-view';
-import Layout from '../layouts/layout.astro';
-import { createSupabaseServerClient } from '../shared/db/supabase-server';
-import { AppRouter } from '../shared/routing/app-router';
+import { RegisterShell } from '@/shells/register';
+import Layout from '@/layouts/layout.astro';
+import { createSupabaseServerClient } from '@/shared/db/supabase-server';
+import { AppRouter } from '@/kernel/routing/app-router';
 
 const supabase = createSupabaseServerClient({ request: Astro.request, cookies: Astro.cookies });
 
@@ -18,5 +18,5 @@ const activePathname = new URL(Astro.request.url).pathname;
 ---
 
 <Layout title="Register">
-  <RegisterView client:load activePathname={activePathname} />
+  <RegisterShell client:load activePathname={activePathname} />
 </Layout>

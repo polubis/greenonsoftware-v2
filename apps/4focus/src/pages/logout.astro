@@ -1,8 +1,8 @@
 ---
-import Layout from '../layouts/layout.astro';
-import { LogoutView } from '../features/logout/logout-view';
+import Layout from '@/layouts/layout.astro';
+import { LogoutShell } from '@/shells/logout';
 ---
 
 <Layout>
-	<LogoutView client:load />
+	<LogoutShell client:load />
 </Layout>

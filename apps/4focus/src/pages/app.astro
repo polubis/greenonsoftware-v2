@@ -1,0 +1,10 @@
+---
+import { MainShell } from "@/shells/main";
+import AppLayout from "@/layouts/layout.astro";
+
+export const prerender = true;
+---
+
+<AppLayout title="Dashboard">
+  <MainShell client:only="react" />
+</AppLayout>

@@ -1,9 +1,9 @@
 import { useEffect } from "react";
-import { useClientAuth } from "../client-auth/use-client-auth";
-import { AppRouter } from "../routing/app-router";
+import { useAuth } from "../../kernel/auth/use-auth";
+import { AppRouter } from "../../kernel/routing/app-router";
 
 const useAppRedirectionWhenLoggedIn = () => {
-  const auth = useClientAuth();
+  const auth = useAuth();
 
   useEffect(() => {
     if (auth.status === "authenticated") {

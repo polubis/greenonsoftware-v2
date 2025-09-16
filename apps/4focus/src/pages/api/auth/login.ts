@@ -1,7 +1,7 @@
 import type { APIRoute } from "astro";
 import type { Provider } from "@supabase/supabase-js";
 import { createSupabaseServerClient } from "../../../shared/db/supabase-server";
-import { AppRouter } from "../../../shared/routing/app-router";
+import { AppRouter } from "../../../kernel/routing/app-router";
 
 export const POST: APIRoute = async (context) => {
   const supabaseServerClient = createSupabaseServerClient(context);

@@ -4,27 +4,15 @@ import { useEffect, useState } from "react";
 
 type Task = {
   id: number;
-  userId: string;
   title: string;
   description: string | null;
-  priority: "urgent" | "high" | "normal" | "low";
-  status: "todo" | "pending" | "done";
+  priority: string;
+  status: string;
   creationDate: string;
   updateDate: string;
-  estimatedDurationMinutes: number;
 };
 
-type FocusSession = {
-  id: number;
-  taskId: number;
-  startedAt: string;
-  endedAt: string | null;
-  status: "active" | "completed" | "abandoned";
-  totalInterruptions: number;
-  task: Task | null;
-};
-
-type FocusSessionLoadState =
+type TasksLoadState =
   | {
       status: "idle";
     }
@@ -37,15 +25,12 @@ type FocusSessionLoadState =
     }
   | {
       status: "success";
-      data: {
-        hasActiveSession: boolean;
-        session: FocusSession | null;
-      };
+      data: Task[];
     };
 
-const useFocusSessionLoad = () => {
+const useTasksLoad = () => {
   const authState = useAuthState();
-  const [state, setState] = useState<FocusSessionLoadState>({ status: "idle" });
+  const [state, setState] = useState<TasksLoadState>({ status: "idle" });
 
   useEffect(() => {
     const abortController = new AbortController();
@@ -58,19 +43,16 @@ const useFocusSessionLoad = () => {
 
         setState({ status: "busy" });
 
-        const data = await focus4API.call("getActiveFocusSession", {
+        const data = await focus4API.call("getTasks", {
           extra: { signal: abortController.signal },
         });
 
         setState({
           status: "success",
-          data: {
-            hasActiveSession: data.hasActiveSession,
-            session: data.session,
-          },
+          data: data.tasks,
         });
       } catch (e) {
-        const parsed = parseFocus4APIError("getActiveFocusSession", e);
+        const parsed = parseFocus4APIError("getTasks", e);
 
         if (parsed.type === "aborted") {
           return;
@@ -91,4 +73,4 @@ const useFocusSessionLoad = () => {
   return [state] as const;
 };
 
-export { useFocusSessionLoad };
+export { useTasksLoad };

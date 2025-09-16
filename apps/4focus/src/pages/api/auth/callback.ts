@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { createSupabaseServerClient } from "../../../shared/db/supabase-server";
-import { AppRouter } from "../../../shared/routing/app-router";
+import { AppRouter } from "../../../kernel/routing/app-router";
 
 // Handles OAuth provider redirect back to the app
 export const GET: APIRoute = async (context) => {

@@ -9,9 +9,9 @@ import {
   LogIn,
   UserPlus,
 } from "lucide-react";
-import { AppRouter } from "../routing/app-router";
-import { useClientAuth } from "../client-auth/use-client-auth";
-import { APIRouter } from "../routing/api-router";
+import { AppRouter } from "../../kernel/routing/app-router";
+import { useAuth } from "../../kernel/auth/use-auth";
+import { APIRouter } from "../../kernel/routing/api-router";
 import {
   Sidebar,
   SidebarContent,
@@ -30,7 +30,7 @@ import {
 
 // App Sidebar Component
 const AppSidebar = ({ activePathname }: { activePathname: string }) => {
-  const auth = useClientAuth();
+  const auth = useAuth();
 
   const isActive = (path: string) => activePathname === path;
 
@@ -167,7 +167,7 @@ export const NavBar = ({
   activePathname: string;
   children?: React.ReactNode;
 }) => {
-  const auth = useClientAuth();
+  const auth = useAuth();
 
   const isActive = (path: string) => activePathname === path;
 

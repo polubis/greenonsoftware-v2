@@ -1,4 +1,4 @@
-import { APIRouter } from "../routing/api-router";
+import { APIRouter } from "../../kernel/routing/api-router";
 import { init } from "@/lib/clean-api-v2";
 import { errorParser } from "@/lib/clean-api-v2/adapters/axios";
 import z from "zod";

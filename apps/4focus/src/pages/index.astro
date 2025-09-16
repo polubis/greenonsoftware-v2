@@ -1,10 +1,10 @@
 ---
-import Layout from '../layouts/layout.astro';
-import { HomeView } from '../features/home/home-view';
+import Layout from '@/layouts/layout.astro';
+import { HomeShell } from '@/shells/home';
 
 const activePathname = new URL(Astro.request.url).pathname;
 ---
 
 <Layout>
-	<HomeView client:load activePathname={activePathname} />
+	<HomeShell client:load activePathname={activePathname} />
 </Layout>

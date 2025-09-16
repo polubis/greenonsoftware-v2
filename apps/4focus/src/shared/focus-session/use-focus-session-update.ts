@@ -1,4 +1,4 @@
-import { useClientAuthState } from "@/shared/client-auth/use-client-auth-state";
+import { useAuthState } from "@/kernel/auth/use-auth-state";
 import { focus4API, parseFocus4APIError } from "@/shared/contracts";
 import { useState } from "react";
 
@@ -40,7 +40,7 @@ type UpdateFocusSessionState =
     };
 
 const useFocusSessionUpdate = () => {
-  const authState = useClientAuthState();
+  const authState = useAuthState();
   const [state, setState] = useState<UpdateFocusSessionState>({
     status: "idle",
   });
