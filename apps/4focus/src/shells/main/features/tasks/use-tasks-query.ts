@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { focus4API } from "@/shared/contracts";
+import { focus4API } from "@/ipc/contracts";
 
 import type { InferDto } from "@/lib/clean-api-v2";
 

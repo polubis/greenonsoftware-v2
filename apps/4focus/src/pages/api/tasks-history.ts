@@ -1,6 +1,6 @@
 import type { APIRoute } from "astro";
 import { z } from "zod";
-import { createSupabaseServerClient } from "../../shared/db/supabase-server";
+import { createSupabaseServerClient } from "../../kernel/db/supabase-server";
 
 const querySchema = z.object({
   id: z.coerce.number().int().positive(),

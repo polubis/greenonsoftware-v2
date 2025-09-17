@@ -17,7 +17,7 @@
     "db:migrate": "npx supabase migration up",
     "db:reset": "npx supabase db reset",
     "db:new-migration": "npx supabase migration new",
-    "db:typegen": "npx supabase gen types typescript --local > src/shared/db/database.types.ts"
+    "db:typegen": "npx supabase gen types typescript --local > src/kernel/db/database.types.ts"
   },
   "dependencies": {
     "@astrojs/react": "^4.3.0",

@@ -1,4 +1,4 @@
-import { useTasksQuery } from "./hooks/use-tasks-query";
+import { useTasksQuery } from "./use-tasks-query";
 
 const TasksView = () => {
   const { data, isLoading, error } = useTasksQuery();

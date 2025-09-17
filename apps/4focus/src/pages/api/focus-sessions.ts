@@ -1,9 +1,9 @@
 import type { APIRoute } from "astro";
-import { createSupabaseServerClient } from "@/shared/db/supabase-server";
-import { focus4API } from "@/shared/contracts";
+import { createSupabaseServerClient } from "@/kernel/db/supabase-server";
+import { focus4API } from "@/ipc/contracts";
 import { ValidationException, type InferDto } from "@/lib/clean-api-v2";
-import { ErrorResponse, OkResponse } from "@/shared/server/response";
-import { updateFocusSessionRequestSchema } from "@/shared/contracts/schemas";
+import { ErrorResponse, OkResponse } from "@/kernel/server/response";
+import { updateFocusSessionRequestSchema } from "@/ipc/contracts/schemas";
 
 export const GET: APIRoute = async (context) => {
   try {

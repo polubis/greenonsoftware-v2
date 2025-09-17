@@ -24,7 +24,7 @@ import {
 } from "lucide-react";
 import { AppRouter } from "../../kernel/routing/app-router";
 import { useAuth } from "../../kernel/auth/use-auth";
-import { NavBar } from "../../shared/components/nav-bar";
+import { NavBar } from "../../cross-shell/components/nav-bar";
 
 const HomeShell = ({ activePathname }: { activePathname: string }) => {
   const auth = useAuth();

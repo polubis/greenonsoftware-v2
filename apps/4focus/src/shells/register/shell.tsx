@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { NavBar } from "../../shared/components/nav-bar";
-import { useAppRedirectionWhenLoggedIn } from "../../shared/hooks/use-app-redirection-when-logged-in";
+import { NavBar } from "../../cross-shell/components/nav-bar";
+import { useAppRedirectionWhenLoggedIn } from "../../kernel/auth/use-app-redirection-when-logged-in";
 import { APIRouter } from "../../kernel/routing/api-router";
 
 const RegisterShell = ({ activePathname }: { activePathname: string }) => {

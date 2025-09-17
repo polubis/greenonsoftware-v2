@@ -1,5 +1,5 @@
 import { useAuthState } from "@/kernel/auth/use-auth-state";
-import { focus4API, parseFocus4APIError } from "@/shared/contracts";
+import { focus4API, parseFocus4APIError } from "@/ipc/contracts";
 import { useState } from "react";
 
 type UpdateFocusSessionState =

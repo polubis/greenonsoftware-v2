@@ -1,7 +1,7 @@
 ---
 import { RegisterShell } from '@/shells/register';
-import Layout from '@/layouts/layout.astro';
-import { createSupabaseServerClient } from '@/shared/db/supabase-server';
+import Layout from '@/kernel/layouts/layout.astro';
+import { createSupabaseServerClient } from '@/kernel/db/supabase-server';
 import { AppRouter } from '@/kernel/routing/app-router';
 
 const supabase = createSupabaseServerClient({ request: Astro.request, cookies: Astro.cookies });

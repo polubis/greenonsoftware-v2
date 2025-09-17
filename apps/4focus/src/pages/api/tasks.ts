@@ -1,11 +1,11 @@
 import type { APIRoute } from "astro";
-import { createSupabaseServerClient } from "@/shared/db/supabase-server";
-import type { TablesInsert, TablesUpdate } from "@/shared/db/database.types";
+import { createSupabaseServerClient } from "@/kernel/db/supabase-server";
+import type { TablesInsert, TablesUpdate } from "@/kernel/db/database.types";
 import { AppRouter } from "@/kernel/routing/app-router";
 import { z } from "zod";
-import { focus4API } from "@/shared/contracts";
+import { focus4API } from "@/ipc/contracts";
 import { ValidationException, type InferDto } from "@/lib/clean-api-v2";
-import { ErrorResponse, OkResponse } from "@/shared/server/response";
+import { ErrorResponse, OkResponse } from "@/kernel/server/response";
 
 const parseBody = async (
   request: Request,
