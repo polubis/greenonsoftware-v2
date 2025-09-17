@@ -1,13 +1,13 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
+} from "@/lib/ui/components/card";
+import { Badge } from "@/lib/ui/components/badge";
+import { Separator } from "@/lib/ui/components/separator";
 import {
   Brain,
   Target,

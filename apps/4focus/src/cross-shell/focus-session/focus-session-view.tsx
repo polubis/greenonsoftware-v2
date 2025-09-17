@@ -1,6 +1,6 @@
 import { useFocusSessionLoad } from "./use-focus-session-load";
 import { useFocusSessionUpdate } from "./use-focus-session-update";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/ui/components/button";
 import { CheckCircle, XCircle, Target, AlertTriangle } from "lucide-react";
 import { useEffect, useRef, useState, useMemo } from "react";
 import { animate, createScope, createTimer } from "animejs";

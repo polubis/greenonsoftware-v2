@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/lib/ui/components/button";
+import { Avatar, AvatarFallback } from "@/lib/ui/components/avatar";
 import { BarChart3, CheckSquare, User, LogOut } from "lucide-react";
 import {
   Sidebar,
@@ -15,7 +15,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
+} from "@/lib/ui/components/sidebar";
 import { Link, useLocation } from "@tanstack/react-router";
 import { AppRouter } from "@/kernel/routing/app-router";
 import { APIRouter } from "@/kernel/routing/api-router";

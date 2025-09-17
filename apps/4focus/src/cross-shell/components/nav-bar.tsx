@@ -1,5 +1,5 @@
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/lib/ui/components/button";
+import { Avatar, AvatarFallback } from "@/lib/ui/components/avatar";
 import {
   Home,
   BarChart3,
@@ -26,7 +26,7 @@ import {
   SidebarMenuItem,
   SidebarProvider,
   SidebarTrigger,
-} from "@/components/ui/sidebar";
+} from "@/lib/ui/components/sidebar";
 
 // App Sidebar Component
 const AppSidebar = ({ activePathname }: { activePathname: string }) => {

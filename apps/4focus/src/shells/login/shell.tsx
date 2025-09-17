@@ -1,14 +1,14 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+} from "@/lib/ui/components/card";
+import { Input } from "@/lib/ui/components/input";
+import { Label } from "@/lib/ui/components/label";
+import { Checkbox } from "@/lib/ui/components/checkbox";
 import { NavBar } from "../../cross-shell/components/nav-bar";
 import { useAppRedirectionWhenLoggedIn } from "../../kernel/auth/use-app-redirection-when-logged-in";
 import { APIRouter } from "../../kernel/routing/api-router";

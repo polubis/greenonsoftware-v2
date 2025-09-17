@@ -1,13 +1,13 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/lib/ui/components/button";
 import {
   Card,
   CardContent,
   CardDescription,
   CardHeader,
   CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
+} from "@/lib/ui/components/card";
+import { Input } from "@/lib/ui/components/input";
+import { Label } from "@/lib/ui/components/label";
 import { NavBar } from "../../cross-shell/components/nav-bar";
 import { useAppRedirectionWhenLoggedIn } from "../../kernel/auth/use-app-redirection-when-logged-in";
 import { APIRouter } from "../../kernel/routing/api-router";
