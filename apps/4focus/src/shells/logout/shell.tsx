@@ -15,24 +15,22 @@ const LogoutShell = ({ activePathname }: { activePathname: string }) => {
     <Layout>
       <LayoutSidebarNav activePathname={activePathname} />
       <LayoutContent>
-        <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-          <div className="sm:mx-auto sm:w-full sm:max-w-md">
-            <Card>
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-semibold">
-                  Successfully Signed Out
-                </CardTitle>
-                <CardDescription>
-                  Thank you for using our application.
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center">
-                <Button asChild>
-                  <a href={AppRouter.getPath("login")}>Sign in again</a>
-                </Button>
-              </CardContent>
-            </Card>
-          </div>
+        <div className="m-auto w-full max-w-md">
+          <Card>
+            <CardHeader className="text-center">
+              <CardTitle className="text-2xl font-semibold">
+                Successfully Signed Out
+              </CardTitle>
+              <CardDescription>
+                Thank you for using our application.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              <Button asChild>
+                <a href={AppRouter.getPath("login")}>Sign in again</a>
+              </Button>
+            </CardContent>
+          </Card>
         </div>
       </LayoutContent>
     </Layout>

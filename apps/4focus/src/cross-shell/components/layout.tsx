@@ -86,7 +86,14 @@ const Layout = ({
       </Sidebar>
 
       <SidebarInset>
-        <nav className="flex items-center p-4 bg-background border-b border-border">
+        <nav
+          className="flex items-center px-4 bg-background h-15 border-b border-border"
+          style={
+            {
+              "--layout-header-height": "3.75rem",
+            } as React.CSSProperties
+          }
+        >
           <div className="flex items-center gap-4">
             <SidebarTrigger />
             <a href={AppRouter.getPath("home")} className="flex items-center">
@@ -158,7 +165,13 @@ const LayoutContent = ({
   ...props
 }: ComponentPropsWithoutRef<"main">) => {
   return (
-    <main className={cn("flex-1", className)} {...props}>
+    <main
+      className={cn(
+        "flex-1 flex flex-col p-4 md:p-6 min-h-[calc(100vh-var(--layout-header-height))]",
+        className,
+      )}
+      {...props}
+    >
       {children}
     </main>
   );

@@ -107,7 +107,7 @@ const HomeShell = ({ activePathname }: { activePathname: string }) => {
     <Layout>
       <LayoutSidebarNav activePathname={activePathname} />
       <LayoutContent>
-        <div className="min-h-screen bg-background">
+        <div className="bg-background">
           {/* Hero Section */}
           <section className="relative overflow-hidden bg-gradient-to-br from-background to-muted/20">
             <div className="container mx-auto px-4 py-20 lg:py-32">
