@@ -1,0 +1,19 @@
+---
+import { AppShell } from "@/shells/app";
+import AppLayout from "@/kernel/layouts/layout.astro";
+import { AppRouter } from "@/kernel/routing/app-router";
+
+export const prerender = true;
+
+export const getStaticPaths = () => {
+  return [
+    { params: { slug: undefined } },
+    { params: { slug: AppRouter.getPath("tasks").replace('/app/', '') } },
+    { params: { slug: AppRouter.getPath("account").replace('/app/', '') } },
+  ];
+}
+---
+
+<AppLayout title="App">
+  <AppShell client:load />
+</AppLayout>

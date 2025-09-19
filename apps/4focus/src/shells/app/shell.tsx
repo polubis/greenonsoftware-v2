@@ -2,7 +2,7 @@ import { Router } from "./router";
 import { QueryProvider } from "./query-provider";
 import { withAuth } from "@/kernel/auth/with-auth";
 
-const MainShell = () => {
+const AppShell = () => {
   return (
     <QueryProvider>
       <Router />
@@ -10,7 +10,7 @@ const MainShell = () => {
   );
 };
 
-const ProtectedMainShell = withAuth(MainShell, {
+const ProtectedAppShell = withAuth(AppShell, {
   Idle: () => {
     return (
       <div className="flex items-center justify-center min-h-[calc(100vh-4rem)] p-6">
@@ -31,4 +31,4 @@ const ProtectedMainShell = withAuth(MainShell, {
   },
 });
 
-export { ProtectedMainShell as MainShell };
+export { ProtectedAppShell as AppShell };

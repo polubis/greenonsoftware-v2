@@ -2,6 +2,8 @@
 import Layout from '@/kernel/layouts/layout.astro';
 import { HomeShell } from '@/shells/home';
 
+export const prerender = true;
+
 const activePathname = new URL(Astro.request.url).pathname;
 ---
 

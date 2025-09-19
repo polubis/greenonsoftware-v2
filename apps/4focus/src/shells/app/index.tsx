@@ -1,1 +1,1 @@
-export { MainShell } from "./shell";
+export { AppShell } from "./shell";
