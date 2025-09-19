@@ -22,16 +22,19 @@ const withAuth = <TProps extends Record<string, unknown>>(
 
   const ProtectedComponent = (props: TProps) => {
     const auth = useAuth();
+    const status = auth.status;
 
-    switch (auth.status) {
+    switch (status) {
       case "idle":
         return <Idle auth={auth} />;
       case "unauthenticated":
         return <Unauthenticated auth={auth} />;
       case "authenticated":
         return <WrappedComponent {...props} />;
-      default:
-        return <div>Loading...</div>;
+      default: {
+        const exhaustiveCheck: never = status;
+        throw new Error(`Invalid auth status: ${exhaustiveCheck}`);
+      }
     }
   };
 

@@ -6,29 +6,36 @@ import {
   CardHeader,
   CardTitle,
 } from "@/lib/ui/components/card";
-import { AppRouter } from "../../kernel/routing/app-router";
+import { Layout, LayoutContent } from "@/cross-shell/components/layout";
+import { LayoutSidebarNav } from "@/cross-shell/components/layout-sidebar-nav";
+import { AppRouter } from "@/kernel/routing/app-router";
 
-const LogoutShell = () => {
+const LogoutShell = ({ activePathname }: { activePathname: string }) => {
   return (
-    <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
-      <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <Card>
-          <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-semibold">
-              Successfully Signed Out
-            </CardTitle>
-            <CardDescription>
-              Thank you for using our application.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="text-center">
-            <Button asChild>
-              <a href={AppRouter.getPath("login")}>Sign in again</a>
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
+    <Layout>
+      <LayoutSidebarNav activePathname={activePathname} />
+      <LayoutContent>
+        <div className="min-h-screen bg-background flex flex-col justify-center py-12 sm:px-6 lg:px-8">
+          <div className="sm:mx-auto sm:w-full sm:max-w-md">
+            <Card>
+              <CardHeader className="text-center">
+                <CardTitle className="text-2xl font-semibold">
+                  Successfully Signed Out
+                </CardTitle>
+                <CardDescription>
+                  Thank you for using our application.
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="text-center">
+                <Button asChild>
+                  <a href={AppRouter.getPath("login")}>Sign in again</a>
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </LayoutContent>
+    </Layout>
   );
 };
 

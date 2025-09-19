@@ -1,8 +1,10 @@
 ---
 import Layout from '@/kernel/layouts/layout.astro';
 import { LogoutShell } from '@/shells/logout';
+
+const activePathname = new URL(Astro.request.url).pathname;
 ---
 
 <Layout>
-	<LogoutShell client:load />
+	<LogoutShell client:load activePathname={activePathname} />
 </Layout>
