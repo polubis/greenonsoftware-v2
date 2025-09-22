@@ -868,6 +868,7 @@ return <div>No tasks found</div>;
 }
 
 return (
+
 <div>
 <h1 className="text-3xl font-bold tracking-tight mb-4">Tasks</h1>
 </div>

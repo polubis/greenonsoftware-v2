@@ -178,3 +178,82 @@
     @apply bg-background text-foreground;
   }
 }
+
+@layer components {
+  /* Typography Components */
+  .typo-h1 {
+    @apply scroll-m-20 text-4xl font-extrabold tracking-tight text-balance;
+  }
+
+  .typo-h2 {
+    @apply scroll-m-20 border-b pb-2 text-3xl font-semibold tracking-tight first:mt-0;
+  }
+
+  .typo-h3 {
+    @apply scroll-m-20 text-2xl font-semibold tracking-tight;
+  }
+
+  .typo-h4 {
+    @apply scroll-m-20 text-xl font-semibold tracking-tight;
+  }
+
+  .typo-p {
+    @apply leading-7 [&:not(:first-child)]:mt-6;
+  }
+
+  .typo-blockquote {
+    @apply mt-6 border-l-2 pl-6 italic;
+  }
+
+  .typo-table {
+    @apply my-6 w-full overflow-y-auto;
+  }
+
+  .typo-table th {
+    @apply border px-4 py-2 text-left font-bold [&[align=center]]:text-center [&[align=right]]:text-right;
+  }
+
+  .typo-table td {
+    @apply border px-4 py-2 text-left [&[align=center]]:text-center [&[align=right]]:text-right;
+  }
+
+  .typo-table tr {
+    @apply even:bg-muted m-0 border-t p-0;
+  }
+
+  .typo-list {
+    @apply my-6 ml-6 list-disc [&>li]:mt-2;
+  }
+
+  .typo-inline-code {
+    @apply bg-muted relative rounded px-[0.3rem] py-[0.2rem] font-mono text-sm font-semibold;
+  }
+
+  .typo-lead {
+    @apply text-muted-foreground text-xl;
+  }
+
+  .typo-large {
+    @apply text-lg font-semibold;
+  }
+
+  .typo-small {
+    @apply text-sm leading-none font-medium;
+  }
+
+  .typo-muted {
+    @apply text-muted-foreground text-sm;
+  }
+
+  .padding-x {
+    @apply px-4 md:px-6;
+  }
+
+  .padding-top {
+    @apply pt-4 md:pt-6;
+  }
+
+  .padding-bottom {
+    @apply pb-4 md:pb-6;
+  }
+}

@@ -167,7 +167,7 @@ const LayoutContent = ({
   return (
     <main
       className={cn(
-        "flex-1 flex flex-col p-4 md:p-6 min-h-[calc(100vh-var(--layout-header-height))]",
+        "flex-1 flex flex-col min-h-[calc(100vh-var(--layout-header-height))]",
         className,
       )}
       {...props}
