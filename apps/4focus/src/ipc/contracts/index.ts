@@ -8,6 +8,7 @@ import {
   getActiveFocusSessionSchema,
   updateFocusSessionSchema,
   updateFocusSessionRequestSchema,
+  createTaskSchema,
 } from "./schemas";
 
 type Focus4Contracts = {
@@ -17,6 +18,11 @@ type Focus4Contracts = {
     };
     dto: z.infer<typeof getTasksSchema.dto>;
     error: z.infer<typeof getTasksSchema.error>;
+  };
+  createTask: {
+    dto: z.infer<typeof createTaskSchema.dto>;
+    error: z.infer<typeof createTaskSchema.error>;
+    payload: z.infer<typeof createTaskSchema.payload>;
   };
   getActiveFocusSession: {
     extra: {
@@ -47,6 +53,22 @@ const focus4API = create({
     resolver: async ({ extra }) => {
       return fetch(APIRouter.getPath("tasks"), {
         signal: extra.signal,
+      }).then((res) => res.json());
+    },
+  },
+  createTask: {
+    schemas: {
+      dto: zodCheck(createTaskSchema.dto),
+      error: zodCheck(createTaskSchema.error),
+      payload: zodCheck(createTaskSchema.payload),
+    },
+    resolver: async ({ payload }) => {
+      return fetch(APIRouter.getPath("tasks"), {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
       }).then((res) => res.json());
     },
   },

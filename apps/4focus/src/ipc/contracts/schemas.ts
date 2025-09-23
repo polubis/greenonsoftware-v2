@@ -3,23 +3,25 @@ import {
   date,
   error,
   focusSessionId,
-  taskEstimatedDurationMinutes,
+  taskDescription,
+  duration,
   taskId,
   taskPriority,
   taskStatus,
+  taskTitle,
   userId,
 } from "./schemas-atoms";
 
 const taskSchema = z.object({
   id: taskId,
   userId,
-  title: z.string().trim().min(3).max(280),
-  description: z.string().trim().min(10).max(500).nullable(),
+  title: taskTitle,
+  description: taskDescription.nullable(),
   status: taskStatus,
   priority: taskPriority,
   creationDate: date,
   updateDate: date,
-  estimatedDurationMinutes: taskEstimatedDurationMinutes,
+  estimatedDurationMinutes: duration,
 });
 
 const getTasksSchema = {
@@ -27,6 +29,18 @@ const getTasksSchema = {
     tasks: z.array(taskSchema),
   }),
   error,
+};
+
+const createTaskSchema = {
+  dto: taskSchema,
+  error,
+  payload: z.object({
+    title: taskSchema.shape.title,
+    description: taskSchema.shape.description.nullable(),
+    priority: taskSchema.shape.priority,
+    status: taskSchema.shape.status,
+    estimatedDurationMinutes: taskSchema.shape.estimatedDurationMinutes,
+  }),
 };
 
 const focusSessionSchema = z.object({
@@ -75,4 +89,5 @@ export {
   getActiveFocusSessionSchema,
   updateFocusSessionSchema,
   updateFocusSessionRequestSchema,
+  createTaskSchema,
 };

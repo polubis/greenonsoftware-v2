@@ -3,12 +3,22 @@ import z from "zod";
 const taskId = z.number().int().positive().brand("taskId");
 const focusSessionId = z.number().int().positive().brand("focusSessionId");
 const userId = z.string().brand("userId");
+const taskTitle = z
+  .string()
+  .trim()
+  .min(3, { message: "Title must be 3-280 characters" })
+  .max(280, { message: "Title must be 3-280 characters" });
+const taskDescription = z
+  .string()
+  .trim()
+  .min(10, { message: "Description must be 10-500 characters" })
+  .max(500, { message: "Description must be 10-500 characters" });
 
 const taskStatus = z.enum(["todo", "pending", "done"]);
-const taskEstimatedDurationMinutes = z
-  .number()
-  .min(0)
-  .brand("taskEstimatedDurationMinutes");
+const duration = z
+  .int()
+  .positive()
+  .max(60 * 24, { message: "Duration must be less than 24 hours" });
 const taskPriority = z.enum(["urgent", "high", "normal", "low"]);
 const date = z.iso.datetime().brand("date");
 
@@ -45,6 +55,8 @@ export {
   focusSessionId,
   taskStatus,
   taskPriority,
-  taskEstimatedDurationMinutes,
+  duration,
   error,
+  taskDescription,
+  taskTitle,
 };

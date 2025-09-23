@@ -1,5 +1,5 @@
 import { Skeleton } from "@/lib/ui/components/skeleton";
-import { useTasksQuery, type Task } from "./use-tasks-query";
+import { useTasksLoad, type Task } from "./tasks-management";
 import { Card, CardContent } from "@/lib/ui/components/card";
 import {
   Avatar,
@@ -8,36 +8,9 @@ import {
 } from "@/lib/ui/components/avatar";
 import { Button } from "@/lib/ui/components/button";
 import { Plus } from "lucide-react";
-
-const getTaskCardColor = (priority: Task["priority"]) => {
-  switch (priority) {
-    case "urgent":
-      return "bg-[#eec5ef]";
-    case "high":
-      return "bg-[#edd803]";
-    case "normal":
-      return "bg-[#d8cfee]";
-    case "low":
-      return "bg-[#e7e8e2]";
-    default:
-      return "bg-gray-50";
-  }
-};
-
-const getProgressBarColor = (priority: Task["priority"]) => {
-  switch (priority) {
-    case "urgent":
-      return "bg-[#d4a5d6]";
-    case "high":
-      return "bg-[#c4b500]";
-    case "normal":
-      return "bg-[#b8a8d4]";
-    case "low":
-      return "bg-[#c5c6b8]";
-    default:
-      return "bg-gray-400";
-  }
-};
+import { cn } from "@/lib/ui/utils/cn";
+import { useSimpleFeature } from "@/lib/react-kit/use-simple-feature";
+import { TaskForm } from "./task-form";
 
 const getAssigneeInfo = (task: Task) => {
   // Mock assignee data - in real app this would come from the API
@@ -55,11 +28,16 @@ const getAssigneeInfo = (task: Task) => {
 
 const TaskCard = ({ task }: { task: Task }) => {
   const assignee = getAssigneeInfo(task);
-  const progress = Math.floor(Math.random() * 100); // Mock progress - in real app this would come from task data
+  const progress = Math.floor(Math.random() * 100);
 
   return (
     <Card
-      className={`h-32 relative ${getTaskCardColor(task.priority)} border-0 shadow-none`}
+      className={cn(`h-32 relative border-0 shadow-none`, {
+        "bg-[#eec5ef]": task.priority === "urgent",
+        "bg-[#edd803]": task.priority === "high",
+        "bg-[#d8cfee]": task.priority === "normal",
+        "bg-[#e7e8e2]": task.priority === "low",
+      })}
     >
       <div className="absolute top-2 right-2">
         <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
@@ -74,7 +52,12 @@ const TaskCard = ({ task }: { task: Task }) => {
           {/* Progress Bar */}
           <div className="w-full bg-gray-200 rounded-full h-1.5">
             <div
-              className={`h-1.5 rounded-full ${getProgressBarColor(task.priority)}`}
+              className={cn(`h-1.5 rounded-full`, {
+                "bg-[#d4a5d6]": task.priority === "urgent",
+                "bg-[#c4b500]": task.priority === "high",
+                "bg-[#b8a8d4]": task.priority === "normal",
+                "bg-[#c5c6b8]": task.priority === "low",
+              })}
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -107,43 +90,62 @@ const TaskColumn = ({
   tasks: Task[];
   priority: Task["priority"];
 }) => {
-  const getColumnHeaderColor = (priority: Task["priority"]) => {
-    switch (priority) {
-      case "urgent":
-        return "bg-[#eec5ef]";
-      case "high":
-        return "bg-[#edd803]";
-      case "normal":
-        return "bg-[#d8cfee]";
-      case "low":
-        return "bg-[#e7e8e2]";
-      default:
-        return "bg-gray-100";
-    }
-  };
+  const form = useSimpleFeature();
 
   return (
     <div className="flex flex-col gap-3 w-full">
       {/* Category Header */}
       <div
-        className={`px-3 py-1.5 rounded-md ${getColumnHeaderColor(priority)}`}
+        className={cn("px-3 py-1.5 rounded-md", {
+          "bg-[#eec5ef]": priority === "urgent",
+          "bg-[#edd803]": priority === "high",
+          "bg-[#d8cfee]": priority === "normal",
+          "bg-[#e7e8e2]": priority === "low",
+        })}
       >
         <div className="flex items-center justify-between">
-          <h3 className="typo-small">{title}</h3>
-          <span className="bg-white shrink-0 rounded-full size-5.5 shadow-sm typo-small p-1 flex items-center justify-center">
-            {tasks.length}
-          </span>
+          <h3 className="typo-small flex items-center gap-3">
+            {title}
+            <span className="bg-white shrink-0 rounded-full size-5.5 shadow-sm typo-small p-1 flex items-center justify-center">
+              {tasks.length}
+            </span>
+          </h3>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="h-6 w-6 p-0"
+              onClick={form.toggle}
+            >
+              <Plus className="w-6 h-6" />
+            </Button>
+          </div>
         </div>
       </div>
 
       {/* Tasks Container */}
       <div className="space-y-3">
+        {form.isOn && (
+          <TaskForm
+            priority={priority}
+            onClose={form.toggle}
+            onSubmit={form.off}
+          />
+        )}
         {tasks.map((task) => (
           <TaskCard key={task.id} task={task} />
         ))}
-        {tasks.length === 0 && (
-          <div className="h-32 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center">
-            <span className="typo-small text-gray-400">No tasks</span>
+        {tasks.length === 0 && !form.isOn && (
+          <div className="h-32 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={form.toggle}
+              className="gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Create your first task
+            </Button>
           </div>
         )}
       </div>
@@ -152,7 +154,7 @@ const TaskColumn = ({
 };
 
 const Content = () => {
-  const { data, isLoading, error } = useTasksQuery();
+  const { data, isLoading, error } = useTasksLoad();
 
   if (isLoading) {
     return (
@@ -205,7 +207,7 @@ const TasksView = () => {
       <div className="padding-x padding-bottom">
         <Content />
       </div>
-      <footer className="sticky bottom-0 left-0 right-0 mt-auto bg-background py-4 padding-x">
+      <footer className="sticky bottom-0 left-0 right-0 mt-auto bg-background py-4 padding-x border-t border-border">
         <div className="flex justify-end">
           <Button
             size="sm"
