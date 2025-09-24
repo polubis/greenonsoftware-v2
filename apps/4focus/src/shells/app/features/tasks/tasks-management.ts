@@ -24,6 +24,7 @@ const useTaskCreation = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
+    retry: 0,
     mutationFn: async (payload: TaskCreationPayload) => {
       const data = await focus4API.call("createTask", {
         payload,

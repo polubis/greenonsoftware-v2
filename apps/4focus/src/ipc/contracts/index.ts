@@ -10,6 +10,7 @@ import {
   updateFocusSessionRequestSchema,
   createTaskSchema,
 } from "./schemas";
+import axios from "axios";
 
 type Focus4Contracts = {
   getTasks: {
@@ -51,9 +52,11 @@ const focus4API = create({
       error: zodCheck(getTasksSchema.error),
     },
     resolver: async ({ extra }) => {
-      return fetch(APIRouter.getPath("tasks"), {
-        signal: extra.signal,
-      }).then((res) => res.json());
+      return axios
+        .get(APIRouter.getPath("tasks"), {
+          signal: extra.signal,
+        })
+        .then((res) => res.data);
     },
   },
   createTask: {
@@ -63,13 +66,9 @@ const focus4API = create({
       payload: zodCheck(createTaskSchema.payload),
     },
     resolver: async ({ payload }) => {
-      return fetch(APIRouter.getPath("tasks"), {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      }).then((res) => res.json());
+      return axios
+        .post(APIRouter.getPath("tasks"), payload)
+        .then((res) => res.data);
     },
   },
   getActiveFocusSession: {

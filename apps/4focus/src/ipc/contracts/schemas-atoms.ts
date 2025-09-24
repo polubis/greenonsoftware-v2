@@ -11,8 +11,9 @@ const taskTitle = z
 const taskDescription = z
   .string()
   .trim()
-  .min(10, { message: "Description must be 10-500 characters" })
-  .max(500, { message: "Description must be 10-500 characters" });
+  .refine((val) => val === "" || (val.length >= 10 && val.length <= 500), {
+    message: "Description must be empty or 10-500 characters",
+  });
 
 const taskStatus = z.enum(["todo", "pending", "done"]);
 const duration = z

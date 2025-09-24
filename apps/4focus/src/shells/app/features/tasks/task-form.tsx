@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { focus4API } from "@/ipc/contracts";
+import { focus4API, parseFocus4APIError } from "@/ipc/contracts";
 import {
   useTaskCreation,
   type Task,
@@ -12,19 +12,21 @@ import { Input } from "@/lib/ui/components/input";
 import { Textarea } from "@/lib/ui/components/textarea";
 import { Label } from "@/lib/ui/components/label";
 import { X } from "lucide-react";
-import { z } from "zod";
+import z from "zod";
+import { taskDescription } from "@/ipc/contracts/schemas-atoms";
 
-type FormData = Pick<
-  TaskCreationPayload,
-  "title" | "description" | "estimatedDurationMinutes"
->;
+type FormData = {
+  title: TaskCreationPayload["title"];
+  description: NonNullable<TaskCreationPayload["description"]>;
+  estimatedDurationMinutes: TaskCreationPayload["estimatedDurationMinutes"];
+};
 
 const schema = (() => {
   const shape = focus4API.getRawSchema("createTask").payload.shape;
 
   return z.object({
     title: shape.title,
-    description: shape.description,
+    description: taskDescription,
     estimatedDurationMinutes: shape.estimatedDurationMinutes,
   });
 })();
@@ -73,6 +75,11 @@ const TaskForm = ({ priority, onClose, onSubmit }: TaskFormProps) => {
     );
     onSubmit();
   };
+
+  if (createTaskMutation.error) {
+    const parsed = parseFocus4APIError("createTask", createTaskMutation.error);
+    console.log(parsed);
+  }
 
   return (
     <Card className="p-4 mb-3 border-2 border-dashed border-gray-300">
