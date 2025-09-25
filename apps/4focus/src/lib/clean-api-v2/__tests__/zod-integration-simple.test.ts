@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { init } from "../core";
 import { zodCheck } from "../adapters/zod";
-import z from "zod";
+import * as z from "zod";
 
 describe("Zod Integration with getRawSchema", () => {
   // Define Zod schemas

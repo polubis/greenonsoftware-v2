@@ -1,5 +1,5 @@
 import type { APIRoute } from "astro";
-import { z } from "zod";
+import * as z from "zod";
 import { createSupabaseServerClient } from "../../kernel/db/supabase-server";
 
 const querySchema = z.object({

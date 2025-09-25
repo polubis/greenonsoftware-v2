@@ -2,7 +2,7 @@
 import { describe, expect, expectTypeOf, it, vi } from "vitest";
 import { init } from "../core";
 import { zodCheck } from "../adapters/zod";
-import z from "zod";
+import * as z from "zod";
 
 describe("getRawSchema - Working Demo", () => {
   // Define schemas

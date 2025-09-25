@@ -8,7 +8,7 @@ import { Input } from "@/lib/ui/components/input";
 import { Textarea } from "@/lib/ui/components/textarea";
 import { Label } from "@/lib/ui/components/label";
 import { X } from "lucide-react";
-import z from "zod";
+import * as z from "zod";
 import { taskDescription } from "@/ipc/contracts/schemas-atoms";
 import { useTasksContext } from "./tasks-provider";
 
@@ -43,7 +43,8 @@ const TaskForm = ({ priority, onClose, onSubmit }: TaskFormProps) => {
     formState: { errors },
     reset,
   } = useForm<FormData>({
-    resolver: zodResolver(schema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(schema as any),
     defaultValues: {
       title: "",
       description: "",

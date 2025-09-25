@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { describe, it, expect } from "vitest";
-import { z } from "zod";
+import * as z from "zod";
 import { zodCheck, zodCheckAsync } from "../zod";
 import { ValidationException } from "../../models";
 

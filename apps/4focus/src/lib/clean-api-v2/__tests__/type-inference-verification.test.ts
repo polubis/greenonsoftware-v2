@@ -4,7 +4,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { init, check } from "../core";
 import { zodCheck } from "../adapters/zod";
-import z from "zod";
+import * as z from "zod";
 import type { ErrorVariant } from "../models";
 
 describe("Type Inference Verification for getSchema", () => {

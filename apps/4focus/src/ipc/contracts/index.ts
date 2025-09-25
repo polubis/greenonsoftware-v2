@@ -1,7 +1,7 @@
 import { APIRouter } from "../../kernel/routing/api-router";
 import { init } from "@/lib/clean-api-v2";
 import { errorParser } from "@/lib/clean-api-v2/adapters/axios";
-import z from "zod";
+import * as z from "zod";
 import { zodCheck } from "@/lib/clean-api-v2/adapters/zod";
 import {
   getTasksSchema,

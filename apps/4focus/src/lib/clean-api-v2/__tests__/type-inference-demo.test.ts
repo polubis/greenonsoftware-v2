@@ -4,7 +4,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { init, check } from "../core";
 import { zodCheck } from "../adapters/zod";
-import z from "zod";
+import * as z from "zod";
 
 describe("Type Inference Demo - getSchema returns only provided schemas", () => {
   it("demonstrates perfect type inference with different schema combinations", () => {

@@ -4,7 +4,7 @@ import { describe, expect, it, vi } from "vitest";
 import { init } from "../core";
 import { ValidationException } from "../models";
 import { zodCheck } from "../adapters/zod";
-import z from "zod";
+import * as z from "zod";
 
 describe("React Hook Form + Zod Integration with getSchema", () => {
   // Define Zod schemas for different form types

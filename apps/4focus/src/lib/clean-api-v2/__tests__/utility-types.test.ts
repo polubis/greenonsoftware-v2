@@ -16,7 +16,7 @@ import {
   type InferAllSearchParams,
   type InferAllExtras,
 } from "../index";
-import { z } from "zod";
+import * as z from "zod";
 import { zodCheck } from "../adapters/zod";
 
 describe("Utility Types for API Inference", () => {

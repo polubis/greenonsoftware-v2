@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from "vitest";
 import { init, check } from "../core";
 import { zodCheck } from "../adapters/zod";
 import { ValidationException } from "../models";
-import z from "zod";
+import * as z from "zod";
 
 describe("Call Result Validation", () => {
   describe("DTO Schema Validation", () => {

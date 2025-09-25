@@ -1,4 +1,4 @@
-import z from "zod";
+import * as z from "zod";
 
 const taskId = z.number().int().positive().brand("taskId");
 const focusSessionId = z.number().int().positive().brand("focusSessionId");
