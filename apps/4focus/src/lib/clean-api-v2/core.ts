@@ -162,16 +162,21 @@ const init =
       schemaKey: keyof Contracts[keyof Contracts],
       data: TData,
     ): TData => {
-      const schemas = contracts[key]?.schemas;
+      try {
+        const schemas = contracts[key]?.schemas;
 
-      if (schemas && schemaKey in schemas) {
-        const validator = (schemas as Record<string, unknown>)[schemaKey];
-        if (typeof validator === "function") {
-          validator(data);
+        if (schemas && schemaKey in schemas) {
+          const validator = (schemas as Record<string, unknown>)[schemaKey];
+          if (typeof validator === "function") {
+            validator(data);
+          }
         }
-      }
 
-      return data;
+        return data;
+      } catch (error) {
+        console.error("Validation of", key, schemaKey, "failed");
+        throw error;
+      }
     };
 
     const pathParams: CleanApi<

@@ -1,11 +1,7 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { focus4API, parseFocus4APIError } from "@/ipc/contracts";
-import {
-  useTaskCreation,
-  type Task,
-  type TaskCreationPayload,
-} from "./tasks-management";
+import { focus4API } from "@/ipc/contracts";
+import { type Task, type TaskCreationPayload } from "./tasks-management";
 import { Card } from "@/lib/ui/components/card";
 import { Button } from "@/lib/ui/components/button";
 import { Input } from "@/lib/ui/components/input";
@@ -14,6 +10,7 @@ import { Label } from "@/lib/ui/components/label";
 import { X } from "lucide-react";
 import z from "zod";
 import { taskDescription } from "@/ipc/contracts/schemas-atoms";
+import { useTasksContext } from "./tasks-provider";
 
 type FormData = {
   title: TaskCreationPayload["title"];
@@ -38,12 +35,12 @@ interface TaskFormProps {
 }
 
 const TaskForm = ({ priority, onClose, onSubmit }: TaskFormProps) => {
-  const createTaskMutation = useTaskCreation();
+  const { creation } = useTasksContext();
 
   const {
     register,
     handleSubmit,
-    formState: { errors, isSubmitting },
+    formState: { errors },
     reset,
   } = useForm<FormData>({
     resolver: zodResolver(schema),
@@ -55,7 +52,7 @@ const TaskForm = ({ priority, onClose, onSubmit }: TaskFormProps) => {
   });
 
   const submit = (payload: FormData) => {
-    createTaskMutation.mutate(
+    creation.mutate(
       {
         ...payload,
         description:
@@ -75,11 +72,6 @@ const TaskForm = ({ priority, onClose, onSubmit }: TaskFormProps) => {
     );
     onSubmit();
   };
-
-  if (createTaskMutation.error) {
-    const parsed = parseFocus4APIError("createTask", createTaskMutation.error);
-    console.log(parsed);
-  }
 
   return (
     <Card className="p-4 mb-3 border-2 border-dashed border-gray-300">
@@ -182,16 +174,6 @@ const TaskForm = ({ priority, onClose, onSubmit }: TaskFormProps) => {
           </div>
         </fieldset>
 
-        {/* Error Display */}
-        {createTaskMutation.error && (
-          <div className="text-red-600 typo-small" role="alert">
-            {"type" in createTaskMutation.error &&
-            createTaskMutation.error.type === "bad_request"
-              ? "Please check your input and try again."
-              : "Failed to create task. Please try again."}
-          </div>
-        )}
-
         {/* Actions */}
         <footer className="flex gap-2 pt-2">
           <Button
@@ -203,15 +185,8 @@ const TaskForm = ({ priority, onClose, onSubmit }: TaskFormProps) => {
           >
             Cancel
           </Button>
-          <Button
-            type="submit"
-            size="sm"
-            disabled={isSubmitting || createTaskMutation.isPending}
-            className="flex-1"
-          >
-            {isSubmitting || createTaskMutation.isPending
-              ? "Creating..."
-              : "Create Task"}
+          <Button type="submit" size="sm" className="flex-1">
+            Create
           </Button>
         </footer>
       </form>
