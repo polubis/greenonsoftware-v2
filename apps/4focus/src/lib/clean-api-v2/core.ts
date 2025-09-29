@@ -175,6 +175,7 @@ const init =
         return data;
       } catch (error) {
         console.error("Validation of", key, schemaKey, "failed");
+        console.error(JSON.stringify(error, null, 2));
         throw error;
       }
     };

@@ -1,7 +1,6 @@
 import type { APIRoute } from "astro";
 import { createSupabaseServerClient } from "@/kernel/db/supabase-server";
 import type { TablesInsert, TablesUpdate } from "@/kernel/db/database.types";
-import { AppRouter } from "@/kernel/routing/app-router";
 import * as z from "zod";
 import { focus4API } from "@/ipc/contracts";
 import { ValidationException, type InferDto } from "@/lib/clean-api-v2";
@@ -39,33 +38,6 @@ const parseBody = async (
 
   return {};
 };
-
-const createTaskSchema = z.object({
-  title: z.preprocess(
-    (v) => (typeof v === "string" ? v.trim() : ""),
-    z
-      .string()
-      .min(3, { message: "title must be 3-280 characters" })
-      .max(280, { message: "title must be 3-280 characters" }),
-  ),
-  description: z.preprocess(
-    (v) => {
-      if (v == null) return null;
-      const trimmed = String(v).trim();
-      return trimmed === "" ? null : trimmed;
-    },
-    z.union([z.literal(null), z.string().min(10).max(500)]),
-  ),
-  priority: z.preprocess(
-    (v) => (v === "" ? undefined : v),
-    z.enum(["urgent", "high", "normal", "low"]).optional(),
-  ),
-  status: z.preprocess(
-    (v) => (v === "" ? undefined : v),
-    z.enum(["todo", "pending", "done"]).optional(),
-  ),
-  estimatedDurationMinutes: z.number().int().positive(),
-});
 
 const updateTaskSchema = z
   .object({
@@ -117,59 +89,95 @@ const deleteTaskSchema = z.object({
 });
 
 export const POST: APIRoute = async (context) => {
-  const supabase = createSupabaseServerClient(context);
-  const contentType = context.request.headers.get("content-type") ?? "";
-  const isJsonRequest = contentType.includes("application/json");
+  try {
+    const supabase = createSupabaseServerClient(context);
 
-  const {
-    data: { user },
-    error: userError,
-  } = await supabase.auth.getUser();
+    const {
+      data: { user },
+      error: userError,
+    } = await supabase.auth.getUser();
 
-  if (userError || !user) {
-    return new Response("Unauthorized", { status: 401 });
-  }
-
-  const raw = await parseBody(context.request);
-  const parsed = createTaskSchema.safeParse(raw);
-
-  if (!parsed.success) {
-    if (isJsonRequest) {
-      return new Response(JSON.stringify({ errors: parsed.error.flatten() }), {
-        status: 400,
-        headers: { "content-type": "application/json" },
-      });
+    if (userError || !user) {
+      return ErrorResponse(
+        focus4API.error("createTask", {
+          type: "unauthorized",
+          status: 401,
+          message: "Unauthorized",
+        }),
+      );
     }
-    return new Response("Invalid input", { status: 400 });
+
+    const rawPayload = await context.request.json();
+    const payload = await focus4API.payload("createTask", rawPayload);
+
+    const insert: TablesInsert<"tasks"> = {
+      title: payload.title,
+      description:
+        payload.description.length === 0 ? null : payload.description,
+      priority: payload.priority,
+      status: payload.status,
+      user_id: user.id,
+      estimated_duration_minutes: payload.estimatedDurationMinutes,
+    };
+
+    const { data, error } = await supabase
+      .from("tasks")
+      .insert(insert)
+      .select()
+      .single();
+
+    if (error) {
+      return ErrorResponse(
+        focus4API.error("createTask", {
+          type: "internal_server_error",
+          status: 500,
+          message: error.message,
+        }),
+      );
+    }
+
+    type Dto = InferDto<typeof focus4API, "createTask">;
+
+    const dto = focus4API.dto("createTask", {
+      id: data.id as Dto["id"],
+      userId: data.user_id as Dto["userId"],
+      title: data.title,
+      description: data.description,
+      priority: data.priority as Dto["priority"],
+      status: data.status as Dto["status"],
+      creationDate: new Date(
+        data.creation_date,
+      ).toISOString() as Dto["creationDate"],
+      updateDate: new Date(data.update_date).toISOString() as Dto["updateDate"],
+      estimatedDurationMinutes: data.estimated_duration_minutes,
+    });
+
+    return OkResponse(dto, 201);
+  } catch (error) {
+    if (ValidationException.is(error)) {
+      return ErrorResponse(
+        focus4API.error("createTask", {
+          type: "bad_request",
+          status: 400,
+          message: "Invalid payload",
+          meta: {
+            issues: error.issues.map((issue) => ({
+              path: issue.path.map((p) => String(p)),
+              message: issue.message,
+            })),
+          },
+        }),
+      );
+    }
+
+    return ErrorResponse(
+      focus4API.error("createTask", {
+        type: "internal_server_error",
+        status: 500,
+        message: "Unexpected error during task creation",
+      }),
+    );
   }
-
-  const insert: TablesInsert<"tasks"> = {
-    title: parsed.data.title,
-    description: parsed.data.description ?? null,
-    priority: parsed.data.priority ?? undefined,
-    status: parsed.data.status ?? undefined,
-    user_id: user.id,
-    estimated_duration_minutes: parsed.data.estimatedDurationMinutes,
-  };
-
-  const { data, error } = await supabase
-    .from("tasks")
-    .insert(insert)
-    .select()
-    .single();
-
-  if (error) {
-    return new Response(error.message, { status: 400 });
-  }
-
-  if (!isJsonRequest) {
-    return context.redirect(AppRouter.getPath("tasks"), 303);
-  }
-
-  return new Response(JSON.stringify(data), {
-    status: 201,
-    headers: { "content-type": "application/json" },
-  });
 };
 
 export const GET: APIRoute = async (context) => {
@@ -201,7 +209,7 @@ export const GET: APIRoute = async (context) => {
         focus4API.error("getTasks", {
           type: "internal_server_error",
           status: 500,
-          message: "Failed to fetch tasks",
+          message: error.message,
         }),
       );
     }

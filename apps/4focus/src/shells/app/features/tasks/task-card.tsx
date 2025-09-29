@@ -6,7 +6,14 @@ import {
   AvatarImage,
 } from "@/lib/ui/components/avatar";
 import { Button } from "@/lib/ui/components/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/lib/ui/components/dropdown-menu";
 import { cn } from "@/lib/ui/utils/cn";
+import { MoreHorizontal, Trash2 } from "lucide-react";
 
 const getAssigneeInfo = (task: Task) => {
   // Mock assignee data - in real app this would come from the API
@@ -26,6 +33,11 @@ const TaskCard = ({ task }: { task: Task }) => {
   const assignee = getAssigneeInfo(task);
   const progress = Math.floor(Math.random() * 100);
 
+  const handleDelete = () => {
+    // TODO: Implement delete functionality
+    console.log("Delete task:", task.id);
+  };
+
   return (
     <Card
       className={cn(`h-32 relative border-0 shadow-none`, {
@@ -36,9 +48,23 @@ const TaskCard = ({ task }: { task: Task }) => {
       })}
     >
       <div className="absolute top-2 right-2">
-        <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-          <span className="typo-small">⋯</span>
-        </Button>
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
+              <MoreHorizontal />
+            </Button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            <DropdownMenuItem
+              variant="destructive"
+              onClick={handleDelete}
+              className="cursor-pointer"
+            >
+              <Trash2 />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
 
       <CardContent className="p-4 h-full flex flex-col">

@@ -1,6 +1,6 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { focus4API } from "@/ipc/contracts";
+import { focus4API, parseFocus4APIError } from "@/ipc/contracts";
 import { type Task, type TaskCreationPayload } from "./tasks-management";
 import { Card } from "@/lib/ui/components/card";
 import { Button } from "@/lib/ui/components/button";
@@ -11,6 +11,7 @@ import { X } from "lucide-react";
 import * as z from "zod";
 import { taskDescription } from "@/ipc/contracts/schemas-atoms";
 import { useTasksContext } from "./tasks-provider";
+import { toast } from "sonner";
 
 type FormData = {
   title: TaskCreationPayload["title"];
@@ -56,18 +57,23 @@ const TaskForm = ({ priority, onClose, onSubmit }: TaskFormProps) => {
     creation.mutate(
       {
         ...payload,
-        description:
-          payload.description?.trim().length === 0 ? null : payload.description,
         priority,
         status: "todo",
       },
       {
         onSuccess: () => {
           reset();
-          onClose();
         },
         onError: (error) => {
-          console.error("Failed to create task:", error);
+          const parsed = parseFocus4APIError("createTask", error);
+
+          if (parsed.type === "aborted") {
+            return;
+          }
+
+          toast("Failed to create task", {
+            description: parsed.message,
+          });
         },
       },
     );

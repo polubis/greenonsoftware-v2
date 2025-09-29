@@ -1,10 +1,12 @@
 import { Router } from "./router";
 import { QueryProvider } from "./query-provider";
 import { withAuth } from "@/kernel/auth/with-auth";
+import { Toaster } from "sonner";
 
 const AppShell = () => {
   return (
     <QueryProvider>
+      <Toaster />
       <Router />
     </QueryProvider>
   );

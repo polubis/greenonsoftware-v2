@@ -36,7 +36,7 @@ const createTaskSchema = {
   error,
   payload: z.object({
     title: taskSchema.shape.title,
-    description: taskDescription.nullable(),
+    description: taskDescription,
     priority: taskSchema.shape.priority,
     status: taskSchema.shape.status,
     estimatedDurationMinutes: taskSchema.shape.estimatedDurationMinutes,

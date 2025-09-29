@@ -16,6 +16,9 @@ const createClient = () => {
         refetchOnWindowFocus: false,
         refetchOnReconnect: true,
       },
+      mutations: {
+        networkMode: "always",
+      },
     },
   });
 };
